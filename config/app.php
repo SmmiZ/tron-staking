@@ -122,7 +122,12 @@ return [
     */
 
     'key' => env('APP_KEY'),
+
     'tron_api_key' => env('TRON_API_KEY'),
+
+    'trx_wallet' => env('TRX_WALLET'),
+
+    'withdrawal_wallet' => env('WITHDRAWAL_WALLET'),
 
     'cipher' => 'AES-256-CBC',
 

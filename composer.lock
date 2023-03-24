@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "121ea3a2fffe49b3ef9aa4d064b28c19",
+    "content-hash": "039dcae26058cc29333acb1b7291e7b2",
     "packages": [
         {
             "name": "brick/math",
@@ -61,6 +61,54 @@
                 }
             ],
             "time": "2022-08-10T22:54:19+00:00"
+        },
+        {
+            "name": "comely-io/data-types",
+            "version": "1.0.34",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/comely-io/data-types.git",
+                "reference": "833ecf364a99aa5cd161e0ebd1191860921834c6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/comely-io/data-types/zipball/833ecf364a99aa5cd161e0ebd1191860921834c6",
+                "reference": "833ecf364a99aa5cd161e0ebd1191860921834c6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-mbstring": "*",
+                "php": "^7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Comely\\DataTypes\\": [
+                        "src"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Furqan A. Siddiqui",
+                    "email": "hello@furqansiddiqui.com",
+                    "homepage": "https://www.furqansiddiqui.com",
+                    "role": "Author"
+                }
+            ],
+            "description": "PHP data types",
+            "homepage": "https://github.com/comely-io/data-types",
+            "support": {
+                "issues": "https://github.com/comely-io/data-types/issues",
+                "source": "https://github.com/comely-io/data-types/tree/master"
+            },
+            "abandoned": true,
+            "time": "2020-06-07T14:02:53+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -432,6 +480,82 @@
                 }
             ],
             "time": "2023-01-14T14:17:03+00:00"
+        },
+        {
+            "name": "fgrosse/phpasn1",
+            "version": "v2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fgrosse/PHPASN1.git",
+                "reference": "42060ed45344789fb9f21f9f1864fc47b9e3507b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fgrosse/PHPASN1/zipball/42060ed45344789fb9f21f9f1864fc47b9e3507b",
+                "reference": "42060ed45344789fb9f21f9f1864fc47b9e3507b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "~2.0",
+                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
+            },
+            "suggest": {
+                "ext-bcmath": "BCmath is the fallback extension for big integer calculations",
+                "ext-curl": "For loading OID information from the web if they have not bee defined statically",
+                "ext-gmp": "GMP is the preferred extension for big integer calculations",
+                "phpseclib/bcmath_compat": "BCmath polyfill for servers where neither GMP nor BCmath is available"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "FG\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Friedrich Große",
+                    "email": "friedrich.grosse@gmail.com",
+                    "homepage": "https://github.com/FGrosse",
+                    "role": "Author"
+                },
+                {
+                    "name": "All contributors",
+                    "homepage": "https://github.com/FGrosse/PHPASN1/contributors"
+                }
+            ],
+            "description": "A PHP Framework that allows you to encode and decode arbitrary ASN.1 structures using the ITU-T X.690 Encoding Rules.",
+            "homepage": "https://github.com/FGrosse/PHPASN1",
+            "keywords": [
+                "DER",
+                "asn.1",
+                "asn1",
+                "ber",
+                "binary",
+                "decoding",
+                "encoding",
+                "x.509",
+                "x.690",
+                "x509",
+                "x690"
+            ],
+            "support": {
+                "issues": "https://github.com/fgrosse/PHPASN1/issues",
+                "source": "https://github.com/fgrosse/PHPASN1/tree/v2.5.0"
+            },
+            "abandoned": true,
+            "time": "2022-12-19T11:08:26+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -980,6 +1104,203 @@
                 }
             ],
             "time": "2021-10-07T12:57:01+00:00"
+        },
+        {
+            "name": "iexbase/tron-api",
+            "version": "v5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/iexbase/tron-api.git",
+                "reference": "45b01d8a562a2445c307df3b2f233473d970755b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iexbase/tron-api/zipball/45b01d8a562a2445c307df3b2f233473d970755b",
+                "reference": "45b01d8a562a2445c307df3b2f233473d970755b",
+                "shasum": ""
+            },
+            "require": {
+                "comely-io/data-types": "^1.0",
+                "ext-bcmath": "*",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.2",
+                "iexbase/web3.php": "^2.0.1",
+                "kornrunner/secp256k1": "^0.2",
+                "php": ">=8.0",
+                "simplito/elliptic-php": "^1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IEXBase\\TronAPI\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Shamsudin Serderov",
+                    "email": "steein.shamsudin@gmail.com"
+                }
+            ],
+            "description": "A PHP API for interacting with Tron (Trx)",
+            "homepage": "https://github.com/iexbase/tron-api",
+            "keywords": [
+                "iexbase",
+                "tron-api",
+                "tron-lib",
+                "tron-php",
+                "tron-rest-api"
+            ],
+            "support": {
+                "issues": "https://github.com/iexbase/tron-api/issues",
+                "source": "https://github.com/iexbase/tron-api/tree/v5.0"
+            },
+            "time": "2022-10-18T15:21:26+00:00"
+        },
+        {
+            "name": "iexbase/web3.php",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/iexbase/web3.php.git",
+                "reference": "f25ed954a7586ead86046dd7e02a333a8098511b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iexbase/web3.php/zipball/f25ed954a7586ead86046dd7e02a333a8098511b",
+                "reference": "f25ed954a7586ead86046dd7e02a333a8098511b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^7.0",
+                "kornrunner/keccak": "~1.0",
+                "php": "^7.1",
+                "phpseclib/phpseclib": "~2.0.11"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Web3\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Ethereum web3 interface.",
+            "support": {
+                "source": "https://github.com/iexbase/web3.php/tree/2.0.1"
+            },
+            "time": "2020-10-15T18:16:13+00:00"
+        },
+        {
+            "name": "kornrunner/keccak",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kornrunner/php-keccak.git",
+                "reference": "433749d28e117fb97baf9f2631b92b5d9ab3c890"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kornrunner/php-keccak/zipball/433749d28e117fb97baf9f2631b92b5d9ab3c890",
+                "reference": "433749d28e117fb97baf9f2631b92b5d9ab3c890",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3",
+                "symfony/polyfill-mbstring": "^1.8"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "kornrunner\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Boris Momcilovic",
+                    "homepage": "https://github.com/kornrunner/php-keccak"
+                }
+            ],
+            "description": "Pure PHP implementation of Keccak",
+            "keywords": [
+                "keccak",
+                "sha-3",
+                "sha3-256"
+            ],
+            "support": {
+                "issues": "https://github.com/kornrunner/php-keccak/issues",
+                "source": "https://github.com/kornrunner/php-keccak/tree/1.1.0"
+            },
+            "time": "2020-12-07T15:40:44+00:00"
+        },
+        {
+            "name": "kornrunner/secp256k1",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kornrunner/php-secp256k1.git",
+                "reference": "c3990dba47c7a8b0c9fd858fb29c61a5794fbb39"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kornrunner/php-secp256k1/zipball/c3990dba47c7a8b0c9fd858fb29c61a5794fbb39",
+                "reference": "c3990dba47c7a8b0c9fd858fb29c61a5794fbb39",
+                "shasum": ""
+            },
+            "require": {
+                "mdanter/ecc": "^1",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "kornrunner\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Boris Momčilović",
+                    "email": "boris.momcilovic@gmail.com"
+                }
+            ],
+            "description": "Pure PHP secp256k1",
+            "keywords": [
+                "curve",
+                "ecc",
+                "elliptic",
+                "secp256k1"
+            ],
+            "support": {
+                "issues": "https://github.com/kornrunner/php-secp256k1/issues",
+                "source": "https://github.com/kornrunner/php-secp256k1/tree/0.2.0"
+            },
+            "time": "2021-01-19T03:30:01+00:00"
         },
         {
             "name": "laravel/framework",
@@ -1710,6 +2031,82 @@
             "time": "2022-04-17T13:12:02+00:00"
         },
         {
+            "name": "mdanter/ecc",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpecc/phpecc.git",
+                "reference": "34e2eec096bf3dcda814e8f66dd91ae87a2db7cd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpecc/phpecc/zipball/34e2eec096bf3dcda814e8f66dd91ae87a2db7cd",
+                "reference": "34e2eec096bf3dcda814e8f66dd91ae87a2db7cd",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gmp": "*",
+                "fgrosse/phpasn1": "^2.0",
+                "php": "^7.0||^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.0||^8.0||^9.0",
+                "squizlabs/php_codesniffer": "^2.0",
+                "symfony/yaml": "^2.6|^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mdanter\\Ecc\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matyas Danter",
+                    "homepage": "http://matejdanter.com/",
+                    "role": "Author"
+                },
+                {
+                    "name": "Thibaud Fabre",
+                    "email": "thibaud@aztech.io",
+                    "homepage": "http://aztech.io",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Thomas Kerin",
+                    "email": "afk11@users.noreply.github.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "PHP Elliptic Curve Cryptography library",
+            "homepage": "https://github.com/phpecc/phpecc",
+            "keywords": [
+                "Diffie",
+                "ECDSA",
+                "Hellman",
+                "curve",
+                "ecdh",
+                "elliptic",
+                "nistp192",
+                "nistp224",
+                "nistp256",
+                "nistp384",
+                "nistp521",
+                "phpecc",
+                "secp256k1",
+                "secp256r1"
+            ],
+            "support": {
+                "issues": "https://github.com/phpecc/phpecc/issues",
+                "source": "https://github.com/phpecc/phpecc/tree/v1.0.0"
+            },
+            "time": "2021-01-16T19:42:14+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "3.3.1",
             "source": {
@@ -2277,6 +2674,116 @@
                 }
             ],
             "time": "2023-02-25T19:38:58+00:00"
+        },
+        {
+            "name": "phpseclib/phpseclib",
+            "version": "2.0.42",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpseclib/phpseclib.git",
+                "reference": "665d289f59e646a259ebf13f29be7f6f54cab24b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/665d289f59e646a259ebf13f29be7f6f54cab24b",
+                "reference": "665d289f59e646a259ebf13f29be7f6f54cab24b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phing/phing": "~2.7",
+                "phpunit/phpunit": "^4.8.35|^5.7|^6.0|^9.4",
+                "squizlabs/php_codesniffer": "~2.0"
+            },
+            "suggest": {
+                "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
+                "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
+                "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
+                "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations.",
+                "ext-xml": "Install the XML extension to load XML formatted public keys."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "phpseclib/bootstrap.php"
+                ],
+                "psr-4": {
+                    "phpseclib\\": "phpseclib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jim Wigginton",
+                    "email": "terrafrost@php.net",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Patrick Monnerat",
+                    "email": "pm@datasphere.ch",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Andreas Fischer",
+                    "email": "bantu@phpbb.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Hans-Jürgen Petrich",
+                    "email": "petrich@tronic-media.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Graham Campbell",
+                    "email": "graham@alt-three.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
+            "homepage": "http://phpseclib.sourceforge.net",
+            "keywords": [
+                "BigInteger",
+                "aes",
+                "asn.1",
+                "asn1",
+                "blowfish",
+                "crypto",
+                "cryptography",
+                "encryption",
+                "rsa",
+                "security",
+                "sftp",
+                "signature",
+                "signing",
+                "ssh",
+                "twofish",
+                "x.509",
+                "x509"
+            ],
+            "support": {
+                "issues": "https://github.com/phpseclib/phpseclib/issues",
+                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.42"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/terrafrost",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/phpseclib",
+                    "type": "patreon"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/phpseclib/phpseclib",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2023-03-06T12:45:53+00:00"
         },
         {
             "name": "psr/container",
@@ -2942,6 +3449,195 @@
                 }
             ],
             "time": "2023-01-12T18:13:24+00:00"
+        },
+        {
+            "name": "simplito/bigint-wrapper-php",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/simplito/bigint-wrapper-php.git",
+                "reference": "cf21ec76d33f103add487b3eadbd9f5033a25930"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/simplito/bigint-wrapper-php/zipball/cf21ec76d33f103add487b3eadbd9f5033a25930",
+                "reference": "cf21ec76d33f103add487b3eadbd9f5033a25930",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BI\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simplito Team",
+                    "email": "s.smyczynski@simplito.com",
+                    "homepage": "https://simplito.com"
+                }
+            ],
+            "description": "Common interface for php_gmp and php_bcmath modules",
+            "support": {
+                "issues": "https://github.com/simplito/bigint-wrapper-php/issues",
+                "source": "https://github.com/simplito/bigint-wrapper-php/tree/1.0.0"
+            },
+            "time": "2018-02-27T12:38:08+00:00"
+        },
+        {
+            "name": "simplito/bn-php",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/simplito/bn-php.git",
+                "reference": "189167f940cdb681288a967b0f4d66de81adcd97"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/simplito/bn-php/zipball/189167f940cdb681288a967b0f4d66de81adcd97",
+                "reference": "189167f940cdb681288a967b0f4d66de81adcd97",
+                "shasum": ""
+            },
+            "require": {
+                "simplito/bigint-wrapper-php": "~1.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BN\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simplito Team",
+                    "email": "s.smyczynski@simplito.com",
+                    "homepage": "https://simplito.com"
+                }
+            ],
+            "description": "Big number implementation compatible with bn.js",
+            "support": {
+                "issues": "https://github.com/simplito/bn-php/issues",
+                "source": "https://github.com/simplito/bn-php/tree/1.1.3"
+            },
+            "time": "2022-08-12T18:58:14+00:00"
+        },
+        {
+            "name": "simplito/elliptic-php",
+            "version": "1.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/simplito/elliptic-php.git",
+                "reference": "a6228f480c729cf8efe2650a617c8500e981716d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/simplito/elliptic-php/zipball/a6228f480c729cf8efe2650a617c8500e981716d",
+                "reference": "a6228f480c729cf8efe2650a617c8500e981716d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gmp": "*",
+                "simplito/bn-php": "~1.1.0"
+            },
+            "require-dev": {
+                "phpbench/phpbench": "@dev",
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Elliptic\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simplito Team",
+                    "email": "s.smyczynski@simplito.com",
+                    "homepage": "https://simplito.com"
+                }
+            ],
+            "description": "Fast elliptic curve cryptography",
+            "homepage": "https://github.com/simplito/elliptic-php",
+            "keywords": [
+                "Curve25519",
+                "ECDSA",
+                "Ed25519",
+                "EdDSA",
+                "cryptography",
+                "curve",
+                "curve25519-weier",
+                "ecc",
+                "ecdh",
+                "elliptic",
+                "nistp192",
+                "nistp224",
+                "nistp256",
+                "nistp384",
+                "nistp521",
+                "secp256k1"
+            ],
+            "support": {
+                "issues": "https://github.com/simplito/elliptic-php/issues",
+                "source": "https://github.com/simplito/elliptic-php/tree/1.0.10"
+            },
+            "time": "2022-08-12T19:00:25+00:00"
+        },
+        {
+            "name": "stephenhill/base58",
+            "version": "v1.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stephen-hill/base58php.git",
+                "reference": "bd9fc19c788160a2f85ba0a19cd800eaf5ba5e99"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stephen-hill/base58php/zipball/bd9fc19c788160a2f85ba0a19cd800eaf5ba5e99",
+                "reference": "bd9fc19c788160a2f85ba0a19cd800eaf5ba5e99",
+                "shasum": ""
+            },
+            "require-dev": {
+                "athletic/athletic": "~0.1",
+                "phpunit/phpunit": "4.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "StephenHill\\": "src/",
+                    "StephenHill\\Benchmarks\\": "benchmarks/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stephen Hill",
+                    "email": "stephen@gatekiller.co.uk"
+                }
+            ],
+            "description": "Base58 Encoding and Decoding Library for PHP",
+            "support": {
+                "issues": "https://github.com/stephen-hill/base58php/issues",
+                "source": "https://github.com/stephen-hill/base58php/tree/v1.1.5"
+            },
+            "time": "2019-08-22T16:51:59+00:00"
         },
         {
             "name": "symfony/console",
@@ -7824,5 +8520,5 @@
         "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
