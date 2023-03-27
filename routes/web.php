@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-//    dd(\Illuminate\Support\Facades\Artisan::call('tron:make-stake'));
+//    dd(phpinfo());
+
+//    dd(\Illuminate\Support\Facades\Artisan::call(App\Console\Commands\Start::class));
 
     return view('welcome');
 });

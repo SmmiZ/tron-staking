@@ -123,7 +123,7 @@ return [
 
     'key' => env('APP_KEY'),
 
-    'tron_api_key' => env('TRON_API_KEY'),
+    'private_key' => env('PRIVATE_KEY'),
 
     'trx_wallet' => env('TRX_WALLET'),
 
