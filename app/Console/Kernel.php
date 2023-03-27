@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\{GetReward, Start, Vote};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -12,7 +13,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        //Основной запуск в 00:01 каждые 3 дня
+        $schedule->command(Start::class)->cron('1 0 */3 * *');
+
+        //Голосование
+        $schedule->command(Vote::class)->everySixHours();
+
+        //Получение награды
+        $schedule->command(GetReward::class)->dailyAt('23:55');
     }
 
     /**
@@ -20,7 +28,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
