@@ -27,18 +27,13 @@ class GetReward extends Command
     public function handle()
     {
         try {
-            $withdrawalWallet = config('app.withdrawal_wallet');
             $trxWalletHex = Address::decode(config('app.trx_wallet'));
 
             $fullNode = $solidityNode = $eventServer = new HttpProvider('https://api.trongrid.io');
             $tron = new Tron($fullNode, $solidityNode, $eventServer, null, null, config('app.private_key'));
 
-            $getReward = $tron->getManager()->request('wallet/getReward', ['address' => $withdrawalWallet]);
-            $signedTransaction = $tron->signTransaction($getReward);
-            $tron->sendRawTransaction($signedTransaction);
-
-            //todo просто получаем данные, потом еще забрать?
-//            $tron->withdrawBlockRewards($trxWalletHex);
+//            The last withdraw time is 1679985903000, less than 24 hours
+            $tron->withdrawBlockRewards($trxWalletHex);
         } catch (TronException $e) {
             $this->error('Something went wrong');
 
