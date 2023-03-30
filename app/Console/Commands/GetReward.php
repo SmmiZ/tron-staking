@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Services\Address;
-use IEXBase\TronAPI\Exception\TronException;
-use IEXBase\TronAPI\Provider\HttpProvider;
-use IEXBase\TronAPI\Tron;
+use App\Services\TronApi\Exception\TronException;
+use App\Services\TronApi\Provider\HttpProvider;
+use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
 
 class GetReward extends Command
@@ -32,7 +32,6 @@ class GetReward extends Command
             $fullNode = $solidityNode = $eventServer = new HttpProvider('https://api.trongrid.io');
             $tron = new Tron($fullNode, $solidityNode, $eventServer, null, null, config('app.private_key'));
 
-//            The last withdraw time is 1679985903000, less than 24 hours
             $tron->withdrawBlockRewards($trxWalletHex);
         } catch (TronException $e) {
             $this->error('Something went wrong');

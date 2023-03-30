@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Services\Address;
-use IEXBase\TronAPI\Exception\TronException;
-use IEXBase\TronAPI\Provider\HttpProvider;
-use IEXBase\TronAPI\Tron;
+use App\Services\TronApi\Exception\TronException;
+use App\Services\TronApi\Provider\HttpProvider;
+use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
 
 class Start extends Command
