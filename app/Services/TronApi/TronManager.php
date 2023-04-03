@@ -46,11 +46,9 @@ class TronManager
     ];
 
     /**
-     * @param $tron
-     * @param $providers
-     * @throws App\Services\TronApi\Exception\TronException
+     * @throws TronException
      */
-    public function __construct($tron, $providers)
+    public function __construct(Tron $tron, array $providers)
     {
         $this->providers = $providers;
 

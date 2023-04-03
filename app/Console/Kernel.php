@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Console\Commands\{GetReward, Start, Vote};
+use App\Jobs\{FreezeTRX, GetReward, VoteSR};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,13 +14,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         //Основной запуск в 00:01 каждые 3 дня
-        $schedule->command(Start::class)->cron('1 0 */3 * *');
-
-        //Голосование
-        $schedule->command(Vote::class)->everySixHours();
+        $schedule->job(FreezeTRX::class)->cron('1 0 */3 * *')->after(function (Schedule $schedule) {
+            $schedule->job(VoteSR::class)->daily();
+        });
 
         //Получение награды
-        $schedule->command(GetReward::class)->dailyAt('23:55');
+        $schedule->job(GetReward::class)->dailyAt('23:55');
     }
 
     /**

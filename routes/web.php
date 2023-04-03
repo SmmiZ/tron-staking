@@ -1,5 +1,8 @@
 <?php
 
+use App\Jobs\FreezeTRX;
+use App\Jobs\GetReward;
+use App\Jobs\VoteSR;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,9 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-//    dd(phpinfo());
 
-//    dd(\Illuminate\Support\Facades\Artisan::call(App\Console\Commands\Start::class));
+//    dd(FreezeTRX::dispatch());
+//    dd(VoteSR::dispatch());
+//    dd(GetReward::dispatch());
 
     return view('welcome');
 });

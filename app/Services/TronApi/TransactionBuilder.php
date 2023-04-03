@@ -249,37 +249,21 @@ class TransactionBuilder
 
     /**
      * Freezes an amount of TRX.
-     * Will give bandwidth OR Energy and TRON Power(voting rights) to the owner of the frozen tokens.
+     * Will give Energy and TRON Power(voting rights) to the owner of the frozen tokens.
      *
      * @param float $amount
-     * @param int $duration
-     * @param string $resource
-     * @param string|null $address
+     * @param string $receiverAddress
      * @return array
      * @throws TronException
      */
-    public function freezeBalance(float $amount = 0, int $duration = 3, string $resource = 'BANDWIDTH', string $address = null)
+    public function freezeBalance2Energy(float $amount, string $receiverAddress): array
     {
-        if(empty($address))
-            throw new TronException('Address not specified');
-
-        if (!in_array($resource, ['BANDWIDTH', 'ENERGY'])) {
-            throw new TronException('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"');
-        }
-
-        if (!is_float($amount)) {
-            throw new TronException('Invalid amount provided');
-        }
-
-        if(!is_integer($duration) and $duration < 3) {
-            throw new TronException('Invalid duration provided, minimum of 3 days');
-        }
-
         return $this->tron->getManager()->request('wallet/freezebalance', [
-            'owner_address' => $this->tron->address2HexString($address),
-            'frozen_balance' => $this->tron->toTron($amount),
-            'frozen_duration' => $duration,
-            'resource' => $resource
+            'owner_address' => $this->tron->address['hex'],
+            'frozen_balance' => $amount,
+            'frozen_duration' => 3,
+            'resource' => 'ENERGY',
+            'receiver_address' => $receiverAddress,
         ]);
     }
 
