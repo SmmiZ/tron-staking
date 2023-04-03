@@ -269,26 +269,18 @@ class TransactionBuilder
 
     /**
      * Unfreeze TRX that has passed the minimum freeze duration.
-     * Unfreezing will remove bandwidth and TRON Power.
+     * Unfreezing will remove Energy and TRON Power.
      *
-     * @param string $resource
-     * @param string $owner_address
+     * @param string|null $receiverAddress
      * @return array
      * @throws TronException
      */
-    public function unfreezeBalance(string $resource = 'BANDWIDTH', string $owner_address = null)
+    public function unfreezeEnergyBalance(string $receiverAddress = null): array
     {
-        if(is_null($owner_address)) {
-            throw new TronException('Owner Address not specified');
-        }
-
-        if (!in_array($resource, ['BANDWIDTH', 'ENERGY'])) {
-            throw new TronException('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"');
-        }
-
         return $this->tron->getManager()->request('wallet/unfreezebalance', [
-            'owner_address' =>  $this->tron->address2HexString($owner_address),
-            'resource' => $resource
+            'owner_address' =>  $this->tron->address['hex'],
+            'receiver_address' => $receiverAddress,
+            'resource' => 'ENERGY',
         ]);
     }
 

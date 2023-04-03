@@ -961,21 +961,16 @@ class Tron implements TronInterface
 
     /**
      * Unfreeze TRX that has passed the minimum freeze duration.
-     * Unfreezing will remove bandwidth and TRON Power.
+     * Unfreezing will remove Energy and TRON Power.
      *
-     * @param string $resource
-     * @param string $owner_address
+     * @param string|null $receiverAddress
      * @return array
      * @throws TronException
      */
-    public function unfreezeBalance(string $resource = 'BANDWIDTH', string $owner_address = null)
+    public function unfreezeEnergyBalance(string $receiverAddress = null): array
     {
-        //todo energy
-        if ($owner_address == null) {
-            $owner_address = $this->address['hex'];
-        }
+        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($receiverAddress);
 
-        $unfreeze = $this->transactionBuilder->unfreezeBalance($resource, $owner_address);
         $signedTransaction = $this->signTransaction($unfreeze);
         $response = $this->sendRawTransaction($signedTransaction);
 

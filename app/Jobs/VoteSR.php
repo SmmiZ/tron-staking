@@ -1,43 +1,52 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Jobs;
 
 use App\Services\Address;
 use App\Services\TronApi\Exception\TronException;
-use App\Services\TronApi\Provider\HttpProvider;
 use App\Services\TronApi\Tron;
-use Illuminate\Console\Command;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Support\Facades\Log;
 
-class Vote extends Command
+class VoteSR implements ShouldQueue
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'staking:vote';
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * Create a new job instance.
      */
-    protected $description = 'Найти и проголосовать за топового SR';
+    public function __construct()
+    {
+        //
+    }
 
-    public function handle()
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
     {
         try {
+            //todo доработать
             $trxWallet = config('app.trx_wallet');
-            $fullNode = $solidityNode = $eventServer = new HttpProvider('https://api.trongrid.io');
-            $tron = new Tron($fullNode, $solidityNode, $eventServer, null, null, config('app.private_key'));
 
+            $tron = new Tron($trxWallet, config('app.private_key'));
             $resources = $tron->getAccountResources($trxWallet);
-            $availableVotes = $resources['tronPowerLimit'] - $resources['tronPowerUsed'];
+
+            $availableVotes = $resources['tronPowerLimit'] - ($resources['tronPowerUsed'] ?? 0);
 
             if ($availableVotes <= 0) {
-                exit('No available votes');
+                Log::emergency('No available votes');
+
+                return;
             }
 
+            //todo вынести выбор топового SR и голосование в разные методы
             $maxVoteCount = $srAddress = 0;
             foreach ($tron->listSuperRepresentatives() as $sr) {
                 if (isset($sr['voteCount'], $sr['address']) && $sr['voteCount'] > $maxVoteCount) {
@@ -56,11 +65,9 @@ class Vote extends Command
             $signedTransaction = $tron->signTransaction($vote);
             $tron->sendRawTransaction($signedTransaction);
         } catch (TronException $e) {
-            $this->error('Something went wrong');
+            Log::emergency('TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
 
             exit($e->getMessage());
         }
-
-        $this->info('The command was successful!');
     }
 }
