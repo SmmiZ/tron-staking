@@ -16,11 +16,11 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class);
             $table->string('address');
-            $table->string('subscribe_address')->nullable();
-            $table->integer('subscribe_id')->nullable();
+            $table->string('subscribe_address')->nullable()->comment('Chain gateway api');
+            $table->integer('subscribe_id')->nullable()->comment('Chain gateway api');
             $table->string('private_key');
             $table->decimal('balance', 18, 8)->default(0);
-            $table->json('token_balance');
+            $table->json('token_balance')->nullable();
             $table->timestamp('last_transaction_time')->nullable();
             $table->timestamp('stake_timestamp')->nullable();
             $table->timestamps();

@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\Address;
+use App\Models\Wallet;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
@@ -32,16 +32,19 @@ class FreezeTRX implements ShouldQueue
     public function handle(): void
     {
         try {
-            $tron = new Tron(config('app.trx_wallet'), config('app.private_key'));
-            $availableTrxSunAmount = $tron->getBalance();
+            Wallet::query()->chunk(50, function ($wallets) {
+                foreach ($wallets as $wallet) {
+                    $tron = new Tron($wallet);
 
-            //Получатель энергии (кого бустим)
-            $receiverHexAddress = Address::decode(config('app.withdrawal_wallet'));
-
-            //Заморозить TRX и получить Energy & TP
-            $tron->freezeBalance2Energy($availableTrxSunAmount, $receiverHexAddress);
+                    //Заморозить TRX и получить Energy & TP
+                    $availableTrxSunAmount = $tron->getBalance();
+                    $tron->freezeBalance2Energy($availableTrxSunAmount, config('app.withdrawal_wallet'));
+                }
+            });
         } catch (TronException $e) {
-            Log::emergency('TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
+            Log::emergency('FreezeTRX-TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
+
+            exit($e->getMessage());
         }
     }
 }

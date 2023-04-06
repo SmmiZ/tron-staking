@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\Address;
+use App\Models\Wallet;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
@@ -32,40 +32,13 @@ class VoteSR implements ShouldQueue
     public function handle(): void
     {
         try {
-            //todo доработать
-            $trxWallet = config('app.trx_wallet');
-
-            $tron = new Tron($trxWallet, config('app.private_key'));
-            $resources = $tron->getAccountResources($trxWallet);
-
-            $availableVotes = $resources['tronPowerLimit'] - ($resources['tronPowerUsed'] ?? 0);
-
-            if ($availableVotes <= 0) {
-                Log::emergency('No available votes');
-
-                return;
-            }
-
-            //todo вынести выбор топового SR и голосование в разные методы
-            $maxVoteCount = $srAddress = 0;
-            foreach ($tron->listSuperRepresentatives() as $sr) {
-                if (isset($sr['voteCount'], $sr['address']) && $sr['voteCount'] > $maxVoteCount) {
-                    $maxVoteCount = $sr['voteCount'];
-                    $srAddress = $sr['address'];
+            Wallet::query()->chunk(50, function ($wallets) {
+                foreach ($wallets as $wallet) {
+                    (new Tron($wallet))->voteTopWitness();
                 }
-            }
-
-            $vote = $tron->getManager()->request('wallet/votewitnessaccount', [
-                'owner_address' => Address::decode($trxWallet),
-                'votes' => [
-                    'vote_address' => $srAddress,
-                    'vote_count' => $availableVotes,
-                ],
-            ]);
-            $signedTransaction = $tron->signTransaction($vote);
-            $tron->sendRawTransaction($signedTransaction);
+            });
         } catch (TronException $e) {
-            Log::emergency('TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
+            Log::emergency('VoteSR-TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
 
             exit($e->getMessage());
         }

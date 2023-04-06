@@ -14,7 +14,7 @@ class TransactionBuilder
      *
      * @var Tron
     */
-    protected $tron;
+    protected Tron $tron;
 
     /**
      * Create an TransactionBuilder object
@@ -37,7 +37,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function sendTrx(string $to, float $amount, string $from = null, string $message = null)
+    public function sendTrx(string $to, float $amount, string $from = null, string $message = null): array
     {
         if ($amount < 0) {
             throw new TronException('Invalid amount provided');
@@ -73,18 +73,14 @@ class TransactionBuilder
      * @param string $to
      * @param int $amount
      * @param string $tokenID
-     * @param string|null $from
+     * @param string $from
      * @return array
      * @throws TronException
      */
-    public function sendToken(string $to, int $amount, string $tokenID, string $from)
+    public function sendToken(string $to, int $amount, string $tokenID, string $from): array
     {
-        if (!is_integer($amount) or $amount <= 0) {
+        if ($amount <= 0) {
             throw new TronException('Invalid amount provided');
-        }
-
-        if (!is_string($tokenID)) {
-            throw new TronException('Invalid token ID provided');
         }
 
         if ($to === $from) {
@@ -95,7 +91,7 @@ class TransactionBuilder
             'owner_address' => $this->tron->address2HexString($from),
             'to_address' => $this->tron->address2HexString($to),
             'asset_name' => $this->tron->stringUtf8toHex($tokenID),
-            'amount' => intval($amount)
+            'amount' => $amount
         ]);
 
         if (array_key_exists('Error', $transfer)) {
@@ -114,7 +110,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function purchaseToken($issuerAddress, $tokenID, $amount, $buyer)
+    public function purchaseToken($issuerAddress, $tokenID, $amount, $buyer): array
     {
         if (!is_string($tokenID)) {
             throw new TronException('Invalid token ID provided');
@@ -134,6 +130,7 @@ class TransactionBuilder
         if (array_key_exists('Error', $purchase)) {
             throw new TronException($purchase['Error']);
         }
+
         return $purchase;
     }
 
@@ -145,7 +142,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function createToken($options = [], $issuerAddress = null)
+    public function createToken(array $options = [], $issuerAddress = null): array
     {
         $startDate = new \DateTime();
         $startTimeStamp = $startDate->getTimestamp() * 1000;
@@ -271,14 +268,14 @@ class TransactionBuilder
      * Unfreeze TRX that has passed the minimum freeze duration.
      * Unfreezing will remove Energy and TRON Power.
      *
-     * @param string|null $receiverAddress
+     * @param string $receiverAddress Hex address of the receiver
      * @return array
      * @throws TronException
      */
-    public function unfreezeEnergyBalance(string $receiverAddress = null): array
+    public function unfreezeEnergyBalance(string $receiverAddress): array
     {
         return $this->tron->getManager()->request('wallet/unfreezebalance', [
-            'owner_address' =>  $this->tron->address['hex'],
+            'owner_address' => $this->tron->address['hex'],
             'receiver_address' => $receiverAddress,
             'resource' => 'ENERGY',
         ]);
@@ -287,20 +284,39 @@ class TransactionBuilder
     /**
      * Withdraw Super Representative rewards, useable every 24 hours.
      *
-     * @param string $owner_address
      * @return array
      * @throws TronException
      */
-    public function withdrawBlockRewards($owner_address = null)
+    public function withdrawBlockRewards(): array
     {
-        $withdraw =  $this->tron->getManager()->request('wallet/withdrawbalance', [
-            'owner_address' =>  $this->tron->address2HexString($owner_address)
+        $withdraw = $this->tron->getManager()->request('wallet/withdrawbalance', [
+            'owner_address' => $this->tron->address['hex']
         ]);
 
         if (array_key_exists('Error', $withdraw)) {
             throw new TronException($withdraw['Error']);
         }
+
         return $withdraw;
+    }
+
+    /**
+     * Vote for a Super Representative.
+     *
+     * @param string $witnessAddress
+     * @param int $voteAmount
+     * @return array
+     * @throws TronException
+     */
+    public function voteWitness(string $witnessAddress, int $voteAmount): array
+    {
+        return $this->tron->getManager()->request('wallet/votewitnessaccount', [
+            'owner_address' => $this->tron->address['hex'],
+            'votes' => [
+                'vote_address' => $witnessAddress,
+                'vote_count' => $voteAmount,
+            ],
+        ]);
     }
 
     /**
@@ -314,7 +330,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function updateToken(string $description, string $url, int $freeBandwidth = 0, int $freeBandwidthLimit = 0, $address = null)
+    public function updateToken(string $description, string $url, int $freeBandwidth = 0, int $freeBandwidthLimit = 0, $address = null): array
     {
         if(is_null($address)) {
             throw new TronException('Owner Address not specified');
@@ -329,11 +345,11 @@ class TransactionBuilder
         }
 
         return $this->tron->getManager()->request('wallet/updateasset', [
-            'owner_address'      =>  $this->tron->address2HexString($address),
-            'description'        =>  $this->tron->stringUtf8toHex($description),
-            'url'               =>  $this->tron->stringUtf8toHex($url),
-            'new_limit'         =>  intval($freeBandwidth),
-            'new_public_limit'  =>  intval($freeBandwidthLimit)
+            'owner_address' => $this->tron->address2HexString($address),
+            'description' => $this->tron->stringUtf8toHex($description),
+            'url' => $this->tron->stringUtf8toHex($url),
+            'new_limit' => $freeBandwidth,
+            'new_public_limit' => $freeBandwidthLimit,
         ]);
     }
 
@@ -346,7 +362,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function updateEnergyLimit(string $contractAddress, int $originEnergyLimit, string $ownerAddress)
+    public function updateEnergyLimit(string $contractAddress, int $originEnergyLimit, string $ownerAddress): array
     {
         $contractAddress = $this->tron->address2HexString($contractAddress);
         $ownerAddress = $this->tron->address2HexString($ownerAddress);
@@ -371,7 +387,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function updateSetting(string $contractAddress, int $userFeePercentage, string $ownerAddress)
+    public function updateSetting(string $contractAddress, int $userFeePercentage, string $ownerAddress): array
     {
         $contractAddress = $this->tron->address2HexString($contractAddress);
         $ownerAddress = $this->tron->address2HexString($ownerAddress);
@@ -381,53 +397,67 @@ class TransactionBuilder
         }
 
         return $this->tron->getManager()->request('wallet/updatesetting', [
-            'owner_address' =>  $this->tron->address2HexString($ownerAddress),
+            'owner_address' => $this->tron->address2HexString($ownerAddress),
             'contract_address' => $this->tron->address2HexString($contractAddress),
             'consume_user_resource_percent' => $userFeePercentage
         ]);
     }
-/**
- * Contract Balance
- * @param string $address $tron->toHex('Txxxxx');
- *
- * @return array
- */
-public function contractbalance($adres)
-{
-	$trc20=array();
-  $abi=json_decode('{"entrys": [{"constant": true,"name": "name","outputs": [{"type": "string"}],"type": "Function","stateMutability": "View"},{"name": "approve","inputs": [{"name": "_spender","type": "address"},{"name": "_value","type": "uint256"}],"outputs": [{"type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"name": "setCanApproveCall","inputs": [{"name": "_val","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "totalSupply","outputs": [{"type": "uint256"}],"type": "Function","stateMutability": "View"},{"name": "transferFrom","inputs": [{"name": "_from","type": "address"},{"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"outputs": [{"type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "decimals","outputs": [{"type": "uint8"}],"type": "Function","stateMutability": "View"},{"name": "setCanBurn","inputs": [{"name": "_val","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"name": "burn","inputs": [{"name": "_value","type": "uint256"}],"outputs": [{"name": "success","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "balanceOf","inputs": [{"name": "_owner","type": "address"}],"outputs": [{"type": "uint256"}],"type": "Function","stateMutability": "View"},{"constant": true,"name": "symbol","outputs": [{"type": "string"}],"type": "Function","stateMutability": "View"},{"name": "transfer","inputs": [{"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"outputs": [{"type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "canBurn","outputs": [{"type": "bool"}],"type": "Function","stateMutability": "View"},{"name": "approveAndCall","inputs": [{"name": "_spender","type": "address"},{"name": "_value","type": "uint256"},{"name": "_extraData","type": "bytes"}],"outputs": [{"name": "success","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "allowance","inputs": [{"name": "_owner","type": "address"},{"name": "_spender","type": "address"}],"outputs": [{"type": "uint256"}],"type": "Function","stateMutability": "View"},{"name": "transferOwnership","inputs": [{"name": "_newOwner","type": "address"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "canApproveCall","outputs": [{"type": "bool"}],"type": "Function","stateMutability": "View"},{"type": "Constructor","stateMutability": "Nonpayable"},{"name": "Transfer","inputs": [{"indexed": true,"name": "_from","type": "address"},{"indexed": true,"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"type": "Event"},{"name": "Approval","inputs": [{"indexed": true,"name": "_owner","type": "address"},{"indexed": true,"name": "_spender","type": "address"},{"name": "_value","type": "uint256"}],"type": "Event"},{"name": "Burn","inputs": [{"indexed": true,"name": "_from","type": "address"},{"name": "_value","type": "uint256"}],"type": "Event"}]}',true);
-  $feeLimit=1000000;
-  $func="balanceOf";
-  $jsonData = json_decode(file_get_contents("https://apilist.tronscan.org/api/token_trc20?sort=issue_time&limit=100&start=0"),true);
-  foreach($jsonData["trc20_tokens"] as $key =>$item)
-  {
-	  $owner=$item["contract_address"];
-	  $params=array("0"=>$this->tron->toHex($adres));
-  	$result = $this->tron->getTransactionBuilder()->triggerSmartContract(
-  	$abi['entrys'],
-	  $this->tron->toHex($owner),
-  	$func,
-	  $params,
-  	$feeLimit,
-  	$this->tron->toHex($adres),
-  	0,
-  	0);
-    $balance_hex=$result["0"];
-    $balance=0+(float)number_format($balance_hex->value/pow(10,$item["decimals"]),$item["decimals"],".","");
-    if($balance>0)
-  	{
-      $trc20[]=array(
-      "name"=>$item["name"],
-      "symbol"=>$item["symbol"],
-      "balance"=>$balance,
-      "value"=>$balance_hex->value,
-      "decimals"=>$item["decimals"],
-      );
+
+    /**
+     * Contract Balance
+     *
+     * @param string $address $tron->toHex('Txxxxx');
+     *
+     * @return array
+     */
+    public function contractbalance($adres)
+    {
+        $trc20 = [];
+        $abi = json_decode(
+            '{"entrys": [{"constant": true,"name": "name","outputs": [{"type": "string"}],"type": "Function","stateMutability": "View"},{"name": "approve","inputs": [{"name": "_spender","type": "address"},{"name": "_value","type": "uint256"}],"outputs": [{"type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"name": "setCanApproveCall","inputs": [{"name": "_val","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "totalSupply","outputs": [{"type": "uint256"}],"type": "Function","stateMutability": "View"},{"name": "transferFrom","inputs": [{"name": "_from","type": "address"},{"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"outputs": [{"type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "decimals","outputs": [{"type": "uint8"}],"type": "Function","stateMutability": "View"},{"name": "setCanBurn","inputs": [{"name": "_val","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"name": "burn","inputs": [{"name": "_value","type": "uint256"}],"outputs": [{"name": "success","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "balanceOf","inputs": [{"name": "_owner","type": "address"}],"outputs": [{"type": "uint256"}],"type": "Function","stateMutability": "View"},{"constant": true,"name": "symbol","outputs": [{"type": "string"}],"type": "Function","stateMutability": "View"},{"name": "transfer","inputs": [{"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"outputs": [{"type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "canBurn","outputs": [{"type": "bool"}],"type": "Function","stateMutability": "View"},{"name": "approveAndCall","inputs": [{"name": "_spender","type": "address"},{"name": "_value","type": "uint256"},{"name": "_extraData","type": "bytes"}],"outputs": [{"name": "success","type": "bool"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "allowance","inputs": [{"name": "_owner","type": "address"},{"name": "_spender","type": "address"}],"outputs": [{"type": "uint256"}],"type": "Function","stateMutability": "View"},{"name": "transferOwnership","inputs": [{"name": "_newOwner","type": "address"}],"type": "Function","stateMutability": "Nonpayable"},{"constant": true,"name": "canApproveCall","outputs": [{"type": "bool"}],"type": "Function","stateMutability": "View"},{"type": "Constructor","stateMutability": "Nonpayable"},{"name": "Transfer","inputs": [{"indexed": true,"name": "_from","type": "address"},{"indexed": true,"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"type": "Event"},{"name": "Approval","inputs": [{"indexed": true,"name": "_owner","type": "address"},{"indexed": true,"name": "_spender","type": "address"},{"name": "_value","type": "uint256"}],"type": "Event"},{"name": "Burn","inputs": [{"indexed": true,"name": "_from","type": "address"},{"name": "_value","type": "uint256"}],"type": "Event"}]}',
+            true
+        );
+        $feeLimit = 1000000;
+        $func = "balanceOf";
+        $jsonData = json_decode(
+            file_get_contents("https://apilist.tronscan.org/api/token_trc20?sort=issue_time&limit=100&start=0"),
+            true
+        );
+
+        foreach ($jsonData["trc20_tokens"] as $key => $item) {
+            $owner = $item["contract_address"];
+            $params = ["0" => $this->tron->toHex($adres)];
+            $result = $this->tron->getTransactionBuilder()->triggerSmartContract(
+                $abi['entrys'],
+                $this->tron->toHex($owner),
+                $func,
+                $params,
+                $feeLimit,
+                $this->tron->toHex($adres),
+                0,
+                0
+            );
+            $balance_hex = $result["0"];
+            $balance = 0 + (float)number_format(
+                    $balance_hex->value / pow(10, $item["decimals"]),
+                    $item["decimals"],
+                    ".",
+                    ""
+                );
+            if ($balance > 0) {
+                $trc20[] = [
+                    "name" => $item["name"],
+                    "symbol" => $item["symbol"],
+                    "balance" => $balance,
+                    "value" => $balance_hex->value,
+                    "decimals" => $item["decimals"],
+                ];
+            }
+        }
+
+        return $trc20;
     }
-  }
-return $trc20;
-}
-    
+
     /**
      * Triggers smart contract
      *

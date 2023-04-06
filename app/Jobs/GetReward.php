@@ -2,12 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Services\Address;
+use App\Models\Wallet;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
 class GetReward implements ShouldQueue
@@ -31,11 +32,14 @@ class GetReward implements ShouldQueue
     public function handle(): void
     {
         try {
-            $trxWalletHex = Address::decode(config('app.trx_wallet'));
-            $tron = new Tron(config('app.trx_wallet'), config('app.private_key'));
-
-            $tron->withdrawBlockRewards($trxWalletHex);
+            Wallet::query()->chunk(50, function ($wallets) {
+                foreach ($wallets as $wallet) {
+                    (new Tron($wallet))->withdrawBlockRewards(config('app.trx_wallet'));
+                }
+            });
         } catch (TronException $e) {
+            Log::emergency('GetReward-TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
+
             exit($e->getMessage());
         }
     }
