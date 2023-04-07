@@ -123,9 +123,8 @@ return [
 
     'key' => env('APP_KEY'),
 
-    'private_key' => env('PRIVATE_KEY'),
-
-    'trx_wallet' => env('TRX_WALLET'),
+    'hot_spot_wallet' => env('TRX_WALLET'),
+    'hot_spot_private_key' => env('PRIVATE_KEY'),
 
     'withdrawal_wallet' => env('WITHDRAWAL_WALLET'),
 

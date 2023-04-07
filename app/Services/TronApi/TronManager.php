@@ -164,22 +164,17 @@ class TronManager
      * @return array
      * @throws TronException
      */
-    public function request($url, array $params = [], string $method = 'post')
+    public function request($url, array $params = [], string $method = 'post'): array
     {
         $split = explode('/', $url);
-        if(in_array($split[0], ['walletsolidity', 'walletextension'])) {
-            $response = $this->solidityNode()->request($url, $params, $method);
-        } elseif(in_array($split[0], ['event'])) {
-            $response = $this->eventServer()->request($url, $params, 'get');
-        } elseif (in_array($split[0], ['trx-sign'])) {
-            $response = $this->signServer()->request($url, $params, 'post');
-        } elseif(in_array($split[0], ['api'])) {
-            $response = $this->explorer()->request($url, $params, 'get');
-        }else {
-            $response = $this->fullNode()->request($url, $params, $method);
-        }
 
-        return $response;
+        return match (true) {
+            in_array($split[0], ['walletsolidity', 'walletextension']) => $this->solidityNode()->request($url, $params, $method),
+            $split[0] == 'event' => $this->eventServer()->request($url, $params),
+            $split[0] == 'trx-sign' => $this->signServer()->request($url, $params, 'post'),
+            $split[0] == 'api' => $this->explorer()->request($url, $params),
+            default => $this->fullNode()->request($url, $params, $method),
+        };
     }
 
     /**

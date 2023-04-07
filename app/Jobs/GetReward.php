@@ -34,7 +34,7 @@ class GetReward implements ShouldQueue
         try {
             Wallet::query()->chunk(50, function ($wallets) {
                 foreach ($wallets as $wallet) {
-                    (new Tron($wallet))->withdrawBlockRewards(config('app.trx_wallet'));
+                    (new Tron($wallet))->withdrawBlockRewards(config('app.hot_spot_wallet'));
                 }
             });
         } catch (TronException $e) {

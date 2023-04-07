@@ -249,35 +249,39 @@ class TransactionBuilder
      * Will give Energy and TRON Power(voting rights) to the owner of the frozen tokens.
      *
      * @param float $amount
-     * @param string $receiverAddress
+     * @param string $hexAddress
+     * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function freezeBalance2Energy(float $amount, string $receiverAddress): array
+    public function freezeBalance2Energy(float $amount, string $hexAddress, int $permissionId = null): array
     {
-        return $this->tron->getManager()->request('wallet/freezebalance', [
-            'owner_address' => $this->tron->address['hex'],
+        if ($amount < 1000000) {
+            throw new TronException('Not enough TRX to freeze');
+        }
+
+        return $this->tron->getManager()->request('wallet/freezebalancev2', [
+            'owner_address' => $hexAddress,
             'frozen_balance' => $amount,
-            'frozen_duration' => 3,
             'resource' => 'ENERGY',
-            'receiver_address' => $receiverAddress,
+            'permission_id' => $permissionId
         ]);
     }
 
     /**
-     * Unfreeze TRX that has passed the minimum freeze duration.
+     * Unfreeze TRX.
      * Unfreezing will remove Energy and TRON Power.
      *
-     * @param string $receiverAddress Hex address of the receiver
+     * @param int $sunAmount
      * @return array
      * @throws TronException
      */
-    public function unfreezeEnergyBalance(string $receiverAddress): array
+    public function unfreezeEnergyBalance(int $sunAmount): array
     {
-        return $this->tron->getManager()->request('wallet/unfreezebalance', [
+        return $this->tron->getManager()->request('wallet/unfreezebalancev2', [
             'owner_address' => $this->tron->address['hex'],
-            'receiver_address' => $receiverAddress,
             'resource' => 'ENERGY',
+            'unfreeze_balance' => $sunAmount,
         ]);
     }
 
