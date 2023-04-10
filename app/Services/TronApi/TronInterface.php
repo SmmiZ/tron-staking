@@ -14,71 +14,57 @@ interface TronInterface
     public function setManager($providers);
 
     /**
-     * Enter your private account key
-     *
-     * @param string $privateKey
-     */
-    public function setPrivateKey(string $privateKey): void;
-
-    /**
      * Enter your account address
      *
      * @param string $address
      */
-    public function setAddress(string $address) : void;
+    public function setAddress(string $address);
 
     /**
      * Getting a balance
      *
-     * @param string $address
-     * @return array
+     * @param string|null $address
      */
     public function getBalance(string $address = null);
 
     /**
      * Query transaction based on id
      *
-     * @param $transactionID
-     * @return array
+     * @param string $transactionID
      */
     public function getTransaction(string $transactionID);
 
     /**
      * Count all transactions on the network
-     *
-     * @return integer
-     */
+     **/
     public function getTransactionCount();
 
     /**
-     * Send transaction to Blockchain
+     * Send TRX
      *
-     * @param $to
-     * @param $amount
-     * @param $from
+     * @param string $to
+     * @param float $amount
+     * @param string|null $from
      *
-     * @return array
      * @throws TronException
      */
-    public function sendTrxTransaction(string $to, float $amount, string $from = null);
+    public function sendTrx(string $to, float $amount, string $from = null);
 
     /**
      * Modify account name
      * Note: Username is allowed to edit only once.
      *
-     * @param $address
-     * @param $account_name
-     * @return array
+     * @param string $accountName
+     * @param string|null $address
      */
-    public function changeAccountName(string $address = null, string $account_name);
+    public function changeAccountName(string $accountName, string $address = null);
 
     /**
      * Create an account.
      * Uses an already activated account to create a new account
      *
-     * @param $address
-     * @param $newAccountAddress
-     * @return array
+     * @param string $address
+     * @param string $newAccountAddress
      */
     public function registerAccount(string $address, string $newAccountAddress);
 
@@ -87,7 +73,6 @@ interface TronInterface
      *
      * @param string $address
      * @param string $url
-     * @return array
      */
     public function applyForSuperRepresentative(string $address, string $url);
 
@@ -96,7 +81,6 @@ interface TronInterface
      * Get block details using HashString or blockNumber
      *
      * @param null $block
-     * @return array
      */
     public function getBlock($block = null);
 
@@ -104,7 +88,6 @@ interface TronInterface
      * Query the latest blocks
      *
      * @param int $limit
-     * @return array
      */
     public function getLatestBlocks(int $limit = 1);
 
@@ -113,14 +96,11 @@ interface TronInterface
      *
      * @param string $address
      * @param bool $hex
-     * @return array
      */
     public function validateAddress(string $address, bool $hex = false);
 
     /**
      * Generate new address
-     *
-     * @return array
      */
     public function generateAddress();
 
@@ -128,7 +108,6 @@ interface TronInterface
      * Check the address before converting to Hex
      *
      * @param $sHexAddress
-     * @return string
      */
     public function address2HexString($sHexAddress);
 }

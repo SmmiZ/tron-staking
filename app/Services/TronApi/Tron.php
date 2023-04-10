@@ -83,15 +83,16 @@ class Tron implements TronInterface
     /**
      * Create a new Tron object
      *
-     * @param Wallet $wallet
+     * @param string $address
+     * @param string $privateKey
      * @throws TronException
      */
-    public function __construct(Wallet $wallet)
+    public function __construct(string $address, string $privateKey)
     {
         $fullNode = new HttpProvider('https://api.trongrid.io');
 
-        $this->setAddress($wallet->address);
-        $this->setPrivateKey($wallet->private_key);
+        $this->setAddress($address);
+        $this->setPrivateKey($privateKey);
 
         //todo не ясно - зачем остальные параметры, кроме fullNode. Вырезать?
         $this->setManager(
@@ -103,25 +104,6 @@ class Tron implements TronInterface
         );
 
         $this->transactionBuilder = new TransactionBuilder($this);
-    }
-
-    /**
-     * Create a new tron instance if the value isn't one already.
-     *
-     * @param HttpProviderInterface|null $fullNode
-     * @param HttpProviderInterface|null $solidityNode
-     * @param HttpProviderInterface|null $eventServer
-     * @param HttpProviderInterface|null $signServer
-     * @param string|null $privateKey
-     * @return static
-     * @throws TronException
-     */
-    public static function make(?HttpProviderInterface $fullNode = null,
-                                ?HttpProviderInterface $solidityNode = null,
-                                ?HttpProviderInterface $eventServer = null,
-                                ?HttpProviderInterface $signServer = null,
-                                string $privateKey = null) {
-        return new static($fullNode, $solidityNode, $eventServer, $signServer, $privateKey);
     }
 
     /**
@@ -237,7 +219,7 @@ class Tron implements TronInterface
      *
      * @param string $privateKey
      */
-    public function setPrivateKey(string $privateKey): void
+    private function setPrivateKey(string $privateKey): void
     {
         $this->privateKey = $privateKey;
     }
@@ -537,9 +519,9 @@ class Tron implements TronInterface
      */
     public function getAccount(string $address = null): array
     {
-        $address = (!is_null($address) ? $this->toHex($address) : $this->address['hex']);
+        $address = isset($address) ? $this->toHex($address) : $this->address['hex'];
 
-        return $this->manager->request('walletsolidity/getaccount', [
+        return $this->manager->request('wallet/getaccount', [
             'address' => $address,
         ]);
     }
@@ -667,7 +649,7 @@ class Tron implements TronInterface
      * @return array
      * @throws TronException
      */
-    public function sendTransaction(string $to, float $amount, string $from = null, string $message = null): array
+    public function sendTrx(string $to, float $amount, string $from = null, string $message = null): array
     {
         if (is_null($from)) {
             $from = $this->address['hex'];
@@ -729,7 +711,6 @@ class Tron implements TronInterface
             throw new TronException($transaction['Error']);
         }
 
-
         if (isset($transaction['signature'])) {
             throw new TronException('Transaction is already signed');
         }
@@ -737,7 +718,6 @@ class Tron implements TronInterface
         if (!is_null($message)) {
             $transaction['raw_data']['data'] = $this->stringUtf8toHex($message);
         }
-
 
         $signature = Secp::sign($transaction['txID'], $this->privateKey);
         $transaction['signature'] = [$signature];
@@ -770,47 +750,21 @@ class Tron implements TronInterface
      * Note: Username is allowed to edit only once.
      *
      * @param string|null $address
-     * @param string $account_name
+     * @param string $accountName
      * @return array
      * @throws TronException
      */
-    public function changeAccountName(string $address = null, string $account_name): array
+    public function changeAccountName(string $accountName, string $address = null): array
     {
         $address = (!is_null($address) ? $address : $this->address['hex']);
 
         $transaction = $this->manager->request('wallet/updateaccount', [
-            'account_name' => $this->stringUtf8toHex($account_name),
+            'account_name' => $this->stringUtf8toHex($accountName),
             'owner_address' => $this->toHex($address),
         ]);
-
         $signedTransaction = $this->signTransaction($transaction);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return $response;
-    }
-
-    /**
-     * Send funds to the Tron account (option 2)
-     *
-     * @param array $args
-     * @return array
-     * @throws TronException
-     */
-    public function send(...$args): array
-    {
-        return $this->sendTransaction(...$args);
-    }
-
-    /**
-     * Send funds to the Tron account (option 3)
-     *
-     * @param array $args
-     * @return array
-     * @throws TronException
-     */
-    public function sendTrx(...$args): array
-    {
-        return $this->sendTransaction(...$args);
+        return $this->sendRawTransaction($signedTransaction);
     }
 
     /**
@@ -933,25 +887,15 @@ class Tron implements TronInterface
     }
 
     /**
-     * Freezes an amount of TRX.
-     * Will give Energy and TRON Power(voting rights) to the owner of the frozen tokens.
+     * Заморозить свой TRX
      *
      * @param float $amount
-     * @param string|null $receiverAddress Куда начисляем энергию
      * @return array
      * @throws TronException
      */
-    public function freezeBalance2Energy(float $amount, string $receiverAddress = null): array
+    public function freezeSelfBalance(float $amount): array
     {
-        if ($amount <= 1000000) {
-            throw new TronException('Not enough TRX to freeze');
-        }
-
-        if (isset($receiverAddress)) {
-            $receiverAddress = $this->toHex($receiverAddress);
-        }
-
-        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $receiverAddress);
+        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->address['hex']);
         $signedTransaction = $this->signTransaction($freeze);
         $response = $this->sendRawTransaction($signedTransaction);
 
@@ -959,25 +903,76 @@ class Tron implements TronInterface
     }
 
     /**
-     * Unfreeze TRX that has passed the minimum freeze duration.
-     * Unfreezing will remove Energy and TRON Power.
+     * Заморозить TRX клиента
      *
-     * @param string|null $receiverAddress
+     * @param float $amount
+     * @param string $userAddress
      * @return array
      * @throws TronException
      */
-    public function unfreezeEnergyBalance(string $receiverAddress = null): array
+    public function freezeUserBalance(float $amount, string $userAddress): array
     {
-        if (isset($receiverAddress)) {
-            $receiverAddress = $this->toHex($receiverAddress);
+        $permissionId = $this->getPermissionId($userAddress);
+
+        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->toHex($userAddress), $permissionId);
+        $signedTransaction = $this->signTransaction($freeze);
+        $response = $this->sendRawTransaction($signedTransaction);
+
+        return array_merge($response, $signedTransaction);
+    }
+
+    /**
+     * Разморозить TRX клиента
+     *
+     * @param string $userAddress
+     * @return array
+     * @throws TronException
+     */
+    public function unfreezeUserBalance(string $userAddress): array
+    {
+        $permissionId = $this->getPermissionId($userAddress);
+        $resources = $this->getAccountResources($userAddress);
+
+        if (!isset($resources['tronPowerLimit'])) {
+            throw new TronException('No available TRX to unfreeze');
         }
 
-        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($receiverAddress);
+        $sunAmount = $resources['tronPowerLimit'] * 1000000;
 
+        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($sunAmount, $this->toHex($userAddress), $permissionId);
         $signedTransaction = $this->signTransaction($unfreeze);
         $response = $this->sendRawTransaction($signedTransaction);
 
         return array_merge($response, $signedTransaction);
+    }
+
+
+    /**
+     * Поиск ID разрешения для управления доверенным аккаунтом
+     *
+     * @param string $hexAddress
+     * @return int
+     * @throws TronException
+     */
+    private function getPermissionId(string $hexAddress): int
+    {
+        $accountPermissions = $this->getAccount($hexAddress)['active_permission'];
+
+        $permissionId = null;
+        foreach ($accountPermissions as $permission) {
+            foreach ($permission['keys'] as $account) {
+                if ($account['address'] == $this->address['hex']) {
+                    $permissionId = $permission['id'];
+                    break;
+                }
+            }
+        }
+
+        if (!isset($permissionId)) {
+            throw new TronException('Cant find permission id');
+        }
+
+        return $permissionId;
     }
 
     /**
