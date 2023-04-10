@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class FreezeTRX implements ShouldQueue
 {
@@ -32,16 +33,24 @@ class FreezeTRX implements ShouldQueue
     public function handle(): void
     {
         try {
-            Wallet::query()->chunk(50, function ($wallets) {
-                foreach ($wallets as $wallet) {
-                    $tron = new Tron($wallet);
+            $hotSpotWallet = new Wallet([
+                'address' => config('app.hot_spot_wallet'),
+                'private_key' => config('app.hot_spot_private_key')
+            ]);
+            $tron = new Tron($hotSpotWallet);
 
-                    //Заморозить TRX и получить Energy & TP
-                    $availableTrxSunAmount = $tron->getBalance();
-                    $tron->freezeBalance2Energy($availableTrxSunAmount, config('app.withdrawal_wallet'));
+            Wallet::query()->chunk(50, function ($wallets) use ($tron) {
+                foreach ($wallets as $wallet) {
+                    $freezeAmount = $tron->getBalance($wallet->address);
+                    $response = $tron->freezeTrustedBalance($freezeAmount, $wallet->address);
+
+                    if (isset($response['code']) && $response['code'] != 'true') {
+                        throw new TronException($response['code']);
+                    }
                 }
             });
-        } catch (TronException $e) {
+            //todo мы морозим, но делегировать ресурсы теперь надо отдельно
+        } catch (TronException|Throwable $e) {
             Log::emergency('FreezeTRX-TronException: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
 
             exit($e->getMessage());

@@ -264,7 +264,7 @@ class TransactionBuilder
             'owner_address' => $hexAddress,
             'frozen_balance' => $amount,
             'resource' => 'ENERGY',
-            'permission_id' => $permissionId
+            'Permission_id' => $permissionId
         ]);
     }
 
