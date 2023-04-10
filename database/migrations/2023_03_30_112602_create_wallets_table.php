@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('subscribe_address')->nullable()->comment('Chain gateway api');
             $table->integer('subscribe_id')->nullable()->comment('Chain gateway api');
-            $table->string('private_key');
+            $table->unsignedBigInteger('stake_limit')->nullable()->comment('Лимит суммы для заморозки');
             $table->decimal('balance', 18, 8)->default(0);
             $table->json('token_balance')->nullable();
             $table->timestamp('last_transaction_time')->nullable();

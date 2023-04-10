@@ -255,10 +255,6 @@ class TransactionBuilder
      */
     public function freezeBalance2Energy(float $sunAmount, string $hexAddress, int $permissionId = null): array
     {
-        if ($sunAmount < 1000000) {
-            throw new TronException('Not enough TRX to freeze');
-        }
-
         return $this->tron->getManager()->request('wallet/freezebalancev2', [
             'owner_address' => $hexAddress,
             'frozen_balance' => $sunAmount,

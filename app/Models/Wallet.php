@@ -14,7 +14,7 @@ class Wallet extends Model
         'address',
         'subscribe_address',
         'subscribe_id',
-        'private_key',
+        'stake_limit',
         'balance',
         'token_balance',
         'last_transaction_time',

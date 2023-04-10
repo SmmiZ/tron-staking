@@ -19,27 +19,33 @@ class FreezeTRX implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private Tron $tron;
-
     /**
      * Create a new job instance.
-     * @throws TronException
      */
     public function __construct()
     {
-        $this->tron = new Tron(config('app.hot_spot_wallet'), config('app.hot_spot_private_key'));
+        //
     }
 
     /**
      * Execute the job.
+     * @throws TronException
      */
     public function handle(): void
     {
-        Wallet::query()->chunk(50, function ($wallets) {
+        $tron = new Tron(config('app.hot_spot_wallet'), config('app.hot_spot_private_key'));
+
+        Wallet::query()->chunk(50, function ($wallets) use ($tron) {
             foreach ($wallets as $wallet) {
                 try {
-                    $freezeAmount = $this->tron->getBalance($wallet->address);
-                    $response = $this->tron->freezeUserBalance($freezeAmount, $wallet->address);
+                    $balance = $tron->getBalance($wallet->address);
+                    $limit = $wallet->stake_limit * Tron::ONE_SUN;
+
+                    if ($balance < Tron::ONE_SUN) {
+                        throw new TronException('Not enough TRX to freeze');
+                    }
+
+                    $response = $tron->freezeUserBalance(min($balance, $limit), $wallet->address);
 
                     throw_if(isset($response['code']) && $response['code'] != 'true', TronException::class, $response['code']);
                 } catch (TronException|Throwable $e) {

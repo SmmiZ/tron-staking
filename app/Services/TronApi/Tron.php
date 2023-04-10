@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
-use App\Models\Wallet;
 use App\Services\TronApi\Provider\HttpProvider;
 use App\Services\TronApi\Concerns\{ManagesTronscan, ManagesUniversal};
 use App\Services\TronApi\Exception\TronException;
@@ -24,6 +23,7 @@ class Tron implements TronInterface
     public const ADDRESS_SIZE = 34;
     public const ADDRESS_PREFIX = '41';
     public const ADDRESS_PREFIX_BYTE = 0x41;
+    public const ONE_SUN = 1000000;
 
     /**
      * Default Address:
@@ -895,6 +895,10 @@ class Tron implements TronInterface
      */
     public function freezeSelfBalance(float $amount): array
     {
+        if ($amount < self::ONE_SUN) {
+            throw new TronException('Not enough TRX to freeze');
+        }
+
         $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->address['hex']);
         $signedTransaction = $this->signTransaction($freeze);
         $response = $this->sendRawTransaction($signedTransaction);
