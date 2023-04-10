@@ -249,15 +249,15 @@ class TransactionBuilder
      * @see https://developers.tron.network/reference/freezebalancev2-1
      *
      * @param float $sunAmount
-     * @param string $hexAddress
+     * @param string $address
      * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function freezeBalance2Energy(float $sunAmount, string $hexAddress, int $permissionId = null): array
+    public function freezeBalance2Energy(float $sunAmount, string $address, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/freezebalancev2', [
-            'owner_address' => $hexAddress,
+            'owner_address' => $this->tron->toHex($address),
             'frozen_balance' => $sunAmount,
             'resource' => 'ENERGY',
             'Permission_id' => $permissionId
@@ -269,15 +269,15 @@ class TransactionBuilder
      * @see https://developers.tron.network/reference/unfreezebalancev2-1
      *
      * @param int $sunAmount
-     * @param string $hexAddress
+     * @param string $address
      * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function unfreezeEnergyBalance(int $sunAmount, string $hexAddress, int $permissionId = null): array
+    public function unfreezeEnergyBalance(int $sunAmount, string $address, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/unfreezebalancev2', [
-            'owner_address' => $hexAddress,
+            'owner_address' => $this->tron->toHex($address),
             'unfreeze_balance' => $sunAmount,
             'resource' => 'ENERGY',
             'Permission_id' => $permissionId
@@ -298,8 +298,8 @@ class TransactionBuilder
     public function delegateResource(int $sunAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/delegateresource', [
-            'owner_address' => $ownerAddress,
-            'receiver_address' => $receiverAddress,
+            'owner_address' => $this->tron->toHex($ownerAddress),
+            'receiver_address' => $this->tron->toHex($receiverAddress),
             'balance' => $sunAmount,
             'resource' => 'ENERGY',
             'Permission_id' => $permissionId,
@@ -316,7 +316,7 @@ class TransactionBuilder
     public function getCanDelegatedMaxSize(string $ownerAddress): array
     {
         return $this->tron->getManager()->request('wallet/getcandelegatedmaxsize', [
-            'owner_address' => $ownerAddress,
+            'owner_address' => $this->tron->toHex($ownerAddress),
             'type' => 1
         ]);
     }
@@ -341,21 +341,25 @@ class TransactionBuilder
     }
 
     /**
-     * Vote for a Super Representative.
+     * Проголосовать за SR
+     * @see https://developers.tron.network/reference/votewitnessaccount
      *
+     * @param string $ownerAddress
      * @param string $witnessAddress
      * @param int $voteAmount
+     * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function voteWitness(string $witnessAddress, int $voteAmount): array
+    public function voteWitness(string $ownerAddress, string $witnessAddress, int $voteAmount, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/votewitnessaccount', [
-            'owner_address' => $this->tron->address['hex'],
+            'owner_address' => $this->tron->toHex($ownerAddress),
             'votes' => [
                 'vote_address' => $witnessAddress,
                 'vote_count' => $voteAmount,
             ],
+            'Permission_id' => $permissionId
         ]);
     }
 

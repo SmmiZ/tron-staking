@@ -878,7 +878,7 @@ class Tron implements TronInterface
             throw new TronException('Not enough TRX to freeze');
         }
 
-        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->address['hex']);
+        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->address['base58']);
 
         return $this->signAndSendTransaction($freeze);
     }
@@ -894,7 +894,7 @@ class Tron implements TronInterface
     public function freezeUserBalance(float $amount, string $userAddress): array
     {
         $permissionId = $this->getPermissionId($userAddress);
-        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->toHex($userAddress), $permissionId);
+        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $userAddress, $permissionId);
 
         return $this->signAndSendTransaction($freeze);
     }
@@ -916,7 +916,7 @@ class Tron implements TronInterface
         }
 
         $sunAmount = $resources['tronPowerLimit'] * 1000000;
-        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($sunAmount, $this->toHex($userAddress), $permissionId);
+        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($sunAmount, $userAddress, $permissionId);
 
         return $this->signAndSendTransaction($unfreeze);
     }
@@ -932,7 +932,7 @@ class Tron implements TronInterface
     {
         $resources = $this->getAccountResources($wallet->address);
 
-        if (isset($resources['tronPowerLimit']) && $resources['tronPowerLimit'] <= 0) {
+        if (!isset($resources['tronPowerLimit']) || $resources['tronPowerLimit'] <= 0) {
             throw new TronException('Not enough stacked TRX to delegate');
         }
 
@@ -941,11 +941,10 @@ class Tron implements TronInterface
             : $resources['tronPowerLimit'];
 
         $permissionId = $this->getPermissionId($wallet->address);
-
         $sunAmount = $amountToDraw * self::ONE_SUN;
-        $draw = $this->transactionBuilder->delegateResource($sunAmount, $this->toHex($wallet->address), $this->address['hex'], $permissionId);
+        $draw = $this->transactionBuilder->delegateResource($sunAmount, $wallet->address, $this->address['hex'], $permissionId);
 
-        return $this->signAndSendTransaction($draw);//todo во всех методах
+        return $this->signAndSendTransaction($draw);
     }
 
     /**
@@ -956,7 +955,7 @@ class Tron implements TronInterface
     public function delegateEnergyToBuyer(int $trxAmount, string $userAddress): array
     {
         $sunAmount = $trxAmount * self::ONE_SUN;
-        $delegate = $this->transactionBuilder->delegateResource($sunAmount, $this->address['hex'], $this->toHex($userAddress));
+        $delegate = $this->transactionBuilder->delegateResource($sunAmount, $this->address['hex'], $userAddress);
 
         return $this->signAndSendTransaction($delegate);
     }
@@ -969,9 +968,7 @@ class Tron implements TronInterface
      */
     public function getCanDelegatedMaxSize(string $ownerAddress = null): int
     {
-        $ownerAddress = isset($ownerAddress) ? $this->toHex($ownerAddress) : $this->address['hex'];
-
-        $response = $this->transactionBuilder->getCanDelegatedMaxSize($ownerAddress);
+        $response = $this->transactionBuilder->getCanDelegatedMaxSize($ownerAddress ?? $this->address['hex']);
 
         return $response['max_size'] ?? 0;
     }
@@ -1162,21 +1159,26 @@ class Tron implements TronInterface
     }
 
     /**
-     * Проголосовать за лучшего SR
+     * Проголосовать за лучшего наблюдателя (SR)
      *
+     * @param Wallet|null $wallet
+     * @return array
      * @throws TronException
      */
-    public function voteTopWitness(): array
+    public function voteTopWitness(Wallet $wallet = null): array
     {
-        $resources = $this->getAccountResources();
-        $availableVotes = $resources['tronPowerLimit'] - ($resources['tronPowerUsed'] ?? 0);
+        $ownerAddress = isset($wallet) ? $wallet->address : $this->address['base58'];
+        $resources = $this->getAccountResources($ownerAddress);
 
-        if ($availableVotes <= 0) {
+        if (!isset($resources['tronPowerLimit']) || $resources['tronPowerLimit'] <= 0) {
             throw new TronException('No available votes');
         }
 
-        $srToVote = $this->getTopSrAddress();
-        $vote = $this->transactionBuilder->voteWitness($srToVote, $availableVotes);
+        $availableVotes = $resources['tronPowerLimit'] - ($resources['tronPowerUsed'] ?? 0);
+        $topSrAddress = $this->getTopSrAddress();
+        $permissionId = $this->getPermissionId($ownerAddress);
+
+        $vote = $this->transactionBuilder->voteWitness($ownerAddress, $topSrAddress, $availableVotes, $permissionId);
 
         return $this->signAndSendTransaction($vote);
     }

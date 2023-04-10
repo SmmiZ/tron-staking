@@ -38,7 +38,7 @@ class VoteSR implements ShouldQueue
         Wallet::query()->chunk(50, function ($wallets) use ($tron) {
             foreach ($wallets as $wallet) {
                 try {
-                    $response = $tron->voteTopWitness();
+                    $response = $tron->voteTopWitness($wallet);
 
                     if (isset($response['code']) && $response['code'] != 'true') {
                         throw new TronException($response['code'] ?: 'Unknown error');
