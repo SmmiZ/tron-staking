@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
+use App\Models\Wallet;
 use App\Services\TronApi\Provider\HttpProvider;
 use App\Services\TronApi\Concerns\{ManagesTronscan, ManagesUniversal};
 use App\Services\TronApi\Exception\TronException;
@@ -61,10 +62,8 @@ class Tron implements TronInterface
 
     /**
      * Transaction Builder
-     *
-     * @var TransactionBuilder
      */
-    protected $trc20Contract;
+    protected TransactionBuilder $trc20Contract;
 
     /**
      * Provider manager
@@ -104,16 +103,6 @@ class Tron implements TronInterface
         );
 
         $this->transactionBuilder = new TransactionBuilder($this);
-    }
-
-    /**
-     * Фасад для Laravel
-     *
-     * @return Tron
-     */
-    public function getFacade(): Tron
-    {
-        return $this;
     }
 
     /**
@@ -656,11 +645,8 @@ class Tron implements TronInterface
         }
 
         $transaction = $this->transactionBuilder->sendTrx($to, $amount, $from, $message);
-        $signedTransaction = $this->signTransaction($transaction);
 
-        $response = $this->sendRawTransaction($signedTransaction);
-
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($transaction);
     }
 
     /**
@@ -681,11 +667,8 @@ class Tron implements TronInterface
         }
 
         $transaction = $this->transactionBuilder->sendToken($to, $this->toTron($amount), (string)$tokenID, $from);
-        $signedTransaction = $this->signTransaction($transaction);
 
-        $response = $this->sendRawTransaction($signedTransaction);
-
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($transaction);
     }
 
     /**
@@ -857,10 +840,8 @@ class Tron implements TronInterface
         }
 
         $transfer = $this->transactionBuilder->sendToken($to, $amount, $tokenID, $from);
-        $signedTransaction = $this->signTransaction($transfer);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($transfer);
     }
 
     /**
@@ -880,10 +861,8 @@ class Tron implements TronInterface
         }
 
         $purchase = $this->transactionBuilder->purchaseToken($issuerAddress, $tokenID, $amount, $buyer);
-        $signedTransaction = $this->signTransaction($purchase);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($purchase);
     }
 
     /**
@@ -900,10 +879,8 @@ class Tron implements TronInterface
         }
 
         $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->address['hex']);
-        $signedTransaction = $this->signTransaction($freeze);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($freeze);
     }
 
     /**
@@ -917,12 +894,9 @@ class Tron implements TronInterface
     public function freezeUserBalance(float $amount, string $userAddress): array
     {
         $permissionId = $this->getPermissionId($userAddress);
-
         $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $this->toHex($userAddress), $permissionId);
-        $signedTransaction = $this->signTransaction($freeze);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($freeze);
     }
 
     /**
@@ -942,25 +916,76 @@ class Tron implements TronInterface
         }
 
         $sunAmount = $resources['tronPowerLimit'] * 1000000;
-
         $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($sunAmount, $this->toHex($userAddress), $permissionId);
-        $signedTransaction = $this->signTransaction($unfreeze);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($unfreeze);
     }
 
+    /**
+     * Забрать энергию с аккаунта пользователя
+     *
+     * @param Wallet $wallet
+     * @return array
+     * @throws TronException
+     */
+    public function drawUserEnergy(Wallet $wallet): array
+    {
+        $resources = $this->getAccountResources($wallet->address);
+
+        if (isset($resources['tronPowerLimit']) && $resources['tronPowerLimit'] <= 0) {
+            throw new TronException('Not enough stacked TRX to delegate');
+        }
+
+        $amountToDraw = $wallet->stake_limit < $resources['tronPowerLimit'] * Tron::ONE_SUN
+            ? $wallet->stake_limit
+            : $resources['tronPowerLimit'];
+
+        $permissionId = $this->getPermissionId($wallet->address);
+
+        $sunAmount = $amountToDraw * self::ONE_SUN;
+        $draw = $this->transactionBuilder->delegateResource($sunAmount, $this->toHex($wallet->address), $this->address['hex'], $permissionId);
+
+        return $this->signAndSendTransaction($draw);//todo во всех методах
+    }
+
+    /**
+     * Передать энергию покупателю
+     *
+     * @throws TronException
+     */
+    public function delegateEnergyToBuyer(int $trxAmount, string $userAddress): array
+    {
+        $sunAmount = $trxAmount * self::ONE_SUN;
+        $delegate = $this->transactionBuilder->delegateResource($sunAmount, $this->address['hex'], $this->toHex($userAddress));
+
+        return $this->signAndSendTransaction($delegate);
+    }
+
+    /**
+     * Получить максимальный эквивалент TRX для делегирования ресурсов
+     *
+     * @return int TRX sun
+     * @throws TronException
+     */
+    public function getCanDelegatedMaxSize(string $ownerAddress = null): int
+    {
+        $ownerAddress = isset($ownerAddress) ? $this->toHex($ownerAddress) : $this->address['hex'];
+
+        $response = $this->transactionBuilder->getCanDelegatedMaxSize($ownerAddress);
+
+        return $response['max_size'] ?? 0;
+    }
 
     /**
      * Поиск ID разрешения для управления доверенным аккаунтом
      *
-     * @param string $hexAddress
+     * @param string $address
      * @return int
      * @throws TronException
      */
-    private function getPermissionId(string $hexAddress): int
+    private function getPermissionId(string $address): int
     {
-        $accountPermissions = $this->getAccount($hexAddress)['active_permission'];
+        $accountPermissions = $this->getAccount($address)['active_permission'];
 
         $permissionId = null;
         foreach ($accountPermissions as $permission) {
@@ -980,6 +1005,21 @@ class Tron implements TronInterface
     }
 
     /**
+     * Подписать и отправить транзакцию
+     *
+     * @param $transaction
+     * @return array
+     * @throws TronException
+     */
+    private function signAndSendTransaction($transaction): array
+    {
+        $signedTransaction = $this->signTransaction($transaction);
+        $response = $this->sendRawTransaction($signedTransaction);
+
+        return array_merge($response, $signedTransaction);
+    }
+
+    /**
      * Withdraw Super Representative rewards, useable every 24 hours.
      *
      * @param string|null $ownerAddress
@@ -994,10 +1034,8 @@ class Tron implements TronInterface
         }
 
         $withdraw = $this->transactionBuilder->withdrawBlockRewards($ownerAddress);
-        $signedTransaction = $this->signTransaction($withdraw);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($withdraw);
     }
 
     /**
@@ -1007,7 +1045,7 @@ class Tron implements TronInterface
      * @param string $url
      * @param int $freeBandwidth
      * @param int $freeBandwidthLimit
-     * @param $owner_address
+     * @param string|null $owner_address
      * @return array
      * @throws TronException
      */
@@ -1029,10 +1067,8 @@ class Tron implements TronInterface
             $freeBandwidthLimit,
             $owner_address
         );
-        $signedTransaction = $this->signTransaction($withdraw);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($withdraw);
     }
 
     /**
@@ -1140,12 +1176,9 @@ class Tron implements TronInterface
         }
 
         $srToVote = $this->getTopSrAddress();
-
         $vote = $this->transactionBuilder->voteWitness($srToVote, $availableVotes);
-        $signedTransaction = $this->signTransaction($vote);
-        $response = $this->sendRawTransaction($signedTransaction);
 
-        return array_merge($response, $signedTransaction);
+        return $this->signAndSendTransaction($vote);
     }
 
     /**

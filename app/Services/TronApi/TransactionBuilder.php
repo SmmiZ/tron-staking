@@ -245,7 +245,8 @@ class TransactionBuilder
     }
 
     /**
-     * Freezes an amount of TRX.
+     * Заморозить TRX
+     * @see https://developers.tron.network/reference/freezebalancev2-1
      *
      * @param float $sunAmount
      * @param string $hexAddress
@@ -264,7 +265,8 @@ class TransactionBuilder
     }
 
     /**
-     * Unfreeze TRX.
+     * Разморозить TRX
+     * @see https://developers.tron.network/reference/unfreezebalancev2-1
      *
      * @param int $sunAmount
      * @param string $hexAddress
@@ -279,6 +281,43 @@ class TransactionBuilder
             'unfreeze_balance' => $sunAmount,
             'resource' => 'ENERGY',
             'Permission_id' => $permissionId
+        ]);
+    }
+
+    /**
+     * Передать ресурсы с одного адреса на другой
+     * @see https://developers.tron.network/reference/delegateresource-1
+     *
+     * @param int $sunAmount
+     * @param string $ownerAddress
+     * @param string $receiverAddress
+     * @param int|null $permissionId
+     * @return array
+     * @throws TronException
+     */
+    public function delegateResource(int $sunAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
+    {
+        return $this->tron->getManager()->request('wallet/delegateresource', [
+            'owner_address' => $ownerAddress,
+            'receiver_address' => $receiverAddress,
+            'balance' => $sunAmount,
+            'resource' => 'ENERGY',
+            'Permission_id' => $permissionId,
+            'lock' => false,
+        ]);
+    }
+
+    /**
+     * Получить максимальный размер возможного делегирования
+     * @see https://developers.tron.network/reference/getcandelegatedmaxsize
+     *
+     * @throws TronException
+     */
+    public function getCanDelegatedMaxSize(string $ownerAddress): array
+    {
+        return $this->tron->getManager()->request('wallet/getcandelegatedmaxsize', [
+            'owner_address' => $ownerAddress,
+            'type' => 1
         ]);
     }
 
