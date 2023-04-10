@@ -19,26 +19,26 @@ class UnfreezeTRX implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private Tron $tron;
-
     /**
      * Create a new job instance.
-     * @throws TronException
      */
     public function __construct()
     {
-        $this->tron = new Tron(config('app.hot_spot_wallet'), config('app.hot_spot_private_key'));
+        //
     }
 
     /**
      * Execute the job.
+     * @throws TronException
      */
     public function handle(): void
     {
-        Wallet::query()->chunk(50, function ($wallets) {
+        $tron = new Tron(config('app.hot_spot_wallet'), config('app.hot_spot_private_key'));
+
+        Wallet::query()->chunk(50, function ($wallets) use ($tron) {
             foreach ($wallets as $wallet) {
                 try {
-                    $response = $this->tron->unfreezeUserBalance($wallet->address);
+                    $response = $tron->unfreezeUserBalance($wallet->address);
 
                     throw_if(isset($response['code']) && $response['code'] != 'true', TronException::class, $response['code']);
                 } catch (TronException|Throwable $e) {
