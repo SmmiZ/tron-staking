@@ -15,10 +15,11 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Wallet::class);
-            $table->string('from_wallet')->nullable();
-            $table->string('to_wallet')->nullable();
+            $table->string('from')->nullable();
+            $table->string('to')->nullable();
+            $table->string('type');
             $table->decimal('amount', 18, 8)->default(0);
-            $table->string('txid');
+            $table->string('tx_id');
             $table->timestamps();
         });
     }

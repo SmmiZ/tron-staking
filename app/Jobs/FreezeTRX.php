@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\TransactionTypes;
 use App\Models\Wallet;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -38,18 +39,18 @@ class FreezeTRX implements ShouldQueue
         Wallet::query()->chunk(50, function ($wallets) use ($tron) {
             foreach ($wallets as $wallet) {
                 try {
-                    $balance = $tron->getBalance($wallet->address);
-                    $limit = $wallet->stake_limit * Tron::ONE_SUN;
-
-                    if ($balance < Tron::ONE_SUN) {
-                        throw new TronException('Not enough TRX to freeze');
-                    }
-
-                    $response = $tron->freezeUserBalance(min($balance, $limit), $wallet->address);
+                    $response = $tron->freezeUserBalance($wallet);
 
                     if (isset($response['code']) && $response['code'] != 'true') {
                         throw new TronException($response['code'] ?: 'Unknown error');
                     }
+
+                    $wallet->transactions()->create([
+                        'to' => $tron->address['base58'],
+                        'type' => TransactionTypes::staking,
+                        'amount' => data_get($response, 'raw_data.contract.0.parameter.value.frozen_balance') / Tron::ONE_SUN ?: null,
+                        'tx_id' => $response['txID'],
+                    ]);
                 } catch (TronException|Throwable $e) {
                     Log::emergency('FreezeTRX-Exception', [
                         'wallet_id' => $wallet->id,

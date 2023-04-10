@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TransactionTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,9 +12,14 @@ class Transaction extends Model
 
     protected $fillable = [
         'wallet_id',
-        'from_wallet',
-        'to_wallet',
+        'from',
+        'to',
         'amount',
-        'txid',
+        'type',
+        'tx_id',
+    ];
+
+    protected $casts = [
+        'type' => TransactionTypes::class,
     ];
 }

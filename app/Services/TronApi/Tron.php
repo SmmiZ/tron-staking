@@ -886,15 +886,21 @@ class Tron implements TronInterface
     /**
      * Заморозить TRX клиента
      *
-     * @param float $amount
-     * @param string $userAddress
+     * @param Wallet $wallet
      * @return array
      * @throws TronException
      */
-    public function freezeUserBalance(float $amount, string $userAddress): array
+    public function freezeUserBalance(Wallet $wallet): array
     {
-        $permissionId = $this->getPermissionId($userAddress);
-        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $userAddress, $permissionId);
+        $balance = $this->getBalance($wallet->address);
+        $limit = $wallet->stake_limit * Tron::ONE_SUN;
+
+        if ($balance < Tron::ONE_SUN) {
+            throw new TronException('Not enough TRX to freeze');
+        }
+
+        $permissionId = $this->getPermissionId($wallet->address);
+        $freeze = $this->transactionBuilder->freezeBalance2Energy(min($balance, $limit), $wallet->address, $permissionId);
 
         return $this->signAndSendTransaction($freeze);
     }
