@@ -40,7 +40,9 @@ class GetReward implements ShouldQueue
                 try {
                     $response = $tron->withdrawBlockRewards(config('app.hot_spot_wallet')); //todo прояснить по выводу
 
-                    throw_if(isset($response['code']) && $response['code'] != 'true', TronException::class, $response['code']);
+                    if (isset($response['code']) && $response['code'] != 'true') {
+                        throw new TronException($response['code'] ?: 'Unknown error');
+                    }
                 } catch (TronException|Throwable $e) {
                     Log::emergency('GetReward-Exception', [
                         'wallet_id' => $wallet->id,

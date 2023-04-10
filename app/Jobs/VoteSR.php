@@ -40,7 +40,9 @@ class VoteSR implements ShouldQueue
                 try {
                     $response = $tron->voteTopWitness();
 
-                    throw_if(isset($response['code']) && $response['code'] != 'true', TronException::class, $response['code']);
+                    if (isset($response['code']) && $response['code'] != 'true') {
+                        throw new TronException($response['code'] ?: 'Unknown error');
+                    }
                 } catch (TronException|Throwable $e) {
                     Log::emergency('VoteSR-Exception', [
                         'wallet_id' => $wallet->id,

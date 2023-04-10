@@ -40,7 +40,9 @@ class UnfreezeTRX implements ShouldQueue
                 try {
                     $response = $tron->unfreezeUserBalance($wallet->address);
 
-                    throw_if(isset($response['code']) && $response['code'] != 'true', TronException::class, $response['code']);
+                    if (isset($response['code']) && $response['code'] != 'true') {
+                        throw new TronException($response['code'] ?: 'Unknown error');
+                    }
                 } catch (TronException|Throwable $e) {
                     Log::emergency('UnfreezeTRX-Exception', [
                         'wallet_id' => $wallet->id,
