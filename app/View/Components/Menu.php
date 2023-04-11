@@ -20,7 +20,7 @@ class Menu extends Component
     {
         $this->addMenu('home', '', 'Панель управления', 'mdi-monitor-dashboard');
 
-//        $this->addMenu('consumers.index', 'consumers', 'Потребители', 'mdi-robot', Consumer::class);
+        $this->addMenu('consumers.index', 'consumers', 'Потребители', 'mdi-human-handsup', Consumer::class);
     }
 
     /**
