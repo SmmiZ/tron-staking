@@ -1,8 +1,7 @@
 <?php
 
-use App\Jobs\FreezeTRX;
-use App\Jobs\GetReward;
-use App\Jobs\VoteSR;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,10 +16,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-
-//    dd(FreezeTRX::dispatch());
-//    dd(VoteSR::dispatch());
-//    dd(GetReward::dispatch());
-
     return view('welcome');
+});
+
+Route::group([
+    'prefix' => 'staff-lobby',
+], function () {
+    //Авторизация
+    Route::group([/*'middleware' => 'throttle:staff_login'*/], function () {
+        Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [LoginController::class, 'login']);
+        Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    });
+
+    //Действия
+    Route::group(['middleware' => ['auth:staff']], function () {
+        Route::get('/', [HomeController::class, 'index'])->name('home');
+    });
 });

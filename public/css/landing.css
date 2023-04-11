@@ -1,0 +1,315 @@
+@font-face {
+    font-family: 'Stem';
+    src: local('Stem Light'), local('Stem-Light'),
+    url('../fonts/Stem-Light.woff2') format('woff2'),
+    url('../fonts/Stem-Light.woff') format('woff'),
+    url('../fonts/Stem-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Stem';
+    src: local('Stem Medium'), local('Stem-Medium'),
+    url('../fonts/Stem-Medium.woff2') format('woff2'),
+    url('../fonts/Stem-Medium.woff') format('woff'),
+    url('../fonts/Stem-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: #010003;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Stem', sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    overflow-x: hidden;
+}
+
+p,h1,h2,h3,h4,h5,h6 {
+    margin: 0;
+    padding: 0;
+}
+
+.wrapper {
+    min-height: 100%;
+    padding: 0 0 150px 0;
+    background-image: url("../images/bg.webp");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.header {
+    position: relative;
+    padding: 60px 0 120px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    grid-gap: 80px;
+}
+
+.logo {
+    position: relative;
+    z-index: 2;
+    width: 120px;
+}
+
+.title {
+    position: relative;
+    font-size: 80px;
+    line-height: 130%;
+    text-align: center;
+    color: #FFFFFF;
+    z-index: 1;
+}
+
+.main {
+    padding: 0 25px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.main::before {
+    position: absolute;
+    content: '';
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1090px;
+    height: 1050px;
+    background-image: url("../images/bubbles.svg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.telegram {
+    max-width: 860px;
+    width: 100%;
+    padding: 120px 0 55px 0;
+    margin-bottom: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: url("../images/telegram-bg.svg");
+    background-size: cover;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px;
+}
+
+.link {
+    position: absolute;
+    top: -75px;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.link img {
+    position: relative;
+    z-index: 1;
+}
+
+.link::before {
+    position: absolute;
+    content: '';
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url("../images/tg-icon-bg.svg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 50%;
+}
+
+.subtitle {
+    margin-bottom: 40px;
+    font-weight: 300;
+    font-size: 30px;
+    line-height: 130%;
+    text-align: center;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.copy-btn {
+    padding: 16px 42px;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 130%;
+    color: #010003;
+    background: linear-gradient(180deg, #C5B05E 0%, #E7D7AD 100%);
+    border-radius: 27px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in;
+}
+
+.copy-btn:hover {
+    opacity: 0.8;
+}
+
+.qr {
+    position: relative;
+    padding: 20px;
+    background: linear-gradient(135deg, #C6B160 15%, #E7D7AC 85%);
+    border-radius: 20px;
+}
+
+.qr img {
+    width: 160px;
+    height: 160px;
+}
+
+@media (max-width: 1440px) {
+    .header {
+        padding-bottom: 140px;
+        grid-gap: 60px;
+    }
+    .logo {
+        width: 120px;
+        height: 190px;
+    }
+
+    .title {
+        font-size: 60px;
+    }
+
+    .title::before {
+        width: 1000px;
+        height: 1000px;
+    }
+
+    .main::before {
+        width: 726.35px;
+        height: 700px;
+    }
+
+    .qr {
+        padding: 15px;
+    }
+
+    .qr img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .qr::before {
+        top: -80px;
+        width: 1000px;
+    }
+}
+
+@media (max-width: 920px) {
+    .telegram {
+        padding: 205px 0 45px 0;
+        width: 501px;
+        height: 461px;
+        background-image: url("../images/telegram-bg3.svg");
+    }
+
+    .link {
+        top: -15px;
+    }
+}
+
+@media (max-width: 780px) {
+    .main::before {
+        width: 600px;
+        height: 580px;
+    }
+}
+
+@media (max-width: 670px) {
+    .subtitle {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 650px) {
+    .wrapper {
+        padding-bottom: 80px;
+    }
+
+    .main::before {
+        content: none;
+    }
+
+    .telegram {
+        padding-top: 135px;
+        width: 380px;
+        height: 351px;
+    }
+
+    .link {
+        top: -10px;
+        width: 110px;
+        height: 110px;
+    }
+
+    .link img {
+        width: 66px;
+        height: 66px;
+    }
+}
+
+@media (max-width: 414px) {
+    .wrapper {
+        background-image: url('../images/bg-mobile.webp');
+    }
+    .header {
+        padding: 15px 0 55px 0;
+        background: none;
+    }
+    .logo {
+        width: 80px;
+        height: 130px;
+    }
+    .title {
+        display: none;
+    }
+    .telegram {
+        margin-bottom: 60px;
+        padding-top: 115px;
+        width: 340px;
+        height: 314px;
+    }
+    .link {
+        top: -15px;
+    }
+    .qr {
+        padding: 12px;
+    }
+    .qr::before {
+        content: none;
+    }
+    .qr img {
+        width: 95px;
+        height: 95px;
+    }
+}
