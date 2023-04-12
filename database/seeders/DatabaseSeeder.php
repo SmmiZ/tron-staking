@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,10 +16,9 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        $user = User::factory()->create(['name' => 'Test User', 'email' => 'user@example.com']);
-        $user->wallet()->create([
-            'address' => env('MY_WALLET'),
-            'stake_limit' => 1,
+        $this->call([
+            UserSeeder::class,
+            StaffSeeder::class,
         ]);
     }
 }
