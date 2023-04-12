@@ -15,7 +15,7 @@
                     <div>{{$consumer->id}}</div>
                     <div>{{$consumer->name}}</div>
                     <div>{{$consumer->address}}</div>
-                    <div>{{$consumer->resource}}</div>
+                    <div>{{$consumer->resource->name}}</div>
                     <div>{{$consumer->amount}}</div>
                 </div>
             @empty
