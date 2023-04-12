@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -43,6 +44,18 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (Throwable $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response([
+                    'status' => false,
+                    'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),//todo в дальнейшем поправить
+                    'errors' => (object)$e->getPrevious(),
+                ], 500);
+            }
+
+            return null;
         });
     }
 }
