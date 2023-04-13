@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -47,7 +48,7 @@ class Handler extends ExceptionHandler
         });
 
         $this->renderable(function (Throwable $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->is('api/*') && !($e instanceof ValidationException)) {
                 return response([
                     'status' => false,
                     'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),//todo в дальнейшем поправить
