@@ -10,12 +10,14 @@
         </div>
         <div class="table-body">
             @forelse($users as $user)
-                <div class="table-row">
-                    <div>{{$user->id}}</div>
-                    <div>{{$user->name}}</div>
-                    <div>{{$user->email}}</div>
-                    <div>{{$user->created_at->format('d-m-Y H:i:s')}}</div>
-                </div>
+                <a href="{{route('users.show', $user)}}" class="inline-link">
+                    <div class="table-row">
+                        <div>{{$user->id}}</div>
+                        <div>{{$user->name}}</div>
+                        <div>{{$user->email}}</div>
+                        <div>{{$user->created_at->format('d-m-Y H:i:s')}}</div>
+                    </div>
+                </a>
             @empty
                 <div class="empty">Нет данных</div>
             @endforelse
