@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\{AuthController, StakeController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,5 +20,10 @@ Route::name('api.')->group(function () {
     Route::post('code/check', [AuthController::class, 'checkCode'])->name('check-code');
     Route::post('auth', [AuthController::class, 'auth'])->name('auth');
 
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+        /** Stakes */
+        Route::apiResource('stakes', StakeController::class);
+    });
 });

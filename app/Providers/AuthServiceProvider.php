@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
-use App\Models\Consumer;
-use App\Policies\ConsumerPolicy;
+use App\Models\{Consumer, Stake};
+use App\Policies\{ConsumerPolicy, StakePolicy};
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -16,6 +16,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
          Consumer::class => ConsumerPolicy::class,
+         Stake::class => StakePolicy::class,
     ];
 
     /**
