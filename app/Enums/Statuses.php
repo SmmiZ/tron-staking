@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum StakeStatuses: int
+enum Statuses: int
 {
     case new = 1;
     case pending = 2;

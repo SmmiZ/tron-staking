@@ -1,7 +1,6 @@
 <?php
 
-use App\Enums\Statuses;
-use App\Models\User;
+use App\Models\{Order, User};
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,13 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stakes', function (Blueprint $table) {
+        Schema::create('order_executors', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('amount');
-            $table->string('days');
-            $table->string('status')->default(Statuses::new->value);
-            $table->softDeletes();
+            $table->unsignedBigInteger('amount');
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stakes');
+        Schema::dropIfExists('order_executors');
     }
 };

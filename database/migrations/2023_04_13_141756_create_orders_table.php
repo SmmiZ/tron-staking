@@ -1,7 +1,7 @@
 <?php
 
-use App\Enums\Statuses;
-use App\Models\User;
+use App\Enums\{Resources, Statuses};
+use App\Models\Consumer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stakes', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('amount');
-            $table->string('days');
+            $table->foreignIdFor(Consumer::class)->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('amount')->default(0);
+            $table->string('resource')->default(Resources::ENERGY->value);
             $table->string('status')->default(Statuses::new->value);
-            $table->softDeletes();
+            $table->timestamp('executed_at')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stakes');
+        Schema::dropIfExists('orders');
     }
 };
