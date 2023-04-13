@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\{Consumer};
+use App\Models\{Consumer, User};
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\{Auth};
 use Illuminate\View\Component;
@@ -20,7 +20,9 @@ class Menu extends Component
     {
         $this->addMenu('home', '', 'Панель управления', 'mdi-monitor-dashboard');
 
-        $this->addMenu('consumers.index', 'consumers', 'Потребители', 'mdi-human-handsup', Consumer::class);
+        $this->addMenu('users.index', 'users', 'Клиенты', 'mdi-human', User::class);
+
+        $this->addMenu('consumers.index', 'consumers', 'Потребители', 'mdi-account-arrow-left', Consumer::class);
     }
 
     /**
