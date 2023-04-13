@@ -3,7 +3,7 @@
 @section('content')
 
     <x-breadcrumbs
-        title="Заказы"
+        title="Потребители"
     ></x-breadcrumbs>
 
     <div class="box">

@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('title', 'Tron Energy - Информация о клиенте ' . $user->name)
+@section('title', 'Tron Energy - Клиент ' . $user->name)
 @section('content')
 
     <x-breadcrumbs
-        :title="'Информация о ' . $user->name"
+        :title="'Клиент ' . $user->name"
         :parents="[
         [
             'name' => 'Клиенты',

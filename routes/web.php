@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\{ConsumerController, HomeController, UserController};
+use App\Http\Controllers\{ConsumerController, HomeController, TransactionController, UserController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,5 +35,6 @@ Route::group([
 
         Route::resource('users', UserController::class)->only(['index', 'show']);
         Route::resource('consumers', ConsumerController::class);
+        Route::resource('transactions', TransactionController::class)->only(['index', 'show']);
     });
 });
