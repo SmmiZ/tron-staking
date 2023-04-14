@@ -41,6 +41,18 @@ class ConsumerController extends Controller
         return to_route('consumers.index')->with('success', __('message.mission_complete'));
     }
 
+    public function edit(Consumer $consumer): View
+    {
+        return view('consumers.edit', compact('consumer'));
+    }
+
+    public function update(CreateConsumerRequest $request, Consumer $consumer): RedirectResponse
+    {
+        $consumer->update($request->validated());
+
+        return to_route('consumers.show', $consumer)->with('success', __('message.mission_complete'));
+    }
+
     public function destroy(PinRequest $request, Consumer $consumer): RedirectResponse
     {
         $consumer->delete();

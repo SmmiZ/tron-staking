@@ -34,9 +34,12 @@
                 </div>
             </div>
         </div>
+        <div class="action-btns">
+            <a href="{{route('consumers.edit', $consumer)}}" class="btn">Редактировать</a>
+            <button onclick="deleteConsumer()" class="btn del">Удалить</button>
+        </div>
         <div class="form-button">
             <a href="{{route('consumers.index')}}" class="btn-small">Назад</a>
-            <button onclick="deleteConsumer()" class="btn del">Удалить</button>
         </div>
     </div>
 
