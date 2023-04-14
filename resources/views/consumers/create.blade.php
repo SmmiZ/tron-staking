@@ -26,28 +26,12 @@
                     <input type="text" name="address" required>
                     <label>Кошелек</label>
                 </div>
-                <div class="input-group">
-                    <input type="text" name="resource" disabled value="{{\App\Enums\Resources::ENERGY->name}}">
-                    <label>Ресурс</label>
-                </div>
-                <div class="input-group">
-                    <input type="number" name="amount" required>
-                    <label>Количество</label>
-                </div>
             </form>
             <div class="form-button">
-                <button onclick="createConsumer()" class="btn del">Добавить</button>
+                <button form="createConsumerForm" type="submit" class="btn del">Добавить</button>
                 <a href="{{route('consumers.index')}}" class="btn-small">Назад</a>
             </div>
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            function createConsumer() {
-                submitWithConfimation('createConsumerForm');
-            }
-        </script>
-    @endpush
 
 @endsection

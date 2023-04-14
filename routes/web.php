@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\{ConsumerController, HomeController, TransactionController, UserController};
+use App\Http\Controllers\{ConsumerController, HomeController, OrderController, TransactionController, UserController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,8 +33,9 @@ Route::group([
     Route::group(['middleware' => ['auth:staff']], function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
-        Route::resource('users', UserController::class)->only(['index', 'show']);
         Route::resource('consumers', ConsumerController::class);
+        Route::resource('orders', OrderController::class);
+        Route::resource('users', UserController::class)->only(['index', 'show']);
         Route::resource('transactions', TransactionController::class)->only(['index', 'show']);
     });
 });

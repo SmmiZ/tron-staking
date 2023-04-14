@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateConsumerRequest extends FormRequest
+class CreateOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class CreateConsumerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'filled', 'string'],
-            'address' => ['required', 'filled', 'string', 'starts_with:T', 'size:34'],
+            'consumer_id' => ['required', 'int', 'exists:consumers,id'],
+            'amount' => ['required', 'int'],
         ];
     }
 }
