@@ -9,11 +9,13 @@
         </div>
         <div class="table-body">
             @forelse($consumers as $consumer)
-                <div class="table-row">
-                    <div>{{$consumer->id}}</div>
-                    <div>{{$consumer->name}}</div>
-                    <div>{{$consumer->address}}</div>
-                </div>
+                <a href="{{route('consumers.show', $consumer)}}" class="inline-link">
+                    <div class="table-row">
+                        <div>{{$consumer->id}}</div>
+                        <div>{{$consumer->name}}</div>
+                        <div>{{$consumer->address}}</div>
+                    </div>
+                </a>
             @empty
                 <div class="empty">Нет данных</div>
             @endforelse
