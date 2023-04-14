@@ -46,6 +46,9 @@
                 </div>
             </div>
         </div>
+        <div class="more-info-btns mb-10">
+            <a href="{{ route('orders.executors.index', $order) }}">Исполнители</a>
+        </div>
         <div class="form-button">
             <a href="{{route('orders.index')}}" class="btn-small">Назад</a>
             <button onclick="deleteOrder()" class="btn del">Удалить</button>
