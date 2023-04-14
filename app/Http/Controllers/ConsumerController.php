@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\{CreateConsumerRequest, DestroyConsumerRequest};
+use App\Http\Requests\{CreateConsumerRequest, PinRequest};
 use App\Models\Consumer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -41,7 +41,7 @@ class ConsumerController extends Controller
         return to_route('consumers.index')->with('success', __('message.mission_complete'));
     }
 
-    public function destroy(DestroyConsumerRequest $request, Consumer $consumer): RedirectResponse
+    public function destroy(PinRequest $request, Consumer $consumer): RedirectResponse
     {
         $consumer->delete();
 

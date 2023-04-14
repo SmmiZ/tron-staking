@@ -12,14 +12,16 @@
         </div>
         <div class="table-body">
             @forelse($orders as $order)
-                <div class="table-row">
-                    <div>{{$order->id}}</div>
-                    <div>{{$order->consumer->name}}</div>
-                    <div>{{$order->amount}}</div>
-                    <div>{{$order->status->translate()}}</div>
-                    <div>{{$order->created_at->format('d-m-Y H:i:s')}}</div>
-                    <div>{{$order->executed_at?->format('d-m-Y H:i:s')}}</div>
-                </div>
+                <a href="{{route('orders.show', $order)}}" class="inline-link">
+                    <div class="table-row">
+                        <div>{{$order->id}}</div>
+                        <div>{{$order->consumer->name}}</div>
+                        <div>{{$order->amount}}</div>
+                        <div>{{$order->status->translate()}}</div>
+                        <div>{{$order->created_at->format('d-m-Y H:i:s')}}</div>
+                        <div>{{$order->executed_at?->format('d-m-Y H:i:s')}}</div>
+                    </div>
+                </a>
             @empty
                 <div class="empty">Нет данных</div>
             @endforelse
