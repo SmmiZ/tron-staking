@@ -13,13 +13,13 @@ class Stake extends Model
 
     protected $fillable = [
         'amount',
-        'days',
+        'unstake_at',
     ];
 
     protected $casts = [
         'amount' => 'int',
-        'days' => 'int',
         'status' => Statuses::class,
+        'unstake_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

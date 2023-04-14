@@ -18,9 +18,8 @@ class StakeResource extends BaseResource
         return [
             'id' => $this->id,
             'amount' => $this->amount,
-            'days' => $this->days,
             'status' => $this->status,
-            'deleted_at' => $this->deleted_at?->format('d-m-Y H:i:s'),
+            'unstake_at' => $this->unstake_at?->format('d-m-Y H:i:s'),
             'created_at' => $this->created_at->format('d-m-Y H:i:s'),
             'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
         ];

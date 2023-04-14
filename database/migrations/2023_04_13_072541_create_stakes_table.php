@@ -17,9 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->string('amount');
-            $table->string('days');
             $table->string('status')->default(Statuses::new->value);
-            $table->softDeletes();
+            $table->timestamp('unstake_at')->nullable();
             $table->timestamps();
         });
     }
