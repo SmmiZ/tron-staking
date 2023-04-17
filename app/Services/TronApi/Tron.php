@@ -1156,13 +1156,14 @@ class Tron implements TronInterface
     }
 
     /**
-     * Проголосовать за лучшего наблюдателя (SR)
+     * Проголосовать за наблюдателя (SR)
      *
+     * @param string $witnessAddress
      * @param Wallet|null $wallet
      * @return array
      * @throws TronException
      */
-    public function voteTopWitness(Wallet $wallet = null): array
+    public function voteWitness(string $witnessAddress, Wallet $wallet = null): array
     {
         $ownerAddress = isset($wallet) ? $wallet->address : $this->address['base58'];
         $resources = $this->getAccountResources($ownerAddress);
@@ -1172,10 +1173,9 @@ class Tron implements TronInterface
         }
 
         $availableVotes = $resources['tronPowerLimit'] - ($resources['tronPowerUsed'] ?? 0);
-        $topSrAddress = $this->getTopSrAddress();
         $permissionId = $this->getPermissionId($ownerAddress);
 
-        $vote = $this->transactionBuilder->voteWitness($ownerAddress, $topSrAddress, $availableVotes, $permissionId);
+        $vote = $this->transactionBuilder->voteWitness($ownerAddress, $witnessAddress, $availableVotes, $permissionId);
 
         return $this->signAndSendTransaction($vote);
     }
