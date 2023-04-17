@@ -4,12 +4,11 @@ namespace App\Models;
 
 use App\Enums\Statuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo, SoftDeletes};
+use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class Stake extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = [
         'amount',

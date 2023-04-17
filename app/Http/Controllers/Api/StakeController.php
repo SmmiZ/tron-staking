@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Stake\{StoreStakeRequest, UpdateStakeRequest};
 use App\Http\Resources\{Stake\StakeCollection, Stake\StakeResource};
 use App\Models\Stake;
+use App\Services\StakeService;
 use Illuminate\Http\Response;
+use Throwable;
 
 class StakeController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly StakeService $stakeService)
     {
         $this->authorizeResource(Stake::class);
     }
@@ -22,12 +24,20 @@ class StakeController extends Controller
 
     public function store(StoreStakeRequest $request): Response
     {
-        $newStake = $request->user()->stakes()->create($request->validated());
+        try {
+            $newStakeId = $this->stakeService->store($request->user(), $request->validated('amount'));
+        } catch (Throwable $e) {
+            return response([
+                'status' => false,
+                'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
+                'errors' => (object)[]
+            ]);
+        }
 
         return response([
             'status' => true,
             'data' => [
-                'id' => $newStake->id,
+                'id' => $newStakeId,
             ],
         ]);
     }

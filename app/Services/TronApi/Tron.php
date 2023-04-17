@@ -82,16 +82,13 @@ class Tron implements TronInterface
     /**
      * Create a new Tron object
      *
-     * @param string $address
-     * @param string $privateKey
      * @throws TronException
      */
-    public function __construct(string $address, string $privateKey)
+    public function __construct()
     {
         $fullNode = new HttpProvider('https://api.trongrid.io');
-
-        $this->setAddress($address);
-        $this->setPrivateKey($privateKey);
+        $this->setAddress(config('app.hot_spot_wallet'));
+        $this->setPrivateKey(config('app.hot_spot_private_key'));
 
         //todo не ясно - зачем остальные параметры, кроме fullNode. Вырезать?
         $this->setManager(
@@ -887,20 +884,14 @@ class Tron implements TronInterface
      * Заморозить TRX клиента
      *
      * @param Wallet $wallet
+     * @param int $amount
      * @return array
      * @throws TronException
      */
-    public function freezeUserBalance(Wallet $wallet): array
+    public function freezeUserBalance(Wallet $wallet, int $amount): array
     {
-        $balance = $this->getBalance($wallet->address);
-        $limit = $wallet->stake_limit * Tron::ONE_SUN;
-
-        if ($balance < Tron::ONE_SUN) {
-            throw new TronException('Not enough TRX to freeze');
-        }
-
         $permissionId = $this->getPermissionId($wallet->address);
-        $freeze = $this->transactionBuilder->freezeBalance2Energy(min($balance, $limit), $wallet->address, $permissionId);
+        $freeze = $this->transactionBuilder->freezeBalance2Energy($amount, $wallet->address, $permissionId);
 
         return $this->signAndSendTransaction($freeze);
     }
