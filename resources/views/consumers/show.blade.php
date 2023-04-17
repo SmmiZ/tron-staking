@@ -16,7 +16,7 @@
         <div class="grid grid-2">
             <div>
                 <div class="more-info">
-                    <h3 class="more-info-title"><span>Информация о потребители</span></h3>
+                    <h3 class="more-info-title"><span>Информация о потребителе</span></h3>
                     <div class="table col2 lines mb-40">
                         <div class="table-row">
                             <div>ID</div>
@@ -27,8 +27,16 @@
                             <div>{{ $consumer->name }}</div>
                         </div>
                         <div class="table-row">
+                            <div>Кол-во</div>
+                            <div>{{ $consumer->amount }}</div>
+                        </div>
+                        <div class="table-row">
                             <div>Дата создания</div>
                             <div>{{ $consumer->created_at->format('d.m.Y H:i:s') }}</div>
+                        </div>
+                        <div class="table-row">
+                            <div>Дата обновления</div>
+                            <div>{{ $consumer->updated_at->format('d.m.Y H:i:s') }}</div>
                         </div>
                     </div>
                 </div>

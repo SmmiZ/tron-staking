@@ -26,6 +26,14 @@
                     <input type="text" name="address" required>
                     <label>Кошелек</label>
                 </div>
+                <div class="input-group">
+                    <input type="number" name="amount" required>
+                    <label>Кол-во</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" name="resource" value="{{\App\Enums\Resources::ENERGY->name}}" disabled>
+                    <label>Ресурс</label>
+                </div>
             </form>
             <div class="form-button">
                 <button form="createConsumerForm" type="submit" class="btn del">Добавить</button>

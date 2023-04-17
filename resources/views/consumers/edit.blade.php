@@ -31,6 +31,10 @@
                     <input type="text" name="address" value="{{$consumer->address}}">
                     <label for="address">Кошелек</label>
                 </div>
+                <div class="input-group">
+                    <input type="number" name="amount" value="{{$consumer->amount}}">
+                    <label for="amount">Кол-во</label>
+                </div>
             </form>
             <div class="form-button">
                 <button onclick="editConsumer()" class="btn del">Сохранить</button>
