@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
 use App\Services\TronApi\Support\{Base58Check, BigInteger, Keccak};
+
 trait TronAwareTrait
 {
     /**
@@ -11,9 +13,9 @@ trait TronAwareTrait
      * @param $string
      * @return string
      */
-    public function fromHex($string)
+    public function fromHex($string): string
     {
-        if(strlen($string) == 42 && mb_substr($string,0,2) === '41') {
+        if (strlen($string) == 42 && mb_substr($string, 0, 2) === '41') {
             return $this->hexString2Address($string);
         }
 
@@ -41,12 +43,13 @@ trait TronAwareTrait
      * @param $sHexAddress
      * @return string
      */
-    public function address2HexString($sHexAddress)
+    public function address2HexString($sHexAddress): string
     {
-        if(strlen($sHexAddress) == 42 && mb_strpos($sHexAddress, '41') == 0) {
+        if (strlen($sHexAddress) == 42 && mb_strpos($sHexAddress, '41') == 0) {
             return $sHexAddress;
         }
-        return Base58Check::decode($sHexAddress,0,3);
+
+        return Base58Check::decode($sHexAddress, 0, 3);
     }
 
     /**
@@ -55,17 +58,17 @@ trait TronAwareTrait
      * @param $sHexString
      * @return string
      */
-    public function hexString2Address($sHexString)
+    public function hexString2Address($sHexString): string
     {
-        if(!ctype_xdigit($sHexString)) {
+        if (!ctype_xdigit($sHexString)) {
             return $sHexString;
         }
 
-        if(strlen($sHexString) < 2 || (strlen($sHexString) & 1) != 0) {
+        if (strlen($sHexString) < 2 || (strlen($sHexString) & 1) != 0) {
             return '';
         }
 
-        return Base58Check::encode($sHexString,0,false);
+        return Base58Check::encode($sHexString, 0, false);
     }
 
     /**
@@ -74,7 +77,7 @@ trait TronAwareTrait
      * @param $sUtf8
      * @return string
      */
-    public function stringUtf8toHex($sUtf8)
+    public function stringUtf8toHex($sUtf8): string
     {
         return bin2hex($sUtf8);
     }
@@ -85,7 +88,7 @@ trait TronAwareTrait
      * @param $sHexString
      * @return string
      */
-    public function hexString2Utf8($sHexString)
+    public function hexString2Utf8($sHexString): string
     {
         return hex2bin($sHexString);
     }
@@ -96,7 +99,8 @@ trait TronAwareTrait
      * @param $str
      * @return BigInteger
      */
-    public function toBigNumber($str) {
+    public function toBigNumber($str): BigInteger
+    {
         return new BigInteger($str);
     }
 
@@ -106,8 +110,9 @@ trait TronAwareTrait
      * @param $amount
      * @return float
      */
-    public function fromTron($amount): float {
-        return (float) bcdiv((string)$amount, (string)1e6, 8);
+    public function fromTron($amount): float
+    {
+        return (float)bcdiv((string)$amount, (string)1e6, 8);
     }
 
     /**
@@ -116,8 +121,9 @@ trait TronAwareTrait
      * @param $double
      * @return int
      */
-    public function toTron($double): int {
-        return (int) bcmul((string)$double, (string)1e6,0);
+    public function toTron($double): int
+    {
+        return (int)bcmul((string)$double, (string)1e6, 0);
     }
 
     /**
@@ -128,8 +134,52 @@ trait TronAwareTrait
      * @return string
      * @throws \Exception
      */
-    public function sha3($string, $prefix = true)
+    public function sha3($string, bool $prefix = true): string
     {
-        return ($prefix ? '0x' : ''). Keccak::hash($string, 256);
+        return ($prefix ? '0x' : '') . Keccak::hash($string, 256);
+    }
+
+    /**
+     * Закодировать массив в hexadecimal-строку
+     *
+     * @param array $data
+     * @return string
+     */
+    public function encodeHexadecimal(array $data): string
+    {
+        $operations = str_repeat("\0", 32);
+
+        foreach ($data as $operationId) {
+            $byteIndex = intval($operationId / 8);
+            $byteValue = $operations[$byteIndex];
+            $newByteValue = chr(ord($byteValue) | (1 << $operationId % 8));
+            $operations = substr_replace($operations, $newByteValue, $byteIndex, 1);
+        }
+
+        return bin2hex($operations);
+    }
+
+    /**
+     * Раскодировать hexadecimal-строку в массив
+     *
+     * @param string $string
+     * @return array
+     */
+    public function decodeHexadecimal(string $string): array
+    {
+        $operations = hex2bin($string);
+        $result = [];
+
+        for ($i = 0; $i < strlen($operations) * 8; $i++) {
+            $byteIndex = intval($i / 8);
+            $bitIndex = $i % 8;
+            $byteValue = ord($operations[$byteIndex]);
+
+            if (($byteValue & (1 << $bitIndex)) !== 0) {
+                $result[] = $i;
+            }
+        }
+
+        return $result;
     }
 }
