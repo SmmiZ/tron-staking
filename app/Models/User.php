@@ -22,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'sort',
     ];
 
     /**
@@ -31,15 +32,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
     ];
 
     public function wallet(): HasOne
