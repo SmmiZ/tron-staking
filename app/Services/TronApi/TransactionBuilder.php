@@ -288,22 +288,22 @@ class TransactionBuilder
      * Передать ресурсы с одного адреса на другой
      * @see https://developers.tron.network/reference/delegateresource-1
      *
-     * @param int $sunAmount
+     * @param int $trxAmount
      * @param string $ownerAddress
      * @param string $receiverAddress
      * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function delegateResource(int $sunAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
+    public function delegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/delegateresource', [
             'owner_address' => $this->tron->toHex($ownerAddress),
             'receiver_address' => $this->tron->toHex($receiverAddress),
-            'balance' => $sunAmount,
+            'balance' => $trxAmount * $this->tron::ONE_SUN,
             'resource' => 'ENERGY',
             'Permission_id' => $permissionId,
-            'lock' => false,
+            'lock' => false, //todo true сделать потом (жесткая заморозка на 3 дня)
         ]);
     }
 

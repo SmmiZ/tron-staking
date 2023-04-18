@@ -2,9 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Models\Wallet;
+use App\Enums\Statuses;
+use App\Models\{Order, Stake};
+use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
-use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,7 +13,7 @@ use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class DrawUserEnergy implements ShouldQueue
+class ExecuteOrder implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -22,30 +23,30 @@ class DrawUserEnergy implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(private readonly Order $order)
     {
         //
     }
 
     /**
      * Execute the job.
-     * @throws TronException
      */
     public function handle(): void
     {
-        $tron = new Tron(config('app.hot_spot_wallet'), config('app.hot_spot_private_key'));
+        //todo sort field для порядка у кого первым тянем энергию. Куда добавить?
+        Stake::with(['user' => ['wallet']])->chunk(50, function ($stakes) {
+            foreach ($stakes as $stake) {
+                $this->order->refresh();
 
-        Wallet::query()->chunk(50, function ($wallets) use ($tron) {
-            foreach ($wallets as $wallet) {
+                if (in_array($this->order->status, Statuses::CLOSED_STATUSES)) {
+                    exit();
+                }
+
                 try {
-                    $response = $tron->drawUserEnergy($wallet);
-
-                    if (isset($response['code']) && $response['code'] != 'true') {
-                        throw new TronException($response['code'] ?: 'Unknown error');
-                    }
+                    (new StakeService())->fillOrder($stake, $this->order);
                 } catch (TronException|Throwable $e) {
-                    Log::emergency('DrawUserEnergy-Exception', [
-                        'wallet_id' => $wallet->id,
+                    Log::emergency('ExecuteOrder-Exception', [
+                        'wallet_id' => $stake->id,
                         'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
                     ]);
                     dump($e->getMessage());

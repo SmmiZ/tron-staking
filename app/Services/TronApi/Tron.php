@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Services\TronApi;
 
 use App\Models\Wallet;
-use App\Services\TronApi\Provider\HttpProvider;
 use App\Services\TronApi\Concerns\{ManagesTronscan, ManagesUniversal};
 use App\Services\TronApi\Exception\TronException;
-use App\Services\TronApi\Provider\HttpProviderInterface;
+use App\Services\TronApi\Provider\{HttpProvider, HttpProviderInterface};
 use App\Services\TronApi\Support\{Base58, Base58Check, Crypto, Hash, Keccak, Secp, Utils};
 use Elliptic\EC;
 
@@ -919,40 +918,18 @@ class Tron implements TronInterface
     }
 
     /**
-     * Забрать энергию с аккаунта пользователя
+     * Передать ресурс с одного кошелька на другой
      *
-     * @param Wallet $wallet
+     * @param string $ownerAddress
+     * @param string $receiverAddress
+     * @param int $trxAmount
      * @return array
      * @throws TronException
      */
-    public function drawUserEnergy(Wallet $wallet): array
+    public function delegateResource(string $ownerAddress, string $receiverAddress, int $trxAmount): array
     {
-        $resources = $this->getAccountResources($wallet->address);
-
-        if (!isset($resources['tronPowerLimit']) || $resources['tronPowerLimit'] <= 0) {
-            throw new TronException('Not enough stacked TRX to delegate');
-        }
-
-        $amountToDraw = $wallet->stake_limit < $resources['tronPowerLimit'] * Tron::ONE_SUN
-            ? $wallet->stake_limit
-            : $resources['tronPowerLimit'];
-
-        $permissionId = $this->getPermissionId($wallet->address);
-        $sunAmount = $amountToDraw * self::ONE_SUN;
-        $draw = $this->transactionBuilder->delegateResource($sunAmount, $wallet->address, $this->address['hex'], $permissionId);
-
-        return $this->signAndSendTransaction($draw);
-    }
-
-    /**
-     * Передать энергию покупателю
-     *
-     * @throws TronException
-     */
-    public function delegateEnergyToBuyer(int $trxAmount, string $userAddress): array
-    {
-        $sunAmount = $trxAmount * self::ONE_SUN;
-        $delegate = $this->transactionBuilder->delegateResource($sunAmount, $this->address['hex'], $userAddress);
+        $permissionId = $this->getPermissionId($ownerAddress);
+        $delegate = $this->transactionBuilder->delegateResource($trxAmount, $ownerAddress, $receiverAddress, $permissionId);
 
         return $this->signAndSendTransaction($delegate);
     }

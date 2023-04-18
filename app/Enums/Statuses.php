@@ -9,6 +9,16 @@ enum Statuses: int
     case completed = 3;
     case declined = 4;
 
+    public const OPEN_STATUSES = [
+        self::new,
+        self::pending,
+    ];
+
+    public const CLOSED_STATUSES = [
+        self::completed,
+        self::declined,
+    ];
+
     public function translate(): string
     {
         return match ($this) {

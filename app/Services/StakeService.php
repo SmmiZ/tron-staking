@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Enums\TransactionTypes;
-use App\Models\{User, Wallet};
+use Illuminate\Support\Facades\DB;
+use App\Enums\{Statuses, TransactionTypes};
+use App\Models\{Order, Stake, User, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
-use Illuminate\Support\Facades\Log;
 
 class StakeService
 {
@@ -14,6 +14,7 @@ class StakeService
 
     public function __construct()
     {
+        //todo wallet? user?
         $this->tron = new Tron();
     }
 
@@ -71,10 +72,54 @@ class StakeService
         ]);
 
         if (isset($response['code']) && $response['code'] != 'true') {
-            Log::emergency('VoteSR-Exception', [
-                'wallet_id' => $wallet->id,
-                'error' => $response['code'],
-            ]);
+            throw new TronException($response['code'] ?: 'Unknown error');
         }
+    }
+
+    /**
+     * Заполнить заказ ресурсом пользователя
+     *
+     * @param Stake $stake
+     * @param Order $order
+     * @return void
+     * @throws TronException
+     */
+    public function fillOrder(Stake $stake, Order $order): void
+    {
+        $wallet = $stake->user->wallet;
+        $leftToFill = $order->amount - $order->executors()->sum('amount');
+
+        $resources = $this->tron->getAccountResources($wallet->address);
+        $availableTrx = $resources['tronPowerLimit'] ?? 0;
+
+        match (true) {
+            $availableTrx <= 0 => throw new TronException('Not enough Energy to delegate'),
+            $leftToFill <= 0 => throw new TronException('Order is already filled'),
+            default => null,
+        };
+
+        $trxAmount = min($availableTrx, $stake->amount, $leftToFill);
+        $response = $this->tron->delegateResource($wallet->address, $order->consumer->address, $trxAmount);
+
+        if (isset($response['code']) && $response['code'] != 'true') {
+            throw new TronException($response['code'] ?: 'Unknown error');
+        }
+
+        //Запись транзакции
+        $wallet->transactions()->create([
+            'to' => $order->consumer->address,
+            'type' => TransactionTypes::delegate,
+            'amount' => data_get($response,'raw_data.contract.0.parameter.value.balance') / Tron::ONE_SUN ?? 0,
+            'tx_id' => $response['txID'],
+        ]);
+        //Запись исполнителя
+        $order->executors()->updateOrCreate(
+            ['user_id' => $stake->user_id],
+            ['amount' => DB::raw('amount + ' . $trxAmount)] //todo проверить increment
+        );
+        //Обновление заказа
+        $order->amount == $order->executors()->sum('amount')
+            ? $order->update(['status' => Statuses::completed, 'executed_at' => now()])
+            : $order->update(['status' => Statuses::pending]);
     }
 }

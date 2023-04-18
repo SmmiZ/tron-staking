@@ -9,6 +9,7 @@ enum TransactionTypes: int
     case staking = 3;
     case unstake = 4;
     case transfer = 5;
+    case delegate = 6;
 
     /**
      * Возвращает пояснение на русском языке
@@ -23,6 +24,7 @@ enum TransactionTypes: int
             self::staking => 'Заморозка',
             self::unstake => 'Разморозка',
             self::transfer => 'Перевод',
+            self::delegate => 'Делегирование',
         };
     }
 }
