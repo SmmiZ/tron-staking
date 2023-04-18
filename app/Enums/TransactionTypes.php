@@ -6,7 +6,7 @@ enum TransactionTypes: int
 {
     case reward = 1;
     case vote = 2;
-    case staking = 3;
+    case stake = 3;
     case unstake = 4;
     case transfer = 5;
     case delegate = 6;
@@ -21,7 +21,7 @@ enum TransactionTypes: int
         return match ($this) {
             self::reward => 'Награда',
             self::vote => 'Голосование',
-            self::staking => 'Заморозка',
+            self::stake => 'Заморозка',
             self::unstake => 'Разморозка',
             self::transfer => 'Перевод',
             self::delegate => 'Делегирование',

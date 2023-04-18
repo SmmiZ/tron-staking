@@ -43,7 +43,7 @@ class ExecuteOrder implements ShouldQueue
                 }
 
                 try {
-                    (new StakeService())->fillOrder($stake, $this->order);
+                    (new StakeService($stake->user->wallet))->fillOrder($this->order, $stake->amount);
                 } catch (TronException|Throwable $e) {
                     Log::emergency('ExecuteOrder-Exception', [
                         'wallet_id' => $stake->id,

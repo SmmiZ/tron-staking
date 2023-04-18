@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Stake\{StoreStakeRequest, UpdateStakeRequest};
-use App\Http\Resources\{Stake\StakeCollection, Stake\StakeResource};
+use App\Http\Resources\Stake\{StakeCollection, StakeResource};
 use App\Models\Stake;
 use App\Services\StakeService;
 use Illuminate\Http\Response;
@@ -12,7 +12,7 @@ use Throwable;
 
 class StakeController extends Controller
 {
-    public function __construct(private readonly StakeService $stakeService)
+    public function __construct()
     {
         $this->authorizeResource(Stake::class);
     }
@@ -24,8 +24,9 @@ class StakeController extends Controller
 
     public function store(StoreStakeRequest $request): Response
     {
+        //todo если несколько - то передавать wallet_id в запросе
         try {
-            $newStakeId = $this->stakeService->store($request->user(), $request->validated('amount'));
+            $newStakeId = (new StakeService($request->user()->wallet))->store($request->validated('amount'));
         } catch (Throwable $e) {
             return response([
                 'status' => false,

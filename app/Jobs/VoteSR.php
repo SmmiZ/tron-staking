@@ -34,7 +34,7 @@ class VoteSR implements ShouldQueue
         Wallet::with(['user'])->chunk(50, function ($wallets) {
             foreach ($wallets as $wallet) {
                 try {
-                    (new StakeService())->vote($wallet);
+                    (new StakeService($wallet))->vote();
                 } catch (TronException $e) {
                     Log::emergency('VoteSR-Exception', [
                         'wallet_id' => $wallet->id,
