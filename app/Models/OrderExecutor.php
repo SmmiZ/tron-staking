@@ -13,7 +13,8 @@ class OrderExecutor extends Model
     protected $fillable = [
         'order_id',
         'user_id',
-        'amount',
+        'trx_amount',
+        'resource_amount',
     ];
 
     public function order(): BelongsTo

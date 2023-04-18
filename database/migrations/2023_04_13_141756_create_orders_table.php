@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Consumer::class)->constrained()->cascadeOnDelete();
-            $table->unsignedBigInteger('amount')->default(0);
-            $table->string('resource')->default(Resources::ENERGY->value);
+            $table->tinyInteger('resource')->default(Resources::ENERGY->value);
+            $table->unsignedBigInteger('resource_amount')->default(0);
             $table->string('status')->default(Statuses::new->value);
             $table->timestamp('executed_at')->nullable();
             $table->timestamps();

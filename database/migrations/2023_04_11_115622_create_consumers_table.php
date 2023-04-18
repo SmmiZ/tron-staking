@@ -16,8 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('address');
-            $table->unsignedBigInteger('amount')->default(0);
-            $table->string('resource')->default(Resources::ENERGY->value);
+            $table->tinyInteger('resource')->default(Resources::ENERGY->value);
+            $table->unsignedBigInteger('resource_amount')->default(0);
             $table->timestamps();
         });
     }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('from')->nullable();
             $table->string('to')->nullable();
             $table->string('type');
-            $table->decimal('amount', 18, 8)->default(0);
+            $table->decimal('trx_amount', 18, 4)->default(0);
             $table->string('tx_id');
             $table->timestamps();
         });

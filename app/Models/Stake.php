@@ -11,7 +11,7 @@ class Stake extends Model
     use HasFactory;
 
     protected $fillable = [
-        'amount',
+        'trx_amount',
         'unstake_at',
     ];
 

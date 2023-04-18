@@ -13,7 +13,7 @@ class Consumer extends Model
     protected $fillable = [
         'name',
         'address',
-        'amount',
+        'resource_amount',
     ];
 
     public function orders(): HasMany

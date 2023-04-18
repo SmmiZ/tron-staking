@@ -14,7 +14,7 @@ class Transaction extends Model
         'wallet_id',
         'from',
         'to',
-        'amount',
+        'trx_amount',
         'type',
         'tx_id',
     ];

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('stakes', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('amount');
+            $table->unsignedBigInteger('trx_amount');
             $table->string('status')->default(Statuses::new->value);
             $table->timestamp('unstake_at')->nullable();
             $table->timestamps();
