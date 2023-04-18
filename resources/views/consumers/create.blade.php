@@ -27,7 +27,7 @@
                     <label>Кошелек</label>
                 </div>
                 <div class="input-group">
-                    <input type="number" name="amount" required>
+                    <input type="number" name="resource_amount" required>
                     <label>Кол-во</label>
                 </div>
                 <div class="input-group">

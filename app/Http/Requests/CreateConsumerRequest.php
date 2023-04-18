@@ -26,7 +26,7 @@ class CreateConsumerRequest extends FormRequest
         return [
             'name' => ['required', 'filled', 'string'],
             'address' => ['required', 'filled', 'string', 'starts_with:T', 'size:34'],
-            'amount' => ['required', 'filled', 'numeric'],
+            'resource_amount' => ['required', 'filled', 'numeric'],
         ];
     }
 }

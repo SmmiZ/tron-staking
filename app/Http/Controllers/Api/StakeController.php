@@ -24,9 +24,8 @@ class StakeController extends Controller
 
     public function store(StoreStakeRequest $request): Response
     {
-        //todo если несколько - то передавать wallet_id в запросе
         try {
-            $newStakeId = (new StakeService($request->user()->wallet))->store($request->validated('amount'));
+            $newStakeId = (new StakeService($request->user()->wallet))->store($request->validated('trx_amount'));
         } catch (Throwable $e) {
             return response([
                 'status' => false,

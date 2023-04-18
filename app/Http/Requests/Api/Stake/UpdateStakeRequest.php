@@ -14,7 +14,7 @@ class UpdateStakeRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'amount' => ['required_without:days', 'integer'],
+            'trx_amount' => ['required_without:days', 'integer'],
             'days' => ['required_without:amount', 'integer'],
         ];
     }
@@ -27,7 +27,7 @@ class UpdateStakeRequest extends BaseRequest
     public function attributes(): array
     {
         return [
-            'amount' => __('validation.attributes.amount'),
+            'trx_amount' => __('validation.attributes.trx_amount'),
             'days' => __('validation.attributes.days'),
         ];
     }

@@ -14,7 +14,7 @@ class StoreStakeRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'amount' => ['required', 'integer'],
+            'trx_amount' => ['required', 'integer'],
 //            'unstake_at' => ['required', 'date', 'after:' . now()->addDays(3)]
         ];
     }
@@ -27,7 +27,7 @@ class StoreStakeRequest extends BaseRequest
     public function attributes(): array
     {
         return [
-            'amount' => __('validation.attributes.amount'),
+            'trx_amount' => __('validation.attributes.trx_amount'),
 //            'unstake_at' => __('validation.attributes.unstake_at'),
         ];
     }
