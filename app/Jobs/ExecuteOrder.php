@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\Statuses;
-use App\Models\{Order, Stake};
+use App\Models\{Order, User};
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Bus\Queueable;
@@ -33,23 +33,25 @@ class ExecuteOrder implements ShouldQueue
      */
     public function handle(): void
     {
-        //todo sort field для порядка у кого первым тянем энергию. Куда добавить?
-        Stake::with(['user' => ['wallet']])->chunk(50, function ($stakes) {
-            foreach ($stakes as $stake) {
-                $this->order->refresh();
+        User::with(['wallet', 'stakes'])->orderBy('sort')->chunk(50, function ($users) {
+            foreach ($users as $user) {
+                foreach ($user->stakes as $stake) {
+                    $this->order->refresh();
 
-                if (in_array($this->order->status, Statuses::CLOSED_STATUSES)) {
-                    exit();
-                }
+                    if (in_array($this->order->status, Statuses::CLOSED_STATUSES)) {
+                        exit();
+                    }
 
-                try {
-                    (new StakeService($stake->user->wallet))->fillOrder($this->order, $stake->amount);
-                } catch (TronException|Throwable $e) {
-                    Log::emergency('ExecuteOrder-Exception', [
-                        'wallet_id' => $stake->id,
-                        'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
-                    ]);
-                    dump($e->getMessage());
+                    try {
+                        (new StakeService($user->wallet))->fillOrder($this->order, $stake->amount);
+                    } catch (TronException|Throwable $e) {
+                        Log::emergency('ExecuteOrder-Exception', [
+                            'stake_id' => $stake->id,
+                            'wallet_id' => $user->wallet->id,
+                            'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
+                        ]);
+                        dump($e->getMessage());
+                    }
                 }
             }
         });
