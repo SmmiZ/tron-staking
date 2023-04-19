@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('trx_amount');
-            $table->unsignedBigInteger('resource_amount');
+            $table->decimal('resource_amount', 22, 4)->default(0);
             $table->timestamps();
         });
     }
