@@ -4,12 +4,13 @@ namespace App\Enums;
 
 enum TransactionTypes: int
 {
-    case reward = 1;
+    case stake = 1;
     case vote = 2;
-    case stake = 3;
-    case unstake = 4;
-    case transfer = 5;
-    case delegate = 6;
+    case delegate = 3;
+    case unDelegate = 4;
+    case reward = 5;
+    case unstake = 6;
+    case transfer = 7;
 
     /**
      * Возвращает пояснение на русском языке
@@ -25,6 +26,7 @@ enum TransactionTypes: int
             self::unstake => 'Разморозка',
             self::transfer => 'Перевод',
             self::delegate => 'Делегирование',
+            self::unDelegate => 'Отозвать делегирование',
         };
     }
 }

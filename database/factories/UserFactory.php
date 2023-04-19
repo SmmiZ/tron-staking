@@ -28,9 +28,11 @@ class UserFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (User $user) {
-            $user->wallet()->create([
-                'address' => env('MY_WALLET') ?? 'test_wallet_address',
-            ]);
+            if ($user->id == 1) {
+                $user->wallet()->create([
+                    'address' => env('MY_WALLET') ?? 'test_wallet_address',
+                ]);
+            }
         });
     }
 }

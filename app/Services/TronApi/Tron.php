@@ -530,6 +530,23 @@ class Tron implements TronInterface
         return $fromTron ? $this->fromTron($account['balance']) : $account['balance'];
     }
 
+    /**
+     * Получить баланс в TRX
+     *
+     * @param string|null $address
+     * @return float|int
+     * @throws TronException
+     */
+    public function getTrxBalance(string $address = null): float|int
+    {
+        $account = $this->getAccount($address);
+
+        if (!isset($account['balance'])) {
+            return 0;
+        }
+
+        return $this->fromTron($account['balance']);
+    }
 
     /**
      * Get token balance
