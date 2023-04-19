@@ -85,7 +85,7 @@ class Tron implements TronInterface
      */
     public function __construct()
     {
-        $fullNode = new HttpProvider('https://api.trongrid.io');
+        $fullNode = new HttpProvider(config('app.tron_net'));
         $this->setAddress(config('app.hot_spot_wallet'));
         $this->setPrivateKey(config('app.hot_spot_private_key'));
 

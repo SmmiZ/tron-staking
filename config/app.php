@@ -123,10 +123,9 @@ return [
 
     'key' => env('APP_KEY'),
 
-    'hot_spot_wallet' => env('TRX_WALLET'),
-    'hot_spot_private_key' => env('PRIVATE_KEY'),
-
-    'withdrawal_wallet' => env('WITHDRAWAL_WALLET'),
+    'tron_net' => env('TRON_NET', 'https://api.trongrid.io'),
+    'hot_spot_wallet' => env('HOT_SPOT_WALLET'),
+    'hot_spot_private_key' => env('HOT_SPOT_PRIVATE_KEY'),
 
     'cipher' => 'AES-256-CBC',
 
