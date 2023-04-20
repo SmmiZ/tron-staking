@@ -667,20 +667,32 @@ class Tron implements TronInterface
     }
 
     /**
-     * Withdraw Super Representative rewards, useable every 24 hours.
+     * Получить кол-во доступной награды TRX
      *
-     * @param string|null $ownerAddress
+     * @param string $address
+     * @return float TRX
+     * @throws TronException
+     */
+    public function getRewardAmount(string $address): float
+    {
+        $response = $this->manager->request('wallet/getReward', [
+            'address' => $this->toHex($address),
+        ]);
+
+        return ($response['reward'] / $this::ONE_SUN) ?? 0;
+    }
+
+    /**
+     * Забрать вознаграждение от голосования для пользователя
+     *
+     * @param string $ownerAddress
      * @return array
      * @throws TronException
      */
-    public function withdrawBlockRewards(string $ownerAddress = null): array
+    public function rewardWithdraw(string $ownerAddress): array
     {
-        //todo owner address?
-        if ($ownerAddress == null) {
-            $ownerAddress = $this->address['hex'];
-        }
-
-        $withdraw = $this->transactionBuilder->withdrawBlockRewards($ownerAddress);
+        $permissionId = $this->getPermissionId($ownerAddress);
+        $withdraw = $this->transactionBuilder->rewardWithdraw($ownerAddress, $permissionId);
 
         return $this->signAndSendTransaction($withdraw);
     }

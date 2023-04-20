@@ -322,22 +322,19 @@ class TransactionBuilder
     }
 
     /**
-     * Withdraw Super Representative rewards, useable every 24 hours.
+     * Запрос на получение вознаграждения
      *
+     * @param string $address
+     * @param int $permissionId
      * @return array
      * @throws TronException
      */
-    public function withdrawBlockRewards(): array
+    public function rewardWithdraw(string $address, int $permissionId): array
     {
-        $withdraw = $this->tron->getManager()->request('wallet/withdrawbalance', [
-            'owner_address' => $this->tron->address['hex']
+        return $this->tron->getManager()->request('wallet/withdrawbalance', [
+            'owner_address' => $this->tron->toHex($address),
+            'Permission_id' => $permissionId,
         ]);
-
-        if (array_key_exists('Error', $withdraw)) {
-            throw new TronException($withdraw['Error']);
-        }
-
-        return $withdraw;
     }
 
     /**

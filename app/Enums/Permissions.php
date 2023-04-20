@@ -16,6 +16,7 @@ enum Permissions: int
     case AccountUpdateContract = 10;
     case FreezeBalanceContract = 11;
     case UnfreezeBalanceContract = 12;
+    /** Reward Withdraw */
     case WithdrawBalanceContract = 13;
     case UnfreezeAssetContract = 14;
     case UpdateAssetContract = 15;
@@ -41,6 +42,7 @@ enum Permissions: int
     case MarketCancelOrderContract = 53;
     case FreezeBalanceV2Contract = 54;
     case UnfreezeBalanceV2Contract = 55;
+    /** TRX Withdraw */
     case WithdrawExpireUnfreezeContract = 56;
     case DelegateResourceContract = 57;
     case UnDelegateResourceContract = 58;
@@ -51,7 +53,7 @@ enum Permissions: int
             self::VoteWitnessContract->value,
             self::FreezeBalanceV2Contract->value,
             self::UnfreezeBalanceV2Contract->value,
-            self::WithdrawExpireUnfreezeContract->value,
+            self::WithdrawBalanceContract->value,
             self::DelegateResourceContract->value,
             self::UnDelegateResourceContract->value,
         ];

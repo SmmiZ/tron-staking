@@ -129,4 +129,31 @@ class StakeService
             ? $order->update(['status' => Statuses::completed, 'executed_at' => now()])
             : $order->update(['status' => Statuses::pending]);
     }
+
+    /**
+     * Забрать награду для пользователя
+     *
+     * @return void
+     * @throws TronException
+     */
+    public function getReward(): void
+    {
+        $availableTrxReward = $this->tron->getRewardAmount($this->wallet->address);
+
+        if ($availableTrxReward <= 0) {
+            return;
+        }
+
+        $response = $this->tron->rewardWithdraw($this->wallet->address);
+
+        if (isset($response['code']) && $response['code'] != 'true') {
+            throw new TronException($response['code'] ?: 'Unknown error');
+        }
+
+        $this->wallet->transactions()->create([
+            'type' => TransactionTypes::reward,
+            'trx_amount' => $availableTrxReward,
+            'tx_id' => $response['txID'],
+        ]);
+    }
 }

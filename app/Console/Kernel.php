@@ -17,15 +17,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(PruneCommand::class)->everyFifteenMinutes();
 
-        $schedule->command(CreateOrdersCommand::class)->dailyAt('00:00');
-
-        $schedule->job(UnfreezeTRX::class)->cron('0 0 */3 * *')->after(function (Schedule $schedule) {
-            $schedule->job(FreezeTRX::class)->after(function (Schedule $schedule) {
-                $schedule->job(VoteSR::class)->daily();
-            });
-        });
-
-        $schedule->job(GetReward::class)->dailyAt('23:55');
+        //Забрать доступные вознаграждения по всем кошелькам
+        $schedule->job(GetVotesRewards::class)->dailyAt('23:55');
     }
 
     /**
