@@ -40,7 +40,7 @@
                         </div>
                         <div class="table-row">
                             <div>Сумма</div>
-                            <div>{{ $transaction->amount }}</div>
+                            <div>{{ $transaction->trx_amount }}</div>
                         </div>
                         <div class="table-row">
                             <div>TX ID</div>

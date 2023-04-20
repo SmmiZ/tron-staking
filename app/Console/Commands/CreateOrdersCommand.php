@@ -26,9 +26,9 @@ class CreateOrdersCommand extends Command
      */
     public function handle(): void
     {
-        Consumer::query()->where('amount', '>', 0)->chunk(100, function ($consumers) {
+        Consumer::query()->where('resource_amount', '>', 0)->chunk(100, function ($consumers) {
             foreach ($consumers as $consumer) {
-                $consumer->orders()->create(['amount' => $consumer->amount]);
+                $consumer->orders()->create(['resource_amount' => $consumer->resource_amount]);
             }
         });
     }

@@ -7,7 +7,7 @@
                 <div><button class="sort-button" wire:click="sort('from')">От кого</button></div>
                 <div><button class="sort-button" wire:click="sort('to')">Кому</button></div>
                 <div><button class="sort-button" wire:click="sort('type')">Тип</button></div>
-                <div><button class="sort-button" wire:click="sort('amount')">Сумма</button></div>
+                <div><button class="sort-button" wire:click="sort('trx_amount')">Сумма</button></div>
                 <div><button class="sort-button" wire:click="sort('tx_id')">TX ID</button></div>
             </div>
         </div>
@@ -20,7 +20,7 @@
                         <div>{{$transaction->from}}</div>
                         <div>{{$transaction->to}}</div>
                         <div>{{$transaction->type->name}}</div>
-                        <div>{{$transaction->amount}}</div>
+                        <div>{{$transaction->trx_amount}}</div>
                         <div>{{$transaction->tx_id}}</div>
                     </div>
                 </a>

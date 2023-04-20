@@ -22,6 +22,7 @@ class Order extends Model
     protected $casts = [
         'resource' => Resources::class,
         'status' => Statuses::class,
+        'executed_at' => 'datetime',
     ];
 
     public function consumer(): BelongsTo

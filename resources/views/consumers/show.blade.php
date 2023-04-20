@@ -27,8 +27,8 @@
                             <div>{{ $consumer->name }}</div>
                         </div>
                         <div class="table-row">
-                            <div>Кол-во</div>
-                            <div>{{ $consumer->amount }}</div>
+                            <div>Кол-во ресурса</div>
+                            <div>{{ $consumer->resource_amount }}</div>
                         </div>
                         <div class="table-row">
                             <div>Дата создания</div>

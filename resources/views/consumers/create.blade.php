@@ -28,7 +28,7 @@
                 </div>
                 <div class="input-group">
                     <input type="number" name="resource_amount" required>
-                    <label>Кол-во</label>
+                    <label>Кол-во ресурса</label>
                 </div>
                 <div class="input-group">
                     <input type="text" name="resource" value="{{\App\Enums\Resources::ENERGY->name}}" disabled>

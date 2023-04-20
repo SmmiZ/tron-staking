@@ -32,8 +32,8 @@
                     <label for="address">Кошелек</label>
                 </div>
                 <div class="input-group">
-                    <input type="number" name="amount" value="{{$consumer->amount}}">
-                    <label for="amount">Кол-во</label>
+                    <input type="number" name="resource_amount" value="{{$consumer->resource_amount}}">
+                    <label for="resource_amount">Кол-во</label>
                 </div>
             </form>
             <div class="form-button">

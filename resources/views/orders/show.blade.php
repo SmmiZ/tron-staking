@@ -27,8 +27,8 @@
                             <div>{{ $order->consumer->name }}</div>
                         </div>
                         <div class="table-row">
-                            <div>Кол-во</div>
-                            <div>{{ $order->amount }}</div>
+                            <div>Кол-во ресурса</div>
+                            <div>{{ $order->resource_amount }}</div>
                         </div>
                         <div class="table-row">
                             <div>Статус</div>
