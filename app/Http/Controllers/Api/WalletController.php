@@ -54,12 +54,15 @@ class WalletController extends Controller
         ]);
     }
 
-    public function checkPermission(Request $request, Wallet $wallet): Response
+    /**
+     * @throws TronException
+     */
+    public function checkAccess(Request $request, Wallet $wallet): Response
     {
         $tron = new Tron();
 
         return response([
-            'status' => $tron->checkPermissionOperations($wallet->address),
+            'status' => $tron->hasAccess($wallet->address),
         ]);
     }
 }

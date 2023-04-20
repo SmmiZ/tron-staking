@@ -25,6 +25,6 @@ Route::name('api.')->group(function () {
 
         Route::apiResource('stakes', StakeController::class);
         Route::apiResource('wallets', WalletController::class);
-        Route::get('wallets/{wallet:id}/check-permission', [WalletController::class, 'checkPermission'])->name('wallets.check-permission');
+        Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
     });
 });

@@ -607,7 +607,7 @@ class Tron implements TronInterface
      * @return mixed
      * @throws TronException
      */
-    private function getPermission(string $address): mixed
+    private function getPermissions(string $address): mixed
     {
         $accountPermissions = $this->getAccount($address)['active_permission'];
 
@@ -631,21 +631,21 @@ class Tron implements TronInterface
      */
     private function getPermissionId(string $address): int
     {
-        $permission = $this->getPermission($address);
+        $permission = $this->getPermissions($address);
 
         return $permission['id'];
     }
 
     /**
-     * Проверить наличие необходимых разрешений для управления
+     * Проверить наличие доступа для управления
      *
      * @param string $address
      * @return bool
      * @throws TronException
      */
-    public function checkPermissionOperations(string $address): bool
+    public function hasAccess(string $address): bool
     {
-        $permission = $this->getPermission($address);
+        $permission = $this->getPermissions($address);
         $currentIndexes = $this->decodeHexadecimal($permission['operations']);
 
         return !array_diff(Permissions::requiredIndexes(), $currentIndexes);

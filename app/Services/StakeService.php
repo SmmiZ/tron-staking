@@ -13,10 +13,17 @@ class StakeService
     private Tron $tron;
     private Wallet $wallet;
 
+    /**
+     * @throws TronException
+     */
     public function __construct(Wallet $wallet)
     {
         $this->tron = new Tron();
         $this->wallet = $wallet;
+
+        if (!$this->tron->hasAccess($this->wallet->address)) {
+            throw new TronException('Permission denied');
+        }
     }
 
     /**
