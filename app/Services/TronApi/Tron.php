@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
+use App\Enums\Permissions;
 use App\Models\Wallet;
 use App\Services\TronApi\Concerns\{ManagesTronscan, ManagesUniversal};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Provider\{HttpProvider, HttpProviderInterface};
-use App\Services\TronApi\Support\{Base58, Base58Check, Crypto, Hash, Keccak, Secp, Utils};
+use App\Services\TronApi\Support\{Base58, Crypto, Hash, Keccak, Secp, Utils};
 use Elliptic\EC;
 
 /**
@@ -600,31 +601,54 @@ class Tron implements TronInterface
     }
 
     /**
-     * Поиск ID разрешения для управления доверенным аккаунтом
+     * Поиск разрешения на управление пользовательским аккаунтом
      *
      * @param string $address
-     * @return int
+     * @return mixed
      * @throws TronException
      */
-    private function getPermissionId(string $address): int
+    private function getPermission(string $address): mixed
     {
         $accountPermissions = $this->getAccount($address)['active_permission'];
 
-        $permissionId = null;
         foreach ($accountPermissions as $permission) {
             foreach ($permission['keys'] as $account) {
                 if ($account['address'] == $this->address['hex']) {
-                    $permissionId = $permission['id'];
-                    break;
+                    return $permission;
                 }
             }
         }
 
-        if (!isset($permissionId)) {
-            throw new TronException('Cant find permission id');
-        }
+        throw new TronException('Cant find permission');
+    }
 
-        return $permissionId;
+    /**
+     * Поиск ID разрешения для управления пользовательским аккаунтом
+     *
+     * @param string $address
+     * @return mixed
+     * @throws TronException
+     */
+    private function getPermissionId(string $address): int
+    {
+        $permission = $this->getPermission($address);
+
+        return $permission['id'];
+    }
+
+    /**
+     * Проверить наличие необходимых разрешений для управления
+     *
+     * @param string $address
+     * @return bool
+     * @throws TronException
+     */
+    public function checkPermissionOperations(string $address): bool
+    {
+        $permission = $this->getPermission($address);
+        $currentIndexes = $this->decodeHexadecimal($permission['operations']);
+
+        return !array_diff(Permissions::requiredIndexes(), $currentIndexes);
     }
 
     /**

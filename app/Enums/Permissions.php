@@ -45,6 +45,18 @@ enum Permissions: int
     case DelegateResourceContract = 57;
     case UnDelegateResourceContract = 58;
 
+    public static function requiredIndexes(): array
+    {
+        return [
+            self::VoteWitnessContract->value,
+            self::FreezeBalanceV2Contract->value,
+            self::UnfreezeBalanceV2Contract->value,
+            self::WithdrawExpireUnfreezeContract->value,
+            self::DelegateResourceContract->value,
+            self::UnDelegateResourceContract->value,
+        ];
+    }
+
     public static function values(): array
     {
         return array_column(self::cases(), 'value');

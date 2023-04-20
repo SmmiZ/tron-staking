@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Wallet\StoreWalletRequest;
+use App\Services\TronApi\Exception\TronException;
+use App\Services\TronApi\Tron;
 use App\Http\Resources\Wallet\{WalletCollection, WalletResource};
 use App\Models\Wallet;
 use Illuminate\Http\{Request, Response};
@@ -49,6 +51,15 @@ class WalletController extends Controller
     {
         return response([
             'status' => $wallet->delete(),
+        ]);
+    }
+
+    public function checkPermission(Request $request, Wallet $wallet): Response
+    {
+        $tron = new Tron();
+
+        return response([
+            'status' => $tron->checkPermissionOperations($wallet->address),
         ]);
     }
 }
