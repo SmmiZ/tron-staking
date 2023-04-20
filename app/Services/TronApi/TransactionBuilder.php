@@ -303,7 +303,7 @@ class TransactionBuilder
             'balance' => $trxAmount * $this->tron::ONE_SUN,
             'resource' => 'ENERGY',
             'Permission_id' => $permissionId,
-            'lock' => false, //todo true сделать потом (жесткая заморозка на 3 дня)
+            'lock' => true,
         ]);
     }
 
