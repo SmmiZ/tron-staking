@@ -19,7 +19,7 @@
                         <div>{{$transaction->wallet_id}}</div>
                         <div>{{$transaction->from}}</div>
                         <div>{{$transaction->to}}</div>
-                        <div>{{$transaction->type->name}}</div>
+                        <div>{{$transaction->type->translate()}}</div>
                         <div>{{$transaction->trx_amount}}</div>
                         <div>{{$transaction->tx_id}}</div>
                     </div>

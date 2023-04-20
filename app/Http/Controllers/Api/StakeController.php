@@ -7,7 +7,7 @@ use App\Http\Requests\Api\Stake\{StoreStakeRequest, UpdateStakeRequest};
 use App\Http\Resources\Stake\{StakeCollection, StakeResource};
 use App\Models\Stake;
 use App\Services\StakeService;
-use Illuminate\Http\Response;
+use Illuminate\Http\{Request, Response};
 use Throwable;
 
 class StakeController extends Controller
@@ -17,9 +17,9 @@ class StakeController extends Controller
         $this->authorizeResource(Stake::class);
     }
 
-    public function index(): StakeCollection
+    public function index(Request $request): StakeCollection
     {
-        return new StakeCollection(Stake::all());
+        return new StakeCollection($request->user()->stakes);
     }
 
     public function store(StoreStakeRequest $request): Response

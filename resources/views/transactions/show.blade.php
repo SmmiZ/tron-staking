@@ -36,7 +36,7 @@
                         </div>
                         <div class="table-row">
                             <div>Тип</div>
-                            <div>{{ $transaction->type->name }}</div>
+                            <div>{{ $transaction->type->translate() }}</div>
                         </div>
                         <div class="table-row">
                             <div>Сумма</div>
