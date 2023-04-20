@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController, StakeController};
+use App\Http\Controllers\Api\{AuthController, StakeController, WalletController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,7 +23,7 @@ Route::name('api.')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-        /** Stakes */
         Route::apiResource('stakes', StakeController::class);
+        Route::apiResource('wallets', WalletController::class);
     });
 });

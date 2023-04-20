@@ -13,12 +13,6 @@ class Wallet extends Model
     protected $fillable = [
         'user_id',
         'address',
-        'subscribe_address',
-        'subscribe_id',
-        'balance',
-        'token_balance',
-        'last_transaction_time',
-        'stake_timestamp',
     ];
 
     public function user(): BelongsTo

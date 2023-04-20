@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->hasOne(Wallet::class);
     }
 
+    public function wallets(): HasMany
+    {
+        return $this->hasMany(Wallet::class);
+    }
+
     public function transactions(): HasManyThrough
     {
         return $this->hasManyThrough(Transaction::class, Wallet::class);
