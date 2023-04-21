@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController, StakeController, WalletController};
+use App\Http\Controllers\Api\{AuthController, InfoController, StakeController, WalletController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +22,9 @@ Route::name('api.')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+        /** INFO */
+        Route::get('connect-info', [InfoController::class, 'connectInfo'])->name('connect-info');
 
         Route::apiResource('stakes', StakeController::class);
         Route::apiResource('wallets', WalletController::class);
