@@ -7,7 +7,7 @@ enum TransactionTypes: int
     case stake = 1;
     case vote = 2;
     case delegate = 3;
-    case unDelegate = 4;
+    case undelegate = 4;
     case reward = 5;
     case unstake = 6;
     case transfer = 7;
@@ -26,7 +26,7 @@ enum TransactionTypes: int
             self::unstake => 'Разморозка',
             self::transfer => 'Перевод',
             self::delegate => 'Делегирование',
-            self::unDelegate => 'Отозвать делегирование',
+            self::undelegate => 'Отозвать делегирование',
         };
     }
 }

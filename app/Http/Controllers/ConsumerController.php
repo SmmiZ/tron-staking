@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\{CreateConsumerRequest, PinRequest};
+use App\Jobs\UpdateOrderAmount;
 use App\Models\Consumer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -49,6 +50,10 @@ class ConsumerController extends Controller
     public function update(CreateConsumerRequest $request, Consumer $consumer): RedirectResponse
     {
         $consumer->update($request->validated());
+
+        if ($consumer->wasChanged('resource_amount')) {
+            UpdateOrderAmount::dispatch($consumer->order);
+        }
 
         return to_route('consumers.show', $consumer)->with('success', __('message.mission_complete'));
     }

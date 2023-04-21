@@ -571,7 +571,7 @@ class Tron implements TronInterface
     }
 
     /**
-     * Передать ресурс с одного кошелька на другой
+     * Делегировать ресурс
      *
      * @param string $ownerAddress
      * @param string $receiverAddress
@@ -598,6 +598,23 @@ class Tron implements TronInterface
         $response = $this->transactionBuilder->getCanDelegatedMaxSize($ownerAddress ?? $this->address['hex']);
 
         return $response['max_size'] ?? 0;
+    }
+
+    /**
+     * Отозвать ранее делегированный ресурс
+     *
+     * @param string $ownerAddress
+     * @param string $receiverAddress
+     * @param int $trxAmount
+     * @return array
+     * @throws TronException
+     */
+    public function undelegateResource(string $ownerAddress, string $receiverAddress, int $trxAmount): array
+    {
+        $permissionId = $this->getPermissionId($ownerAddress);
+        $undelegate = $this->transactionBuilder->undelegateResource($trxAmount, $ownerAddress, $receiverAddress, $permissionId);
+
+        return $this->signAndSendTransaction($undelegate);
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Consumer extends Model
 {
@@ -16,8 +16,8 @@ class Consumer extends Model
         'resource_amount',
     ];
 
-    public function orders(): HasMany
+    public function order(): HasOne
     {
-        return $this->hasMany(Order::class);
+        return $this->hasOne(Order::class);
     }
 }

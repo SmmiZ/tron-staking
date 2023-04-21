@@ -2,8 +2,7 @@
 
 namespace App\Console;
 
-use App\Console\Commands\CreateOrdersCommand;
-use App\Jobs\{FreezeTRX, GetReward, UnfreezeTRX, VoteSR};
+use App\Jobs\{GetVotesRewards, ProcessingOrders};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -17,7 +16,10 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(PruneCommand::class)->everyFifteenMinutes();
 
-        //Забрать доступные вознаграждения по всем кошелькам
+        //Обработка заказов
+        $schedule->job(ProcessingOrders::class)->dailyAt('00:00');
+
+        //Забрать доступные, от голосования, вознаграждения по всем кошелькам
         $schedule->job(GetVotesRewards::class)->dailyAt('23:55');
     }
 

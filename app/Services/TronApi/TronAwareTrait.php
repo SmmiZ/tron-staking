@@ -182,4 +182,32 @@ trait TronAwareTrait
 
         return $result;
     }
+
+    /**
+     * Конвертация TRX в энергию
+     *
+     * @param int $trxAmount
+     * @return float
+     * @throws Exception\TronException
+     */
+    public function trx2Energy(int $trxAmount): float
+    {
+        $resources = $this->getAccountResources();
+
+        return $trxAmount * ($resources['TotalEnergyLimit'] / $resources['TotalEnergyWeight']);
+    }
+
+    /**
+     * Конвертация энергии в TRX
+     *
+     * @param float $energyAmount
+     * @return float
+     * @throws Exception\TronException
+     */
+    public function energy2Trx(float $energyAmount): float
+    {
+        $resources = $this->getAccountResources();
+
+        return ceil($energyAmount / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
+    }
 }

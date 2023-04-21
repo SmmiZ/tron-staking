@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('trx_amount');
             $table->decimal('resource_amount', 22, 4)->default(0);
+            $table->timestamp('unlocked_at')->nullable();
             $table->timestamps();
         });
     }

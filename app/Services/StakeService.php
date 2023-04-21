@@ -83,14 +83,14 @@ class StakeService
     }
 
     /**
-     * Заполнить заказ ресурсом пользователя
+     * Делегировать ресурс пользователя для заказа
      *
      * @param Order $order
      * @param int $stakeAmount
      * @return void
      * @throws TronException
      */
-    public function fillOrder(Order $order, int $stakeAmount): void
+    public function delegateResourceToOrder(Order $order, int $stakeAmount): void
     {
         $requiredResource = $order->resource_amount - $order->executors()->sum('resource_amount');
         $resources = $this->tron->getAccountResources($this->wallet->address);
@@ -123,11 +123,10 @@ class StakeService
         $order->executors()->updateOrCreate(['user_id' => $this->wallet->user_id], [
             'trx_amount' => DB::raw('trx_amount + ' . $trxAmount),
             'resource_amount' => DB::raw('resource_amount + ' . $givenResourceAmount),
+            'unlocked_at' => now()->addDays(3),
         ]);
         //Обновление заказа
-        $order->resource_amount <= $order->executors()->sum('resource_amount')
-            ? $order->update(['status' => Statuses::completed, 'executed_at' => now()])
-            : $order->update(['status' => Statuses::pending]);
+        $order->update(['status' => Statuses::pending]);
     }
 
     /**
@@ -154,6 +153,40 @@ class StakeService
             'type' => TransactionTypes::reward,
             'trx_amount' => $availableTrxReward,
             'tx_id' => $response['txID'],
+        ]);
+    }
+
+    /**
+     * Отозвать ресурс пользователя из заказа
+     *
+     * @param Order $order
+     * @param int $trxAmount
+     * @return void
+     * @throws TronException
+     */
+    public function undelegateResourceFromOrder(Order $order, int $trxAmount): void
+    {
+        $response = $this->tron->undelegateResource($this->wallet->address, $order->consumer->address, $trxAmount);
+
+        if (isset($response['code']) && $response['code'] != 'true') {
+            throw new TronException($response['code'] ?: 'Unknown error');
+        }
+
+        $this->wallet->transactions()->create([
+            'from' => $order->consumer->address,
+            'type' => TransactionTypes::undelegate,
+            'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.balance') / Tron::ONE_SUN ?? $trxAmount,
+            'tx_id' => $response['txID'],
+        ]);
+
+        $resourceAmount = (new Tron())->trx2Energy($trxAmount);
+        $executor = $order->executors()->firstWhere('user_id', $this->wallet->user_id);
+
+        $executor->trx_amount - $trxAmount <= 0
+            ? $executor->update(['trx_amount' => 0, 'resource_amount' => 0])//$executor->delete(); //todo
+            : $executor->update([
+            'trx_amount' => DB::raw('trx_amount - ' . $trxAmount),
+            'resource_amount' => DB::raw('resource_amount - ' . $resourceAmount)
         ]);
     }
 }

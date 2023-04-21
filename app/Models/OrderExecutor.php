@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOneThrough};
 
 class OrderExecutor extends Model
 {
@@ -15,6 +15,11 @@ class OrderExecutor extends Model
         'user_id',
         'trx_amount',
         'resource_amount',
+        'unlocked_at',
+    ];
+
+    protected $casts = [
+        'unlocked_at' => 'datetime',
     ];
 
     public function order(): BelongsTo
@@ -25,5 +30,10 @@ class OrderExecutor extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function wallet(): HasOneThrough
+    {
+        return $this->hasOneThrough(Wallet::class, User::class, 'id', 'user_id');
     }
 }

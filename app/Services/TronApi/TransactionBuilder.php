@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\TronApi;
 
+use App\Enums\Resources;
 use App\Services\TronApi\Exception\TronException;
 
 // Web3 plugin
@@ -259,7 +260,7 @@ class TransactionBuilder
         return $this->tron->getManager()->request('wallet/freezebalancev2', [
             'owner_address' => $this->tron->toHex($address),
             'frozen_balance' => $trxAmount * $this->tron::ONE_SUN,
-            'resource' => 'ENERGY',
+            'resource' => Resources::ENERGY->name,
             'Permission_id' => $permissionId
         ]);
     }
@@ -279,7 +280,7 @@ class TransactionBuilder
         return $this->tron->getManager()->request('wallet/unfreezebalancev2', [
             'owner_address' => $this->tron->toHex($address),
             'unfreeze_balance' => $sunAmount,
-            'resource' => 'ENERGY',
+            'resource' => Resources::ENERGY->name,
             'Permission_id' => $permissionId
         ]);
     }
@@ -301,7 +302,7 @@ class TransactionBuilder
             'owner_address' => $this->tron->toHex($ownerAddress),
             'receiver_address' => $this->tron->toHex($receiverAddress),
             'balance' => $trxAmount * $this->tron::ONE_SUN,
-            'resource' => 'ENERGY',
+            'resource' => Resources::ENERGY->name,
             'Permission_id' => $permissionId,
             'lock' => true,
         ]);
@@ -318,6 +319,28 @@ class TransactionBuilder
         return $this->tron->getManager()->request('wallet/getcandelegatedmaxsize', [
             'owner_address' => $this->tron->toHex($ownerAddress),
             'type' => 1
+        ]);
+    }
+
+    /**
+     * Запрос на отзыв ресурса
+     * @see https://developers.tron.network/reference/undelegateresource-1
+     *
+     * @param int $trxAmount
+     * @param string $ownerAddress
+     * @param string $receiverAddress
+     * @param int $permissionId
+     * @return array
+     * @throws TronException
+     */
+    public function undelegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, int $permissionId): array
+    {
+        return $this->tron->getManager()->request('wallet/undelegateresource', [
+            'owner_address' => $this->tron->toHex($ownerAddress),
+            'receiver_address' => $this->tron->toHex($receiverAddress),
+            'balance' => $trxAmount * $this->tron::ONE_SUN,
+            'resource' => Resources::ENERGY->name,
+            'Permission_id' => $permissionId,
         ]);
     }
 
