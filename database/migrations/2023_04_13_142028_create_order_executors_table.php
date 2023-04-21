@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('resource_amount', 22, 4)->default(0);
             $table->timestamp('unlocked_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

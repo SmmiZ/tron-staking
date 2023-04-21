@@ -7,7 +7,7 @@
                 <div><button class="sort-button" wire:click="sort('resource_amount')">Кол-во ресурса</button></div>
                 <div><button class="sort-button" wire:click="sort('status')">Статус</button></div>
                 <div><button class="sort-button" wire:click="sort('created_at')">Создан</button></div>
-                <div><button class="sort-button" wire:click="sort('executed_at')">Завершен</button></div>
+                <div><button class="sort-button" wire:click="sort('deleted_at')">Закрыт</button></div>
             </div>
         </div>
         <div class="table-body">
@@ -19,7 +19,7 @@
                         <div>{{$order->resource_amount}}</div>
                         <div>{{$order->status->translate()}}</div>
                         <div>{{$order->created_at->format('d-m-Y H:i:s')}}</div>
-                        <div>{{$order->executed_at?->format('d-m-Y H:i:s')}}</div>
+                        <div>{{$order->deleted_at?->format('d-m-Y H:i:s')}}</div>
                     </div>
                 </a>
             @empty

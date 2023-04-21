@@ -39,8 +39,8 @@
                             <div>{{ $order->created_at->format('d.m.Y H:i:s') }}</div>
                         </div>
                         <div class="table-row">
-                            <div>Дата выполнения</div>
-                            <div>{{ $order->executed_at?->format('d.m.Y H:i:s') ?? '-' }}</div>
+                            <div>Дата закрытия</div>
+                            <div>{{ $order->deleted_at?->format('d.m.Y H:i:s') ?? '-' }}</div>
                         </div>
                     </div>
                 </div>

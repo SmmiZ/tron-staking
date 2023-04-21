@@ -19,8 +19,8 @@ return new class extends Migration
             $table->tinyInteger('resource')->default(Resources::ENERGY->value);
             $table->decimal('resource_amount', 22, 4)->default(0);
             $table->string('status')->default(Statuses::new->value);
-            $table->timestamp('executed_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

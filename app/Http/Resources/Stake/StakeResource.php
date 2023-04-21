@@ -19,7 +19,6 @@ class StakeResource extends BaseResource
             'id' => $this->id,
             'trx_amount' => $this->trx_amount,
             'status' => $this->status,
-            'unstake_at' => $this->unstake_at?->format('d-m-Y H:i:s'),
             'created_at' => $this->created_at->format('d-m-Y H:i:s'),
             'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
         ];

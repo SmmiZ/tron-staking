@@ -3,22 +3,22 @@
 namespace App\Models;
 
 use App\Enums\Statuses;
+use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Stake extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'trx_amount',
-        'unstake_at',
     ];
 
     protected $casts = [
         'amount' => 'int',
         'status' => Statuses::class,
-        'unstake_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

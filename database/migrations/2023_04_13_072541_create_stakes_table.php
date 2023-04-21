@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('trx_amount');
             $table->string('status')->default(Statuses::new->value);
-            $table->timestamp('unstake_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
