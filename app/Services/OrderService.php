@@ -49,7 +49,7 @@ class OrderService
     {
         $executors = $this->order->executors()->orderBy('unlocked_at')->get(['id', 'trx_amount', 'unlocked_at']);
         $resourceDiff = $this->order->resource_amount - $this->consumer->resource_amount;
-        $trx2Undelegate = (new Tron())->energy2Trx($resourceDiff);
+        $trx2Undelegate = floor((new Tron())->energy2Trx($resourceDiff));
 
         foreach ($executors as $executor) {
             if ($trx2Undelegate <= 0) {

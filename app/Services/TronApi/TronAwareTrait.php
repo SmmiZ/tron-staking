@@ -208,6 +208,6 @@ trait TronAwareTrait
     {
         $resources = $this->getAccountResources();
 
-        return ceil($energyAmount / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
+        return $energyAmount / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight'];
     }
 }
