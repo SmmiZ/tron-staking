@@ -921,6 +921,7 @@ class Tron implements TronInterface
     /**
      * Получить информацию по транзакции
      *
+     * @see https://developers.tron.network/reference/gettransactioninfobyid
      * @param string $transactionId
      * @return array
      * @throws TronException
@@ -929,6 +930,54 @@ class Tron implements TronInterface
     {
         return $this->manager->request('wallet/gettransactioninfobyid', [
             'value' => $transactionId,
+        ]);
+    }
+
+    /**
+     * Получить информацию о переданных\полученных ресурсах
+     *
+     * @see https://developers.tron.network/reference/getdelegatedresourceaccountindexv2-1
+     * @param string $address
+     * @return array
+     * @throws TronException
+     */
+    public function getResourceRelations(string $address): array
+    {
+        return $this->manager->request('wallet/getdelegatedresourceaccountindexv2', [
+            'value' => $this->toHex($address),
+        ]);
+    }
+
+    /**
+     * Получить подробную информацию о делегированных ресурсах
+     *
+     * @see https://developers.tron.network/reference/getdelegatedresourcev2
+     * @param string $ownerAddress
+     * @param string $receiverAddress
+     * @return array
+     * @throws TronException
+     */
+    public function getDelegatedResources(string $ownerAddress, string $receiverAddress): array
+    {
+        return $this->manager->request('wallet/getdelegatedresourcev2', [
+            'fromAddress' => $this->toHex($ownerAddress),
+            'toAddress' => $this->toHex($receiverAddress),
+        ]);
+    }
+
+    /**
+     * @todo не понятно, как работает и работает ли вообще
+     * @see https://developers.tron.network/reference/getcanwithdrawunfreezeamount-1
+     *
+     * @param string $ownerAddress
+     * @return array
+     * @throws TronException
+     */
+    public function getCanWithdrawUnfreezeAmount(string $ownerAddress): array
+    {
+        return $this->manager->request('wallet/getcanwithdrawunfreezeamount', [
+            'owner_address' => $this->toHex($ownerAddress),
+            'timestamp' => now()->timestamp,
         ]);
     }
 }

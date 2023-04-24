@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Stake\StoreStakeRequest;
 use App\Http\Resources\Stake\StakeResource;
-use App\Models\Stake;
+use App\Models\{OrderExecutor, Stake};
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Http\{Request, Response};
@@ -50,6 +50,18 @@ class StakeController extends Controller
     {
         return response([
             'status' => (new StakeService($request->user()->wallet))->unstake($stake),
+        ]);
+    }
+
+    public function getAvailableUnfreezeTrxAmount(Request $request): Response
+    {
+        $availableAmount = OrderExecutor::where('user_id', $request->user()->id)->where('unlocked_at', '<=', now())->sum('trx_amount');
+
+        return response([
+            'status' => true,
+            'data' => [
+                'amount' => (int)$availableAmount,
+            ],
         ]);
     }
 }

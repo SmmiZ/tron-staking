@@ -26,7 +26,11 @@ Route::name('api.')->group(function () {
         /** INFO */
         Route::get('connect-info', [InfoController::class, 'connectInfo'])->name('connect-info');
 
+        /** STAKES */
+        Route::get('stakes/available-for-unfreeze', [StakeController::class, 'getAvailableUnfreezeTrxAmount'])->name('stakes.available-for-unfreeze');
         Route::apiResource('stakes', StakeController::class)->except(['index', 'update']);
+
+        /** WALLETS */
         Route::apiResource('wallets', WalletController::class);
         Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
     });
