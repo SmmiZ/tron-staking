@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Stake\StoreStakeRequest;
-use App\Http\Resources\Stake\{StakeCollection, StakeResource};
+use App\Http\Resources\Stake\StakeResource;
 use App\Models\Stake;
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
@@ -16,11 +16,6 @@ class StakeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Stake::class);
-    }
-
-    public function index(Request $request): StakeCollection
-    {
-        return new StakeCollection($request->user()->stakes);
     }
 
     public function store(StoreStakeRequest $request): Response

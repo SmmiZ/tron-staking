@@ -7,7 +7,6 @@ use App\Models\{Order, User};
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
@@ -34,28 +33,23 @@ class ExecuteOrder implements ShouldQueue
      */
     public function handle(): void
     {
-        User::with([
-            'wallet',
-            'stakes' => fn(Builder $query) => $query->whereNot('status', Statuses::closed),
-        ])->orderBy('sort')->chunk(50, function ($users) {
+        User::with(['wallet', 'stake'])->orderBy('sort')->chunk(50, function ($users) {
             foreach ($users as $user) {
-                foreach ($user->stakes as $stake) {
-                    $this->order->refresh();
+                $this->order->refresh();
 
-                    if ($this->order->status === Statuses::closed) {
-                        exit();
-                    }
+                if ($this->order->status === Statuses::closed) {
+                    exit();
+                }
 
-                    try {
-                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $stake->trx_amount);
-                    } catch (TronException|Throwable $e) {
-                        Log::emergency('ExecuteOrder-Exception', [
-                            'stake_id' => $stake->id,
-                            'wallet_id' => $user->wallet->id,
-                            'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
-                        ]);
-                        dump($e->getMessage());
-                    }
+                try {
+                    (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
+                } catch (TronException|Throwable $e) {
+                    Log::emergency('ExecuteOrder-Exception', [
+                        'stake_id' => $user->stake->id,
+                        'wallet_id' => $user->wallet->id,
+                        'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
+                    ]);
+                    dump($e->getMessage());
                 }
             }
         });
