@@ -7,6 +7,7 @@ use App\Models\{Order, User};
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
@@ -33,7 +34,10 @@ class ExecuteOrder implements ShouldQueue
      */
     public function handle(): void
     {
-        User::with(['wallet', 'stakes'])->orderBy('sort')->chunk(50, function ($users) {
+        User::with([
+            'wallet',
+            'stakes' => fn(Builder $query) => $query->whereNot('status', Statuses::closed),
+        ])->orderBy('sort')->chunk(50, function ($users) {
             foreach ($users as $user) {
                 foreach ($user->stakes as $stake) {
                     $this->order->refresh();
