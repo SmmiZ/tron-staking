@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Models\Order;
-use App\Services\OrderService;
+use App\Models\OrderExecutor;
+use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
-class UpdateOrderAmount implements ShouldQueue
+class UndelegateExecutorResources implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -19,18 +19,26 @@ class UpdateOrderAmount implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param int $executorId
+     * @param int $trxAmount
      */
-    public function __construct(private readonly Order $order)
-    {
+    public function __construct(
+        private readonly int $executorId,
+        private readonly int $trxAmount
+    ) {
         //
     }
 
     /**
      * Execute the job.
+     *
      * @throws TronException
      */
     public function handle(): void
     {
-        (new OrderService($this->order))->update();
+        $executor = OrderExecutor::with(['wallet', 'order'])->find($this->executorId);
+
+        (new StakeService($executor->wallet))->undelegateResourceFromOrder($executor->order, $this->trxAmount);
     }
 }

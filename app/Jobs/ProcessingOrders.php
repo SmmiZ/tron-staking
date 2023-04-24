@@ -33,6 +33,7 @@ class ProcessingOrders implements ShouldQueue
             ->withSum('executors', 'resource_amount')
             ->whereIn('status', Statuses::OPEN_STATUSES)
             ->having('executors_sum_resource_amount', '<', 'resource_amount')
+            ->orHavingNull('executors_sum_resource_amount')
             ->chunk(50, function ($orders) {
                 foreach ($orders as $order) {
                     ExecuteOrder::dispatch($order);

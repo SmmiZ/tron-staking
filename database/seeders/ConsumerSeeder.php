@@ -17,12 +17,12 @@ class ConsumerSeeder extends Seeder
         $consumer = Consumer::query()->create([
             'name' => 'Main consumer',
             'address' => config('app.hot_spot_wallet') ?? 'address',
-            'resource_amount' => 30,
+            'resource_amount' => 10000,
         ]);
 
         Order::query()->create([
             'consumer_id' => $consumer->id,
-            'resource_amount' => 30,
+            'resource_amount' => 10000,
         ]);
     }
 }

@@ -183,7 +183,7 @@ class StakeService
         $executor = $order->executors()->firstWhere('user_id', $this->wallet->user_id);
 
         $executor->trx_amount - $trxAmount <= 0
-            ? $executor->update(['trx_amount' => 0, 'resource_amount' => 0])//$executor->delete(); //todo
+            ? $executor->update(['trx_amount' => 0, 'resource_amount' => 0, 'deleted_at' => now()])
             : $executor->update([
             'trx_amount' => DB::raw('trx_amount - ' . $trxAmount),
             'resource_amount' => DB::raw('resource_amount - ' . $resourceAmount)

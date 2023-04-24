@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\Statuses;
+use App\Jobs\UndelegateExecutorResources;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use App\Models\{Consumer, Order};
@@ -26,7 +27,7 @@ class OrderService
      */
     public function update(): void
     {
-        if ($this->consumer->resource_amount < $this->order->resource_amount && $this->order->executors) {
+        if ($this->consumer->resource_amount < $this->order->executors()->sum('resource_amount')) {
             $this->refreshExecutorsResources();
         }
 
@@ -46,28 +47,21 @@ class OrderService
      */
     private function refreshExecutorsResources(): void
     {
-        $unlockedExecutors = $this->order->executors()->with(['wallet'])
-            ->where('unlocked_at', '<=', now())
-            ->orderBy('trx_amount')
-            ->get();
-
+        $executors = $this->order->executors()->orderBy('unlocked_at')->get(['id', 'trx_amount', 'unlocked_at']);
         $resourceDiff = $this->order->resource_amount - $this->consumer->resource_amount;
-        $trxDiff = (new Tron())->energy2Trx($resourceDiff);
+        $trx2Undelegate = (new Tron())->energy2Trx($resourceDiff);
 
-        if ($unlockedExecutors->sum('trx_amount') >= $trxDiff) {
-            $leftToUndelegate = $trxDiff;
-            foreach ($unlockedExecutors as $executor) {
-                if ($leftToUndelegate <= 0) break;
-
-                $trxAmount = min($executor->trx_amount, $leftToUndelegate);
-                (new StakeService($executor->wallet))->undelegateResourceFromOrder($this->order, $trxAmount);
-
-                $leftToUndelegate -= $trxAmount;
+        foreach ($executors as $executor) {
+            if ($trx2Undelegate <= 0) {
+                break;
             }
-        }
 
-        //todo иначе - планируем джобу
-//        $maxUnlockedAt = $executors->max('unlocked_at');
-//        dd($maxUnlockedAt);
+            $trxAmount = min($executor->trx_amount, $trx2Undelegate);
+            UndelegateExecutorResources::dispatch($executor->id, $trxAmount)->delay(
+                $executor->unlocked_at <= now() ? now() : $executor->unlocked_at
+            );
+
+            $trx2Undelegate -= $trxAmount;
+        }
     }
 }
