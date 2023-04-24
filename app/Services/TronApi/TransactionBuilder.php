@@ -266,20 +266,20 @@ class TransactionBuilder
     }
 
     /**
-     * Разморозить TRX
-     * @see https://developers.tron.network/reference/unfreezebalancev2-1
+     * Запрос на разморозку TRX
      *
-     * @param int $sunAmount
+     * @see https://developers.tron.network/reference/unfreezebalancev2-1
+     * @param int $trxAmount
      * @param string $address
      * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function unfreezeEnergyBalance(int $sunAmount, string $address, int $permissionId = null): array
+    public function unfreezeEnergyBalance(int $trxAmount, string $address, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/unfreezebalancev2', [
             'owner_address' => $this->tron->toHex($address),
-            'unfreeze_balance' => $sunAmount,
+            'unfreeze_balance' => $trxAmount * $this->tron::ONE_SUN,
             'resource' => Resources::ENERGY->name,
             'Permission_id' => $permissionId
         ]);

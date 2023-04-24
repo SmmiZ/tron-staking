@@ -38,7 +38,7 @@ class ExecuteOrder implements ShouldQueue
                 foreach ($user->stakes as $stake) {
                     $this->order->refresh();
 
-                    if (in_array($this->order->status, Statuses::CLOSED_STATUSES)) {
+                    if ($this->order->status === Statuses::closed) {
                         exit();
                     }
 

@@ -130,20 +130,6 @@ class TronExtra
     }
 
     /**
-     * Query transaction fee based on id
-     *
-     * @param string $transactionID
-     * @return array
-     * @throws TronException
-     */
-    public function getTransactionInfo(string $transactionID): array
-    {
-        return $this->manager->request('walletsolidity/gettransactioninfobyid', [
-            'value' => $transactionID,
-        ]);
-    }
-
-    /**
      * Query the list of transactions received by an address
      *
      * @param string $address

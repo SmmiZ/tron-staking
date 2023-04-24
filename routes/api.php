@@ -26,7 +26,7 @@ Route::name('api.')->group(function () {
         /** INFO */
         Route::get('connect-info', [InfoController::class, 'connectInfo'])->name('connect-info');
 
-        Route::apiResource('stakes', StakeController::class);
+        Route::apiResource('stakes', StakeController::class)->except(['update']);
         Route::apiResource('wallets', WalletController::class);
         Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
     });

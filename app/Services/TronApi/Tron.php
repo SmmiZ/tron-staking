@@ -552,10 +552,11 @@ class Tron implements TronInterface
      * Разморозить TRX клиента
      *
      * @param string $userAddress
+     * @param int $trxAmount
      * @return array
      * @throws TronException
      */
-    public function unfreezeUserBalance(string $userAddress): array
+    public function unfreezeUserBalance(string $userAddress, int $trxAmount): array
     {
         $permissionId = $this->getPermissionId($userAddress);
         $resources = $this->getAccountResources($userAddress);
@@ -564,8 +565,7 @@ class Tron implements TronInterface
             throw new TronException('No available TRX to unfreeze');
         }
 
-        $sunAmount = $resources['tronPowerLimit'] * 1000000;
-        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($sunAmount, $userAddress, $permissionId);
+        $unfreeze = $this->transactionBuilder->unfreezeEnergyBalance($trxAmount, $userAddress, $permissionId);
 
         return $this->signAndSendTransaction($unfreeze);
     }
@@ -915,6 +915,20 @@ class Tron implements TronInterface
             'public_key' => $pubKeyHex,
             'address_hex' => $addressHex,
             'address_base58' => $addressBase58,
+        ]);
+    }
+
+    /**
+     * Получить информацию по транзакции
+     *
+     * @param string $transactionId
+     * @return array
+     * @throws TronException
+     */
+    public function getTransactionInfo(string $transactionId): array
+    {
+        return $this->manager->request('wallet/gettransactioninfobyid', [
+            'value' => $transactionId,
         ]);
     }
 }

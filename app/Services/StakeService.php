@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Enums\{Statuses, TransactionTypes};
-use App\Models\{Order, Wallet};
+use App\Models\{Order, Stake, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +33,7 @@ class StakeService
      * @return mixed
      * @throws TronException
      */
-    public function store(int $amount): mixed
+    public function stake(int $amount): mixed
     {
         $trxAmount = min(
             $amount,
@@ -187,6 +187,38 @@ class StakeService
             : $executor->update([
             'trx_amount' => DB::raw('trx_amount - ' . $trxAmount),
             'resource_amount' => DB::raw('resource_amount - ' . $resourceAmount)
+        ]);
+    }
+
+    /**
+     * Разморозить TRX (отзыв стейка)
+     *
+     * @param Stake $stake
+     * @return bool
+     * @throws TronException
+     */
+    public function unstake(Stake $stake): bool
+    {
+        $response = $this->tron->unfreezeUserBalance($this->wallet->address, $stake->trx_amount);
+
+        if (isset($response['code']) && $response['code'] != 'true') {
+            throw new TronException($response['code'] ?: 'Unknown error');
+        }
+
+        $this->wallet->transactions()->create([
+            'type' => TransactionTypes::unstake,
+            'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.unfreeze_balance') / Tron::ONE_SUN,
+            'tx_id' => $response['txID'],
+        ]);
+
+        //todo
+        // выводим доступное, планируем пока недоступное + транзакции
+        // выводим дату для остальной части
+        // запланировать через Х дней отзыв размороженных TRX
+
+        return $stake->update([
+            'status' => Statuses::closed,
+            'deleted_at' => now(),
         ]);
     }
 }
