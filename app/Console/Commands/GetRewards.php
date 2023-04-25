@@ -1,47 +1,46 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
 use App\Models\Wallet;
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class GetVotesRewards implements ShouldQueue
+class GetRewards extends Command
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:get-rewards';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        //
-    }
+    protected $description = 'Забрать доступные награды пользователей';
 
     /**
-     * Execute the job.
+     * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
-        Wallet::query()->chunk(50, function ($wallets) {
+        Wallet::query()->orderBy('id')->chunk(50, function ($wallets) {
             foreach ($wallets as $wallet) {
                 try {
                     (new StakeService($wallet))->getReward();
                 } catch (TronException|Throwable $e) {
+                    $this->error($e->getMessage());
+
                     Log::emergency('GetReward-Exception', [
                         'wallet_id' => $wallet->id,
                         'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
                     ]);
-                    dump($e->getMessage());
                 }
             }
         });

@@ -1,39 +1,39 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
 use App\Enums\Statuses;
+use App\Jobs\ExecuteOrder;
 use App\Models\Order;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Console\Command;
 
-class ProcessingOrders implements ShouldQueue
+class ProcessingOrders extends Command
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:processing-orders';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        //
-    }
+    protected $description = 'Запуск обработки заказов';
 
     /**
-     * Execute the job.
+     * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
         Order::with(['executors'])
             ->withSum('executors', 'resource_amount')
             ->whereIn('status', Statuses::OPEN_STATUSES)
             ->having('executors_sum_resource_amount', '<', 'resource_amount')
             ->orHavingNull('executors_sum_resource_amount')
+            ->orderBy('id')
             ->chunk(50, function ($orders) {
                 foreach ($orders as $order) {
                     ExecuteOrder::dispatch($order);
