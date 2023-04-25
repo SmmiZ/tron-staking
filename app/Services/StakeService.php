@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Enums\{Statuses, TransactionTypes};
-use App\Models\{Order, OrderExecutor, Wallet};
+use App\Enums\{Operations, Statuses};
+use App\Models\{Order, OrderExecutor, Transaction, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Support\Facades\DB;
@@ -41,21 +41,10 @@ class StakeService
             throw new TronException('Not enough TRX to freeze');
         }
 
-        $this->wallet->user->stake()->updateOrCreate([], [
-            'trx_amount' => DB::raw('trx_amount + ' . $trxAmount),
-        ]);
-
+        $this->wallet->user->stake()->updateOrCreate([], ['trx_amount' => DB::raw('trx_amount + ' . $trxAmount)]);
         $response = $this->tron->freezeUserBalance($this->wallet, $trxAmount);
 
-        if (isset($response['code']) && $response['code'] != 'true') {
-            throw new TronException($response['code'] ?: 'Unknown error');
-        }
-
-        $this->wallet->transactions()->create([
-            'type' => TransactionTypes::stake,
-            'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.frozen_balance') / Tron::ONE_SUN ?: null,
-            'tx_id' => $response['txID'],
-        ]);
+        $this->storeTransaction($response);
         $this->vote();
 
         return true;
@@ -72,16 +61,7 @@ class StakeService
         $witnessAddress = $this->tron->getTopSrAddress();
         $response = $this->tron->voteWitness($witnessAddress, $this->wallet);
 
-        $this->wallet->transactions()->create([
-            'to' => $witnessAddress,
-            'type' => TransactionTypes::vote,
-            'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.votes.0.vote_count'),
-            'tx_id' => $response['txID'],
-        ]);
-
-        if (isset($response['code']) && $response['code'] != 'true') {
-            throw new TronException($response['code'] ?: 'Unknown error');
-        }
+        $this->storeTransaction($response);
     }
 
     /**
@@ -108,26 +88,15 @@ class StakeService
         $trxAmount = min($availableTrx, $stakeAmount, $requiredTrx);
 
         $response = $this->tron->delegateResource($this->wallet->address, $order->consumer->address, $trxAmount);
+        $this->storeTransaction($response);
 
-        if (isset($response['code']) && $response['code'] != 'true') {
-            throw new TronException($response['code'] ?: 'Unknown error');
-        }
-
-        //Запись транзакции
-        $this->wallet->transactions()->create([
-            'to' => $order->consumer->address,
-            'type' => TransactionTypes::delegate,
-            'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.balance') / Tron::ONE_SUN ?? $trxAmount,
-            'tx_id' => $response['txID'],
-        ]);
-        //Запись исполнителя
+        //Обновление исполнителя и заказа
         $givenResourceAmount = $trxAmount / $resources['TotalEnergyWeight'] * $resources['TotalEnergyLimit'];
         $order->executors()->updateOrCreate(['user_id' => $this->wallet->user_id], [
             'trx_amount' => DB::raw('trx_amount + ' . $trxAmount),
             'resource_amount' => DB::raw('resource_amount + ' . $givenResourceAmount),
             'unlocked_at' => now()->addDays(3),
         ]);
-        //Обновление заказа
         $order->update(['status' => Statuses::pending]);
     }
 
@@ -146,16 +115,7 @@ class StakeService
         }
 
         $response = $this->tron->rewardWithdraw($this->wallet->address);
-
-        if (isset($response['code']) && $response['code'] != 'true') {
-            throw new TronException($response['code'] ?: 'Unknown error');
-        }
-
-        $this->wallet->transactions()->create([
-            'type' => TransactionTypes::reward,
-            'trx_amount' => $availableTrxReward,
-            'tx_id' => $response['txID'],
-        ]);
+        $this->storeTransaction($response, $availableTrxReward);
     }
 
     /**
@@ -169,17 +129,7 @@ class StakeService
     public function undelegateResourceFromOrder(Order $order, int $trxAmount): void
     {
         $response = $this->tron->undelegateResource($this->wallet->address, $order->consumer->address, $trxAmount);
-
-        if (isset($response['code']) && $response['code'] != 'true') {
-            throw new TronException($response['code'] ?: 'Unknown error');
-        }
-
-        $this->wallet->transactions()->create([
-            'from' => $order->consumer->address,
-            'type' => TransactionTypes::undelegate,
-            'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.balance') / Tron::ONE_SUN ?? $trxAmount,
-            'tx_id' => $response['txID'],
-        ]);
+        $this->storeTransaction($response);
 
         $resourceAmount = (new Tron())->trx2Energy($trxAmount);
         $executor = $order->executors()->firstWhere('user_id', $this->wallet->user_id);
@@ -206,16 +156,7 @@ class StakeService
         }
 
         $response = $this->tron->unfreezeUserBalance($this->wallet->address, $trxAmount);
-
-        if (isset($response['code']) && $response['code'] != 'true') {
-            throw new TronException($response['code'] ?: 'Unknown error');
-        }
-
-        $this->wallet->transactions()->create([
-            'type' => TransactionTypes::unstake,
-            'trx_amount' => data_get($response, 'raw_data.contract.0.parameter.value.unfreeze_balance') / Tron::ONE_SUN,
-            'tx_id' => $response['txID'],
-        ]);
+        $this->storeTransaction($response);
 
         return true;
     }
@@ -247,5 +188,43 @@ class StakeService
         }
 
         return false;
+    }
+
+    /**
+     * Запись транзакции в БД
+     *
+     * @param array $response
+     * @param int $trxAmount
+     * @return void
+     * @throws TronException
+     */
+    private function storeTransaction(array $response, int $trxAmount = 0): void
+    {
+        if (isset($response['code']) && $response['code'] != 'true') {
+            throw new TronException($response['code'] ?: 'Unknown error');
+        }
+
+        $contract = data_get($response, 'raw_data.contract.0');
+        $type = Operations::fromName(data_get($contract, 'type'));
+
+        $trxAmount = match ($type) {
+            Operations::VoteWitnessContract => data_get($contract, 'parameter.value.votes.0.vote_count'),
+            Operations::FreezeBalanceV2Contract => data_get($contract, 'parameter.value.frozen_balance') / Tron::ONE_SUN,
+            Operations::UnfreezeBalanceV2Contract => data_get($contract, 'parameter.value.unfreeze_balance') / Tron::ONE_SUN,
+            Operations::DelegateResourceContract, Operations::UnDelegateResourceContract => data_get($contract, 'parameter.value.balance') / Tron::ONE_SUN,
+            default => $trxAmount
+        };
+
+        $to = $type === Operations::VoteWitnessContract
+            ? data_get($contract, 'parameter.value.votes.0.vote_address')
+            : data_get($contract, 'parameter.value.receiver_address');
+
+        Transaction::create([
+            'from' => data_get($contract, 'parameter.value.owner_address'),
+            'to' => $to,
+            'type' => $type,
+            'trx_amount' => $trxAmount,
+            'tx_id' => $response['txID'],
+        ]);
     }
 }

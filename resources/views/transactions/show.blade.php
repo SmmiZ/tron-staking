@@ -23,10 +23,6 @@
                             <div>{{$transaction->id}}</div>
                         </div>
                         <div class="table-row">
-                            <div>Кошелек</div>
-                            <div>{{ $transaction->wallet_id }}</div>
-                        </div>
-                        <div class="table-row">
                             <div>От кого</div>
                             <div>{{ $transaction->from }}</div>
                         </div>

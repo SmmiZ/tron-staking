@@ -1,9 +1,8 @@
 <div>
-    <div class="table col7">
+    <div class="table col6">
         <div class="table-head">
             <div class="table-row">
                 <div><button class="sort-button" wire:click="sort('id')">ID</button></div>
-                <div><button class="sort-button" wire:click="sort('wallet_id')">Кошелек</button></div>
                 <div><button class="sort-button" wire:click="sort('from')">От кого</button></div>
                 <div><button class="sort-button" wire:click="sort('to')">Кому</button></div>
                 <div><button class="sort-button" wire:click="sort('type')">Тип</button></div>
@@ -16,7 +15,6 @@
                 <a href="{{route('transactions.show', $transaction)}}" class="inline-link">
                     <div class="table-row">
                         <div>{{$transaction->id}}</div>
-                        <div>{{$transaction->wallet_id}}</div>
                         <div>{{$transaction->from}}</div>
                         <div>{{$transaction->to}}</div>
                         <div>{{$transaction->type->translate()}}</div>

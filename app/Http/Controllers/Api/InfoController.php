@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\Permissions;
+use App\Enums\Operations;
 use App\Http\Controllers\Controller;
 use App\Services\TronApi\Tron;
 use Illuminate\Http\Response;
@@ -22,7 +22,7 @@ class InfoController extends Controller
             'status' => true,
             'data' => [
                 'address' => $tron->address['hex'],
-                'operations' => $tron->encodeHexadecimal(Permissions::requiredIndexes()),
+                'operations' => $tron->encodeHexadecimal(Operations::requiredIndexes()),
                 'weight' => 1,
             ],
         ]);

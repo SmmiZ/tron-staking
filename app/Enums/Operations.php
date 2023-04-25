@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum Permissions: int
+enum Operations: int
 {
     case AccountCreateContract = 0;
     case TransferContract = 1;
@@ -16,7 +16,6 @@ enum Permissions: int
     case AccountUpdateContract = 10;
     case FreezeBalanceContract = 11;
     case UnfreezeBalanceContract = 12;
-    /** Reward Withdraw */
     case WithdrawBalanceContract = 13;
     case UnfreezeAssetContract = 14;
     case UpdateAssetContract = 15;
@@ -42,10 +41,22 @@ enum Permissions: int
     case MarketCancelOrderContract = 53;
     case FreezeBalanceV2Contract = 54;
     case UnfreezeBalanceV2Contract = 55;
-    /** TRX Withdraw */
     case WithdrawExpireUnfreezeContract = 56;
     case DelegateResourceContract = 57;
     case UnDelegateResourceContract = 58;
+    /** Для неизвестных операций */
+    case Unknown = 999;
+
+    public static function fromName(string $name): self
+    {
+        foreach (self::cases() as $operation) {
+            if ($name === $operation->name) {
+                return $operation;
+            }
+        }
+
+        return self::Unknown;
+    }
 
     public static function requiredIndexes(): array
     {
@@ -56,11 +67,26 @@ enum Permissions: int
             self::WithdrawBalanceContract->value,
             self::DelegateResourceContract->value,
             self::UnDelegateResourceContract->value,
+            self::WithdrawExpireUnfreezeContract->value,
         ];
     }
 
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
+    }
+
+    public function translate(): string
+    {
+        return match ($this) {
+            self::WithdrawBalanceContract => 'Вывод награды',
+            self::VoteWitnessContract => 'Голосование',
+            self::FreezeBalanceV2Contract => 'Заморозка',
+            self::UnfreezeBalanceV2Contract => 'Разморозка',
+            self::DelegateResourceContract => 'Делегирование',
+            self::UnDelegateResourceContract => 'Отзыв делегирования',
+            self::WithdrawExpireUnfreezeContract => 'Вывод TRX',
+            default => $this->name,
+        };
     }
 }
