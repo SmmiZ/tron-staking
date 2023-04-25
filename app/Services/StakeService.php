@@ -201,25 +201,7 @@ class StakeService
      */
     public function unstake(int $trxAmount): bool
     {
-        $executors = OrderExecutor::with(['order'])
-            ->where('user_id', $this->wallet->user_id)
-            ->where('unlocked_at', '<=', now())
-            ->orderBy('trx_amount')
-            ->get();
-
-        $trxLeft = $trxAmount;
-        foreach ($executors as $executor) {
-            $trxToUndelegate = min($trxLeft, $executor->trx_amount);
-            $trxLeft -= $trxToUndelegate;
-
-            $this->undelegateResourceFromOrder($executor->order, $trxToUndelegate);
-
-            if ($trxLeft <= 0) {
-                break;
-            }
-        }
-
-        if ($trxLeft > 0) {
+        if (!$this->withdrawUnlockedResources($trxAmount)) {
             return false;
         }
 
@@ -236,5 +218,34 @@ class StakeService
         ]);
 
         return true;
+    }
+
+    /**
+     * Отозвать не заблокированные ресурсы
+     *
+     * @param int $withdrawAmount
+     * @return bool
+     * @throws TronException
+     */
+    private function withdrawUnlockedResources(int $withdrawAmount): bool
+    {
+        $executors = OrderExecutor::with(['order'])
+            ->where('user_id', $this->wallet->user_id)
+            ->where('unlocked_at', '<=', now())
+            ->orderBy('trx_amount')
+            ->get();
+
+        foreach ($executors as $executor) {
+            $trxToUndelegate = min($withdrawAmount, $executor->trx_amount);
+            $withdrawAmount -= $trxToUndelegate;
+
+            $this->undelegateResourceFromOrder($executor->order, $trxToUndelegate);
+
+            if ($withdrawAmount <= 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

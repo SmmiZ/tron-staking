@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Stake\StoreStakeRequest;
 use App\Http\Resources\Stake\StakeResource;
+use App\Jobs\WithdrawDefrostedTrx;
 use App\Models\OrderExecutor;
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
@@ -54,6 +55,7 @@ class StakeController extends Controller
 
         if ($status) {
             $request->user()->stake()->update(['trx_amount' => DB::raw('trx_amount - ' . $trxAmount)]);
+            WithdrawDefrostedTrx::dispatch($request->user())->delay(now()->addDays(14));
         }
 
         return response([
