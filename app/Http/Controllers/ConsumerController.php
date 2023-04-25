@@ -37,7 +37,8 @@ class ConsumerController extends Controller
 
     public function store(CreateConsumerRequest $request): RedirectResponse
     {
-        Consumer::query()->create($request->validated());
+        $consumer = Consumer::create($request->validated());
+        $consumer->order()->create(['resource_amount' => $consumer->resource_amount]);
 
         return to_route('consumers.index')->with('success', __('message.mission_complete'));
     }
