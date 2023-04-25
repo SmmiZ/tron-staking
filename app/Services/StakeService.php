@@ -35,10 +35,7 @@ class StakeService
      */
     public function stake(int $amount): bool
     {
-        $trxAmount = min(
-            $amount,
-            $this->tron->getTrxBalance($this->wallet->address)
-        );
+        $trxAmount = min($amount, $this->tron->getTrxBalance($this->wallet->address));
 
         if ($trxAmount < 1) {
             throw new TronException('Not enough TRX to freeze');
@@ -59,6 +56,7 @@ class StakeService
             'trx_amount' => data_get($response,'raw_data.contract.0.parameter.value.frozen_balance') / Tron::ONE_SUN ?: null,
             'tx_id' => $response['txID'],
         ]);
+        $this->vote();
 
         return true;
     }
@@ -69,7 +67,7 @@ class StakeService
      * @return void
      * @throws TronException
      */
-    public function vote(): void
+    private function vote(): void
     {
         $witnessAddress = $this->tron->getTopSrAddress();
         $response = $this->tron->voteWitness($witnessAddress, $this->wallet);
