@@ -27,8 +27,12 @@ Route::name('api.')->group(function () {
         Route::get('connect-info', [InfoController::class, 'connectInfo'])->name('connect-info');
 
         /** STAKES */
-        Route::get('stakes/available-for-unfreeze', [StakeController::class, 'getAvailableUnfreezeTrxAmount'])->name('stakes.available-for-unfreeze');
-        Route::apiResource('stakes', StakeController::class)->except(['index', 'update']);
+        Route::prefix('stakes')->name('stakes.')->group(function () {
+            Route::post('', [StakeController::class, 'stake'])->name('stake');
+            Route::get('', [StakeController::class, 'show'])->name('show');
+            Route::post('unstake', [StakeController::class, 'unstake'])->name('unstake');
+            Route::get('available-for-unfreeze', [StakeController::class, 'getAvailableUnfreezeTrxAmount'])->name('available-for-unfreeze');
+        });
 
         /** WALLETS */
         Route::apiResource('wallets', WalletController::class);

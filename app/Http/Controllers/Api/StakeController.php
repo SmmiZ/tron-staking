@@ -9,7 +9,7 @@ use App\Models\{OrderExecutor, Stake};
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Http\{Request, Response};
-use Throwable;
+use Illuminate\Support\Facades\DB;
 
 class StakeController extends Controller
 {
@@ -18,50 +18,52 @@ class StakeController extends Controller
         $this->authorizeResource(Stake::class);
     }
 
-    public function store(StoreStakeRequest $request): Response
+    /**
+     * @throws TronException
+     */
+    public function stake(StoreStakeRequest $request): Response
     {
-        try {
-            $newStakeId = (new StakeService($request->user()->wallet))->stake($request->validated('trx_amount'));
-        } catch (Throwable $e) {
-            return response([
-                'status' => false,
-                'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
-                'errors' => (object)[]
-            ]);
-        }
+        $status = (new StakeService($request->user()->wallet))->stake($request->validated('trx_amount'));
 
         return response([
-            'status' => true,
-            'data' => [
-                'id' => $newStakeId,
-            ],
+            'status' => $status,
+            'data' => [],
         ]);
     }
 
     public function show(Stake $stake): StakeResource
     {
-        return new StakeResource($stake);
+        return new StakeResource($stake); //todo изменить ответ
+    }
+
+    public function getAvailableUnfreezeTrxAmount(Request $request): Response
+    {
+        $total = $request->user()->stake->trx_amount;
+        $locked = OrderExecutor::where('user_id', $request->user()->id)->where('unlocked_at', '>', now())->sum('trx_amount');
+
+        return response([
+            'status' => true,
+            'data' => [
+                'trx_amount' => (int)($total - $locked),
+            ],
+        ]);
     }
 
     /**
      * @throws TronException
      */
-    public function destroy(Request $request, Stake $stake): Response
+    public function unstake(StoreStakeRequest $request): Response
     {
-        return response([
-            'status' => (new StakeService($request->user()->wallet))->unstake($stake),
-        ]);
-    }
+        $trxAmount = $request->validated('trx_amount');
+        $status = (new StakeService($request->user()->wallet))->unstake($trxAmount);
 
-    public function getAvailableUnfreezeTrxAmount(Request $request): Response
-    {
-        $availableAmount = OrderExecutor::where('user_id', $request->user()->id)->where('unlocked_at', '<=', now())->sum('trx_amount');
+        if ($status) {
+            $request->user()->stake()->update(['trx_amount' => DB::raw('trx_amount - ' . $trxAmount)]);
+        }
 
         return response([
-            'status' => true,
-            'data' => [
-                'amount' => (int)$availableAmount,
-            ],
+            'status' => $status,
+            'data' => [],
         ]);
     }
 }
