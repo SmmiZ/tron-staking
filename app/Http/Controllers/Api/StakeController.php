@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Stake\StoreStakeRequest;
 use App\Http\Resources\Stake\StakeResource;
-use App\Models\{OrderExecutor, Stake};
+use App\Models\OrderExecutor;
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Http\{Request, Response};
@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class StakeController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(Stake::class);
-    }
-
     /**
      * @throws TronException
      */
@@ -31,9 +26,9 @@ class StakeController extends Controller
         ]);
     }
 
-    public function show(Stake $stake): StakeResource
+    public function show(Request $request): StakeResource
     {
-        return new StakeResource($stake); //todo изменить ответ
+        return new StakeResource($request->user()->stake);
     }
 
     public function getAvailableUnfreezeTrxAmount(Request $request): Response
