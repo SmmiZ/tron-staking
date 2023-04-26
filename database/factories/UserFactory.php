@@ -18,7 +18,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'the_code' => 'T-' . strtoupper(Str::random(6)),
+            'the_code' => 'TE' . Str::random(6),
         ];
     }
 

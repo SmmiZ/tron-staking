@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Statuses;
+use App\Enums\ReactorTypes;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stakes', function (Blueprint $table) {
+        Schema::create('reactors', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->unsignedBigInteger('trx_amount');
-            $table->tinyInteger('status')->default(Statuses::new->value);
+            $table->tinyInteger('type')->default(ReactorTypes::standard->value);
+            $table->timestamp('active_until')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stakes');
+        Schema::dropIfExists('reactors');
     }
 };

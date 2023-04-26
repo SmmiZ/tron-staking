@@ -55,6 +55,11 @@ class User extends Authenticatable
         return $this->hasOne(User::class, 'the_code', 'invitation_code');
     }
 
+    public function reactor(): HasOne
+    {
+        return $this->hasOne(Reactor::class);
+    }
+
     /**
      * Считает кол-во приглашенных в указанной линии
      *

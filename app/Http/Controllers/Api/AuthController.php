@@ -62,7 +62,7 @@ class AuthController extends Controller
 
         $user = User::firstOrCreate(['email' => $request->email], [
             'name' => 'Пользователь ' . random_int(111111, 999999),
-            'the_code' => 'T-' . strtoupper(Str::random(6)),
+            'the_code' => 'TE' . Str::random(6),
             'invitation_code' => $leaderCode,
         ]);
 
