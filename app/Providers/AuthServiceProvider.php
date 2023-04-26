@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
-use App\Models\{Consumer, Order, Stake, Transaction, User, Wallet};
-use App\Policies\{ConsumerPolicy, OrderPolicy, StakePolicy, TransactionPolicy, UserPolicy, WalletPolicy};
+use App\Models\{Consumer, Order, Reactor, Stake, Transaction, User, Wallet};
+use App\Policies\{ConsumerPolicy, OrderPolicy, ReactorPolicy, StakePolicy, TransactionPolicy, UserPolicy, WalletPolicy};
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -21,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
          Transaction::class => TransactionPolicy::class,
          Order::class => OrderPolicy::class,
          Wallet::class => WalletPolicy::class,
+         Reactor::class => ReactorPolicy::class,
     ];
 
     /**

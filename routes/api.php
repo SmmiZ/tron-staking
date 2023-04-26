@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController, InfoController, StakeController, WalletController};
+use App\Http\Controllers\Api\{AuthController, InfoController, ReactorController, StakeController, WalletController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,5 +37,8 @@ Route::name('api.')->group(function () {
         /** WALLETS */
         Route::apiResource('wallets', WalletController::class);
         Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
+
+        /** REACTORS */
+        Route::apiResource('reactors', ReactorController::class)->except(['update']);
     });
 });
