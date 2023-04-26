@@ -32,6 +32,7 @@ class AuthRequest extends BaseRequest
                 'digits:4',
                 Rule::exists('temp_codes', 'code')->where(fn($query) => $query->where('login', $this->email)),
             ],
+            'invitation_code' => ['sometimes', 'string', 'exists:users,the_code'],
         ];
     }
 

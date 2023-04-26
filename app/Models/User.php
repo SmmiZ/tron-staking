@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough, HasOne};
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,15 +24,10 @@ class User extends Authenticatable
         'name',
         'email',
         'sort',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'remember_token',
+        'invitation_code',
+        'the_code',
+        'linear_path',
+        'leader_level',
     ];
 
     public function wallet(): HasOne
@@ -52,5 +48,32 @@ class User extends Authenticatable
     public function stake(): HasOne
     {
         return $this->hasOne(Stake::class);
+    }
+
+    public function leader(): HasOne
+    {
+        return $this->hasOne(User::class, 'the_code', 'invitation_code');
+    }
+
+    /**
+     * Считает кол-во приглашенных в указанной линии
+     *
+     * @param int $lineNum
+     * @return int
+     */
+    public function getLineCount(int $lineNum): int
+    {
+        return self::where('linear_path', 'rlike', '^(/\d+){' . $lineNum . "}/$this->id/")->count('id');
+    }
+
+    /**
+     * Все доступные дочерние клиенты из реферального дерева
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeInvitedClients(Builder $query): Builder
+    {
+        return $query->where('linear_path', 'rlike', "^(/\d+){1,20}/$this->id/");
     }
 }

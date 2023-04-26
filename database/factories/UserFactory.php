@@ -11,14 +11,14 @@ class UserFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
+     * @return array
      */
     public function definition(): array
     {
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'remember_token' => Str::random(10),
+            'the_code' => 'T-' . strtoupper(Str::random(6)),
         ];
     }
 

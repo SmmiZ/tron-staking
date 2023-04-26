@@ -27,7 +27,9 @@ class AuthController extends Controller
 
         return response([
             'status' => true,
-            'message' => __('messages.code.sent'),
+            'data' => [
+                'message' => __('messages.code.sent')
+            ],
         ]);
     }
 
@@ -41,7 +43,9 @@ class AuthController extends Controller
     {
         return response([
             'status' => true,
-            'message' => __('messages.code.valid'),
+            'data' => [
+                'signup' => User::where('email', $request->email)->doesntExist()
+            ],
         ]);
     }
 
@@ -54,7 +58,17 @@ class AuthController extends Controller
      */
     public function auth(AuthRequest $request): Response
     {
-        $user = User::firstOrCreate(['email' => $request->email], ['name' => 'Пользователь ' . random_int(111111, 999999)]);
+        $leaderCode = $request->get('invitation_code');
+
+        $user = User::firstOrCreate(['email' => $request->email], [
+            'name' => 'Пользователь ' . random_int(111111, 999999),
+            'the_code' => 'T-' . strtoupper(Str::random(6)),
+            'invitation_code' => $leaderCode,
+        ]);
+
+        if ($user->wasRecentlyCreated && $leaderCode) {
+            $this->updateLinearPath($user);
+        }
 
         $token = $user->createToken(
             $request->get('device_name', Str::uuid()),
@@ -81,7 +95,22 @@ class AuthController extends Controller
 
         return response([
             'status' => true,
-            'message' => __('messages.device.logout')
+            'data' => [
+                'message' => __('messages.device.logout')
+            ]
         ])->withCookie(cookie()->forget('jwt'));
+    }
+
+    /**
+     * Обновление реферальной цепочки пользователей
+     *
+     * @param User $user
+     * @return void
+     */
+    private function updateLinearPath(User $user): void
+    {
+        $linearPath = $user->leader->linear_path ?? '/' . $user->leader->id . '/';
+
+        $user->update(['linear_path' => '/' . $user->id . $linearPath]);
     }
 }
