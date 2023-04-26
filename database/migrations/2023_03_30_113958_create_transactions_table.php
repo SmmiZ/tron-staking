@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('from')->nullable();
             $table->string('to')->nullable();
-            $table->tinyInteger('type');
+            $table->unsignedInteger('type');
             $table->decimal('trx_amount', 18, 4)->default(0);
             $table->string('tx_id');
             $table->timestamps();
