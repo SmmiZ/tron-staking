@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ReactorPurchasedEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReactorRequest;
 use App\Http\Resources\Reactor\{ReactorCollection, ReactorResource};
@@ -25,7 +26,10 @@ class ReactorController extends Controller
         $reactors = Reactor::factory($request->count)->create([
             'user_id' => $request->user()->id,
         ]);
+
         //todo покупка
+        event(new ReactorPurchasedEvent());
+
         return response([
             'status' => true,
             'data' => [

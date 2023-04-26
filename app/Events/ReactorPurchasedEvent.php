@@ -7,7 +7,7 @@ use Illuminate\Broadcasting\{InteractsWithSockets, PrivateChannel};
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewStakeEvent extends Event
+class ReactorPurchasedEvent extends Event
 {
     use Dispatchable;
     use InteractsWithSockets;
