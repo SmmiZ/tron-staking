@@ -1,0 +1,137 @@
+variables:
+    ALIAS_PROJECT_NAME: 'Tron energy'
+    PROJECT_ALIAS: 'tron-energy'
+
+
+include:
+  - project: 'devops/gitlab-templates'
+    ref: master
+    file: '/Tron/.template-gitlab-ci.yml'
+
+
+
+################################################################
+########################### STAGE ##############################
+################################################################
+
+build:stage:
+  extends: 
+    - .build
+    - .branch_stage
+  script:
+    - !reference [.build, script]
+  variables:
+    URL_PROJECT_NAME: $PROJECT_ALIAS
+    MAIN_DOMAIN: $MAIN_DOMAIN_STAGE
+    APP_ENV: APP_ENV=STAGE
+  tags:
+    - shell-shared-stage-OVH
+
+
+deploy:stage:
+  extends: 
+    - .deploy
+    - .branch_stage
+  variables:
+    MAIN_DOMAIN: $MAIN_DOMAIN_STAGE
+  tags:
+    - shell-shared-stage-OVH
+
+  
+
+EXEC_STAGE:
+  variables:
+    URL_PROJECT_NAME: $PROJECT_ALIAS
+  extends: 
+    - .branch_stage
+  script:
+    - docker exec ${URL_PROJECT_NAME}-php $EXEC           
+  stage: exec
+  only:
+    variables:
+      - $EXEC
+  tags:
+    - shell-shared-stage-OVH
+
+################################################################
+########################### DEMO ###############################
+################################################################
+
+build:demoview:
+  extends: 
+    - .build
+    - .branch_demo
+  script:
+    - !reference [.build, script]
+  variables:
+    URL_PROJECT_NAME: $PROJECT_ALIAS
+    MAIN_DOMAIN: $MAIN_DOMAIN_TESTING
+    APP_ENV: APP_ENV=DEMO
+  tags:
+    - shell_demoview
+
+deploy:demoview:
+  extends: 
+    - .deploy 
+    - .branch_demo
+  variables:
+    MAIN_DOMAIN: $MAIN_DOMAIN_TESTING
+  tags:
+    - shell_demoview
+
+EXEC_DEMOVIEW:
+  variables:
+      URL_PROJECT_NAME: $PROJECT_ALIAS 
+  extends: 
+    - .branch_demo
+  script:
+    - docker exec ${URL_PROJECT_NAME}-php $EXEC           
+  stage: exec
+  only:
+    variables:
+      - $EXEC
+  tags:
+    - shell_demoview
+
+################################################################
+########################### PROD  ##############################
+################################################################
+
+build:prod:
+  extends: 
+    - .build
+    - .branch_prod
+  script:
+    - !reference [.build, script]
+  variables:
+    URL_PROJECT_NAME: $PROJECT_ALIAS
+    MAIN_DOMAIN: $MAIN_DOMAIN_PROD
+    APP_ENV: APP_ENV=PROD
+  tags:
+    - shell-t
+
+
+deploy:prod:
+  extends: 
+    - .deploy
+    - .branch_prod
+  variables:
+    MAIN_DOMAIN: $MAIN_DOMAIN_PROD
+  tags:
+    - shell-t
+
+EXEC_PROD:
+  variables:
+      URL_PROJECT_NAME: $PROJECT_ALIAS 
+  extends: 
+    - .branch_prod
+  script:
+    - docker exec ${URL_PROJECT_NAME}-php $EXEC           
+  stage: exec
+  only:
+    variables:
+      - $EXEC
+  tags:
+    - shell-shared-stage-OVH
+cache:
+  untracked: true 
