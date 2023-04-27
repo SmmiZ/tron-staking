@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Events\NewStakeEvent;
-use App\Enums\{Operations, Statuses};
+use App\Enums\{TronTxTypes, Statuses};
 use App\Models\{Order, OrderExecutor, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -207,17 +207,17 @@ class StakeService
         }
 
         $contract = data_get($response, 'raw_data.contract.0');
-        $type = Operations::fromName(data_get($contract, 'type'));
+        $type = TronTxTypes::fromName(data_get($contract, 'type'));
 
         $trxAmount = match ($type) {
-            Operations::VoteWitnessContract => data_get($contract, 'parameter.value.votes.0.vote_count'),
-            Operations::FreezeBalanceV2Contract => data_get($contract, 'parameter.value.frozen_balance') / Tron::ONE_SUN,
-            Operations::UnfreezeBalanceV2Contract => data_get($contract, 'parameter.value.unfreeze_balance') / Tron::ONE_SUN,
-            Operations::DelegateResourceContract, Operations::UnDelegateResourceContract => data_get($contract, 'parameter.value.balance') / Tron::ONE_SUN,
+            TronTxTypes::VoteWitnessContract => data_get($contract, 'parameter.value.votes.0.vote_count'),
+            TronTxTypes::FreezeBalanceV2Contract => data_get($contract, 'parameter.value.frozen_balance') / Tron::ONE_SUN,
+            TronTxTypes::UnfreezeBalanceV2Contract => data_get($contract, 'parameter.value.unfreeze_balance') / Tron::ONE_SUN,
+            TronTxTypes::DelegateResourceContract, TronTxTypes::UnDelegateResourceContract => data_get($contract, 'parameter.value.balance') / Tron::ONE_SUN,
             default => $trxAmount
         };
 
-        $to = $type === Operations::VoteWitnessContract
+        $to = $type === TronTxTypes::VoteWitnessContract
             ? data_get($contract, 'parameter.value.votes.0.vote_address')
             : data_get($contract, 'parameter.value.receiver_address');
 

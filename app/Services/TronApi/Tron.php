@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
-use App\Enums\Operations;
+use App\Enums\TronTxTypes;
 use App\Models\Wallet;
 use App\Services\TronApi\Concerns\{ManagesTronscan, ManagesUniversal};
 use App\Services\TronApi\Exception\TronException;
@@ -665,7 +665,7 @@ class Tron implements TronInterface
         $permission = $this->getPermissions($address);
         $currentIndexes = $this->decodeHexadecimal($permission['operations']);
 
-        return !array_diff(Operations::requiredIndexes(), $currentIndexes);
+        return !array_diff(TronTxTypes::requiredIndexes(), $currentIndexes);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Operations;
+use App\Enums\TronTxTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,6 +19,6 @@ class TronTx extends Model
     ];
 
     protected $casts = [
-        'type' => Operations::class,
+        'type' => TronTxTypes::class,
     ];
 }

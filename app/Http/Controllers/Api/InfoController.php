@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\Operations;
+use App\Enums\TronTxTypes;
 use App\Http\Controllers\Controller;
 use App\Services\TronApi\Tron;
 use Illuminate\Http\Response;
@@ -22,7 +22,7 @@ class InfoController extends Controller
             'status' => true,
             'data' => [
                 'address' => $tron->address['hex'],
-                'operations' => $tron->encodeHexadecimal(Operations::requiredIndexes()),
+                'operations' => $tron->encodeHexadecimal(TronTxTypes::requiredIndexes()),
                 'weight' => 1,
             ],
         ]);

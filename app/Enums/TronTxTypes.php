@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum Operations: int
+enum TronTxTypes: int
 {
     case AccountCreateContract = 0;
     case TransferContract = 1;
