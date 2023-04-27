@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Events\NewStakeEvent;
 use App\Enums\{Operations, Statuses};
-use App\Models\{Order, OrderExecutor, Transaction, Wallet};
+use App\Models\{Order, OrderExecutor, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Support\Facades\DB;
@@ -221,7 +221,7 @@ class StakeService
             ? data_get($contract, 'parameter.value.votes.0.vote_address')
             : data_get($contract, 'parameter.value.receiver_address');
 
-        Transaction::create([
+        TronTx::create([
             'from' => data_get($contract, 'parameter.value.owner_address'),
             'to' => $to,
             'type' => $type,

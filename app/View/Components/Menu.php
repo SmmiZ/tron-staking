@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\{Consumer, Order, Transaction, User};
+use App\Models\{Consumer, Order, TronTx, User};
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\{Auth};
 use Illuminate\View\Component;
@@ -26,7 +26,7 @@ class Menu extends Component
 
         $this->addMenu('orders.index', 'orders', 'Заказы', 'mdi-application', Order::class);
 
-        $this->addMenu('transactions.index', 'transactions', 'Транзакции', 'mdi-arrow-left-right-bold-outline', Transaction::class);
+        $this->addMenu('transactions.index', 'transactions', 'Транзакции', 'mdi-arrow-left-right-bold-outline', TronTx::class);
     }
 
     /**

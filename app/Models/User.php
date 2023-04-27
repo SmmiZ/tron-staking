@@ -42,9 +42,14 @@ class User extends Authenticatable
         return $this->hasMany(Wallet::class);
     }
 
-    public function transactions(): HasManyThrough
+    public function tronTxs(): HasManyThrough
     {
-        return $this->hasManyThrough(Transaction::class, Wallet::class);
+        return $this->hasManyThrough(TronTx::class, Wallet::class);
+    }
+
+    public function internalTxs(): HasMany
+    {
+        return $this->hasMany(InternalTx::class);
     }
 
     public function stake(): HasOne
@@ -81,6 +86,7 @@ class User extends Authenticatable
      */
     public function scopeMainInvitedUsers(Builder $query): Builder
     {
+        //todo можно ли сделать hasMany
         return $query->where('linear_path', 'rlike', "^(/\d+){1,3}/$this->id/");
     }
 
