@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\InternalTxTypes;
 use App\Events\{NewStakeEvent, ReactorPurchasedEvent};
 use App\Models\{LeaderLevel, User};
 use Illuminate\Bus\Queueable;
@@ -46,10 +47,6 @@ class LeaderLevelSubscriber implements ShouldQueue
             }
 
             $this->updateLeaderLevel($leader);
-
-            //todo
-            // Если за поднятие уровня есть награда, то вручаем её только один раз, когда впервые был поднят уровень. user_balances отдельным типом записываем награду и уровень (чтобы можно было в следующие разы проверять получал ли юзер за этот уровень или нет)
-            // Если уровень был поднят по alternative_conditions, надо это где-то отметить и проверять его каждые день т.к. стейк может закончиться.
         }
     }
 
@@ -83,8 +80,18 @@ class LeaderLevelSubscriber implements ShouldQueue
             )
         )->first()->level ?? 0;
 
+        //todo
+        // Если уровень был поднят по alternative_conditions, надо это где-то отметить и проверять его каждые день т.к. стейк может закончиться.
+
         if ($newLevel !== $leader->leader_level) {
             $leader->update(['leader_level' => $newLevel]);
+
+            $type = InternalTxTypes::from('levelReward' . $newLevel);
+            $leader->internalTxs()->where('type', $type)->existsOr(
+                fn() => $leader->internalTxs()->create([
+                    'type' => $type,
+                    'amount' => $this->levels->where('level', $newLevel)->value('reward'),
+                ]));
         }
     }
 }
