@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Reactor::class);
     }
 
+    public function downgrade(): hasOne
+    {
+        return $this->hasOne(UserDowngrade::class);
+    }
+
     /**
      * Считает кол-во приглашенных в указанной линии
      *
@@ -86,7 +91,6 @@ class User extends Authenticatable
      */
     public function scopeMainInvitedUsers(Builder $query): Builder
     {
-        //todo можно ли сделать hasMany
         return $query->where('linear_path', 'rlike', "^(/\d+){1,3}/$this->id/");
     }
 
