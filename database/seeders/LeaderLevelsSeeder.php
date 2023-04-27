@@ -26,9 +26,9 @@ class LeaderLevelsSeeder extends Seeder
         ['reactors' => 30, 'trx' => 500_000],
         ['reactors' => 50, 'trx' => 1_000_000],
         ['reactors' => 100, 'trx' => 2_500_000],
-        ['reactors' => 200, 'leaders' => [5 => 2]],
-        ['reactors' => 500, 'leaders' => [6 => 2]],
-        ['reactors' => 1000, 'leaders' => [7 => 3]],
+        ['reactors' => 200, 'leaders' => ['level' => 5, 'number' => 2]],
+        ['reactors' => 500, 'leaders' => ['level' => 6, 'number' => 2]],
+        ['reactors' => 1000, 'leaders' => ['level' => 7, 'number' => 3]],
     ];
 
     private array $altConditions = [

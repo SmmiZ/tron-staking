@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Broadcasting\{InteractsWithSockets, PrivateChannel};
 use Illuminate\Foundation\Events\Dispatchable;
@@ -16,9 +17,9 @@ class ReactorPurchasedEvent extends Event
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(public User $user)
     {
-        //todo
+        //
     }
 
     /**

@@ -74,12 +74,23 @@ class User extends Authenticatable
     }
 
     /**
+     * Первые 3 линии из реферального дерева
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeMainInvitedUsers(Builder $query): Builder
+    {
+        return $query->where('linear_path', 'rlike', "^(/\d+){1,3}/$this->id/");
+    }
+
+    /**
      * Все доступные дочерние клиенты из реферального дерева
      *
      * @param Builder $query
      * @return Builder
      */
-    public function scopeInvitedClients(Builder $query): Builder
+    public function scopeInvitedUsers(Builder $query): Builder
     {
         return $query->where('linear_path', 'rlike', "^(/\d+){1,20}/$this->id/");
     }
