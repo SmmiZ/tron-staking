@@ -75,4 +75,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserLine::class);
     }
+
+    public function level(): HasOne
+    {
+        return $this->hasOne(LeaderLevel::class, 'level', 'leader_level');
+    }
 }

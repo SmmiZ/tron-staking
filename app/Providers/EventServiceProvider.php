@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use App\Listeners\LeaderLevelSubscriber;
+use App\Events\{ProfitReceivedEvent};
+use App\Listeners\{LeaderLevelSubscriber, ProfitListener};
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -13,7 +14,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        //
+        ProfitReceivedEvent::class => [
+            ProfitListener::class,
+        ],
     ];
 
     protected $subscribe = [

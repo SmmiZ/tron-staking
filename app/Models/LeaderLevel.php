@@ -11,11 +11,13 @@ class LeaderLevel extends Model
         'name_en',
         'conditions',
         'alt_conditions',
+        'line_percents',
         'reward',
     ];
 
     protected $casts = [
         'conditions' => 'object',
         'alt_conditions' => 'object',
+        'line_percents' => 'array',
     ];
 }

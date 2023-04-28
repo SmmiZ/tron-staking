@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('amount');
+            $table->unsignedBigInteger('received')->default(0);
             $table->unsignedInteger('type');
             $table->timestamps();
         });

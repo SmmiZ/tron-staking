@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name_en');
             $table->json('conditions')->nullable();
             $table->json('alt_conditions')->nullable();
+            $table->json('line_percents')->nullable();
             $table->unsignedInteger('reward');
             $table->timestamps();
         });

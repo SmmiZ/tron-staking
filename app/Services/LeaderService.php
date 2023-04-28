@@ -44,7 +44,7 @@ class LeaderService
                 $this->leader->downgrade()->delete();
                 $this->leader->update(['leader_level' => $newLevel]);
 
-                $type = InternalTxTypes::from('levelReward' . $newLevel);
+                $type = InternalTxTypes::fromName('levelReward' . $newLevel);
                 $this->leader->internalTxs()->where('type', $type)->existsOr(
                     fn() => $this->leader->internalTxs()->create([
                         'type' => $type,
