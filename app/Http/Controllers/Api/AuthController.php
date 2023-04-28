@@ -59,7 +59,7 @@ class AuthController extends Controller
     public function auth(AuthRequest $request): Response
     {
         $leader = User::withCount('reactors')->firstWhere('the_code', $request->get('invitation_code'));
-        $leaderCode = $leader->reactors_count > 0 ? $request->get('invitation_code') : null;
+        $leaderCode = $leader?->reactors_count > 0 ? $request->get('invitation_code') : null;
 
         $user = User::firstOrCreate(['email' => $request->email], [
             'name' => 'Пользователь ' . random_int(111111, 999999),
@@ -143,5 +143,42 @@ class AuthController extends Controller
             'status' => $leader->reactors_count > 0,
             'data' => [],
         ]);
+    }
+
+    /**
+     * Обновить лидера в течение 15 минут после регистрации
+     *
+     * @param InvitationCodeRequest $request
+     * @return Response
+     */
+    public function addLeaderCode(InvitationCodeRequest $request): Response
+    {
+        $user = $request->user();
+        $leader = User::withCount('reactors')->firstWhere('the_code', $request->invitation_code);
+
+        switch (true) {
+            case $leader->reactors_count < 0:
+                return response([
+                    'status' => false,
+                    'data' => [
+                        'message' => __('messages.code.invalid')
+                    ],
+                ]);
+            case $user->created_at < now()->subMinutes(15):
+                return response([
+                    'status' => false,
+                    'data' => [
+                        'message' => __('messages.code.expired')
+                    ],
+                ]);
+            default:
+                $user->update(['invitation_code' => $request->invitation_code]);
+                $this->updateLinearPath($user);
+
+                return response([
+                    'status' => true,
+                    'data' => [],
+                ]);
+        }
     }
 }
