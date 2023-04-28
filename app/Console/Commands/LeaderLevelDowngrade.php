@@ -37,7 +37,6 @@ class LeaderLevelDowngrade extends Command
                     (new LeaderService($userDowngrade->user))->withDowngrade()->updateLevel($levels);
 
                     $userDowngrade->delete();
-                    //todo запуск пересчета уровня верхним юзерам
                 }
             });
     }

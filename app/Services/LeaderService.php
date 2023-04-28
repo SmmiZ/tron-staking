@@ -56,7 +56,7 @@ class LeaderService
                 break;
         }
 
-        if ($newLevel > 4 && ($nextLeader = $this->leader->leader)) {
+        if ($nextLeader = $this->leader->leader) {
             (new self($nextLeader))->updateLevel($levels);
         }
     }
