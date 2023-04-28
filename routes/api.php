@@ -19,6 +19,8 @@ Route::name('api.')->group(function () {
     Route::post('code', [AuthController::class, 'code'])->name('code');
     Route::post('code/check', [AuthController::class, 'checkCode'])->name('check-code');
     Route::post('auth', [AuthController::class, 'auth'])->name('auth');
+    Route::get('leader-code/check', [AuthController::class, 'checkLeaderCode'])->name('check-leader-code');
+
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');

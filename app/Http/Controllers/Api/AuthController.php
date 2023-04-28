@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Auth\{AuthRequest, CodeRequest};
+use App\Http\Requests\Api\Auth\{AuthRequest, CodeRequest, InvitationCodeRequest};
 use App\Mail\AuthCode;
 use App\Models\{TempCode, User, UserLine};
 use Exception;
@@ -126,5 +126,21 @@ class AuthController extends Controller
         }
 
         $user->update(['linear_path' => '/' . $user->id . $linearPath]);
+    }
+
+    /**
+     * Проверка валидности пригласительного кода
+     *
+     * @param InvitationCodeRequest $request
+     * @return Response
+     */
+    public function checkLeaderCode(InvitationCodeRequest $request): Response
+    {
+        $leader = User::withCount('reactors')->firstWhere('the_code', $request->invitation_code);
+
+        return response([
+            'status' => $leader->reactors_count > 0,
+            'data' => [],
+        ]);
     }
 }
