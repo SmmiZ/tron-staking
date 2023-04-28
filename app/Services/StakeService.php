@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Events\NewStakeEvent;
-use App\Enums\{TronTxTypes, Statuses};
+use App\Enums\{Statuses, TronTxTypes};
+use App\Events\{NewStakeEvent, UnStakeEvent};
 use App\Models\{Order, OrderExecutor, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -45,7 +45,7 @@ class StakeService
         $this->wallet->user->stake()->updateOrCreate([], ['trx_amount' => DB::raw('trx_amount + ' . $trxAmount)]);
         $response = $this->tron->freezeUserBalance($this->wallet, $trxAmount);
 
-        event(new NewStakeEvent());
+        event(new NewStakeEvent($this->wallet->user));
         $this->storeTransaction($response);
         $this->vote();
 
@@ -159,6 +159,7 @@ class StakeService
 
         $response = $this->tron->unfreezeUserBalance($this->wallet->address, $trxAmount);
         $this->storeTransaction($response);
+        event(new UnStakeEvent($this->wallet->user));
 
         return true;
     }

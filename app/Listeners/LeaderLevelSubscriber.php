@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\{NewStakeEvent, ReactorPurchasedEvent};
+use App\Events\{NewStakeEvent, ReactorShutdownEvent, ReactorStartEvent, UnStakeEvent};
 use App\Models\{LeaderLevel, User};
 use App\Services\LeaderService;
 use Illuminate\Bus\Queueable;
@@ -26,7 +26,9 @@ class LeaderLevelSubscriber implements ShouldQueue
     {
         return [
             NewStakeEvent::class => 'handle',
-            ReactorPurchasedEvent::class => 'handle',
+            UnStakeEvent::class => 'handle',
+            ReactorStartEvent::class => 'handle',
+            ReactorShutdownEvent::class => 'handle',
         ];
     }
 
@@ -38,11 +40,11 @@ class LeaderLevelSubscriber implements ShouldQueue
         $leaderIds = explode('/', trim($event->user->linear_path, '/'));
         array_shift($leaderIds);
 
-        $leaders = User::withCount('reactors')->whereIn('id', $leaderIds)->orderByDesc('id')->get();
+        $leaders = User::whereIn('id', $leaderIds)->orderByDesc('id')->get();
         $levels = LeaderLevel::where('level', '>', 0)->orderByDesc('level')->get();
 
         foreach ($leaders as $i => $leader) {
-            if ($i > 19) {
+            if ($i > 2) {
                 break;
             }
 

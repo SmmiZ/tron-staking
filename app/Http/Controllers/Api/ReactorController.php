@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\ReactorPurchasedEvent;
+use App\Events\ReactorStartEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReactorRequest;
 use App\Http\Resources\Reactor\{ReactorCollection, ReactorResource};
@@ -28,7 +28,7 @@ class ReactorController extends Controller
         ]);
 
         //todo покупка
-        event(new ReactorPurchasedEvent());
+        event(new ReactorStartEvent($request->user()));
 
         return response([
             'status' => true,
