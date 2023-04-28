@@ -58,7 +58,8 @@ class AuthController extends Controller
      */
     public function auth(AuthRequest $request): Response
     {
-        $leaderCode = $request->get('invitation_code');
+        $leader = User::withCount('reactors')->firstWhere('the_code', $request->get('invitation_code'));
+        $leaderCode = $leader->reactors_count > 0 ? $request->get('invitation_code') : null;
 
         $user = User::firstOrCreate(['email' => $request->email], [
             'name' => 'Пользователь ' . random_int(111111, 999999),
