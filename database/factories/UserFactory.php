@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
+use App\Models\{User, UserLine};
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -41,6 +41,19 @@ class UserFactory extends Factory
 
                 $leader = User::inRandomOrder()->whereNot('id', $user->id)->where('id', '<', $user->id)->first();
                 $linearPath = $leader->linear_path ?? '/' . $leader->id . '/';
+
+                $leadersIds = explode('/', trim($linearPath, '/'));
+                foreach ($leadersIds as $i => $leaderId) {
+                    if ($i > 19) {
+                        break;
+                    }
+
+                    $lineIds = UserLine::where('user_id', $leaderId)->where('line', $i + 1)->value('ids') ?? [];
+                    UserLine::updateOrCreate(
+                        ['user_id' => $leaderId, 'line' => $i + 1],
+                        ['ids' => array_merge($lineIds, [$user->id])]
+                    );
+                }
 
                 $user->update(['linear_path' => '/' . $user->id . $linearPath]);
             }

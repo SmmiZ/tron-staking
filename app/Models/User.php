@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough, HasOne};
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -72,36 +71,8 @@ class User extends Authenticatable
         return $this->hasOne(UserDowngrade::class);
     }
 
-    /**
-     * Считает кол-во приглашенных в указанной линии
-     *
-     * @param int $lineNum
-     * @return int
-     */
-    public function getLineCount(int $lineNum): int
+    public function lines(): HasMany
     {
-        return self::where('linear_path', 'rlike', '^(/\d+){' . $lineNum . "}/$this->id/")->count('id');
-    }
-
-    /**
-     * Первые 3 линии из реферального дерева
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeMainInvitedUsers(Builder $query): Builder
-    {
-        return $query->where('linear_path', 'rlike', "^(/\d+){1,3}/$this->id/");
-    }
-
-    /**
-     * Все доступные дочерние клиенты из реферального дерева
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeInvitedUsers(Builder $query): Builder
-    {
-        return $query->where('linear_path', 'rlike', "^(/\d+){1,20}/$this->id/");
+        return $this->hasMany(UserLine::class);
     }
 }

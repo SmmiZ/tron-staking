@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Auth\{AuthRequest, CodeRequest};
 use App\Mail\AuthCode;
-use App\Models\{TempCode, User};
+use App\Models\{TempCode, User, UserLine};
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
@@ -109,7 +109,21 @@ class AuthController extends Controller
      */
     private function updateLinearPath(User $user): void
     {
-        $linearPath = $user->leader->linear_path ?? '/' . $user->leader->id . '/';
+        $leader = $user->leader;
+        $linearPath = $leader->linear_path ?? '/' . $leader->id . '/';
+
+        $leadersIds = explode('/', trim($linearPath, '/'));
+        foreach ($leadersIds as $i => $leaderId) {
+            if ($i > 19) {
+                break;
+            }
+
+            $lineIds = UserLine::where('user_id', $leaderId)->where('line', $i + 1)->value('ids') ?? [];
+            UserLine::updateOrCreate(
+                ['user_id' => $leaderId, 'line' => $i + 1],
+                ['ids' => array_merge($lineIds, [$user->id])]
+            );
+        }
 
         $user->update(['linear_path' => '/' . $user->id . $linearPath]);
     }

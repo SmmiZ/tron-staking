@@ -32,13 +32,17 @@ class LeaderService
      */
     public function updateLevel(Collection $levels): void
     {
-        $mainLinesUsers = $this->leader->mainInvitedUsers()->withCount(['reactors'])->withSum('stake', 'trx_amount')->get();
+        $threeLinesIds = $this->leader->lines()->whereIn('line', [1, 2, 3])->get(['ids', 'line']);
 
-        $reactorsCount = $mainLinesUsers->sum('reactors_count');
-        $trxSum = $mainLinesUsers->sum('stake_sum_trx_amount');
+        $threeLinesUsers = User::query()
+            ->withCount(['reactors'])
+            ->withSum('stake', 'trx_amount')
+            ->whereIn('id', $threeLinesIds->pluck('ids')->collapse()->toArray())->get();
 
-        $firstLineLeaders = User::query()
-            ->whereIn('id', $mainLinesUsers->pluck('id')->toArray())
+        $reactorsCount = $threeLinesUsers->sum('reactors_count');
+        $trxSum = $threeLinesUsers->sum('stake_sum_trx_amount');
+
+        $firstLineLeaders = User::whereIn('id', $threeLinesIds->where('line', 1)->pluck('ids')->collapse()->toArray())
             ->select(['leader_level', DB::raw('count(*) as total')])
             ->where('leader_level', '>', 5)
             ->groupBy('leader_level')
@@ -77,6 +81,10 @@ class LeaderService
             default:
                 $this->leader->downgrade()->delete();
                 break;
+        }
+
+        if ($newLevel > 4 && ($nextLeader = $this->leader->leader)) {
+            (new self($nextLeader))->updateLevel($levels);
         }
     }
 }
