@@ -15,7 +15,7 @@ use Elliptic\EC;
 /**
  * A PHP API for interacting with the Tron (TRX)
  */
-class Tron implements TronInterface
+class Tron
 {
     use ManagesTronscan;
     use ManagesUniversal;
@@ -837,16 +837,12 @@ class Tron implements TronInterface
      * Validate address
      *
      * @param string|null $address
-     * @param bool $hex
      * @return array
      * @throws TronException
      */
-    public function validateAddress(string $address = null, bool $hex = false): array
+    public function validateAddress(string $address = null): array
     {
-        $address = (!is_null($address) ? $address : $this->address['hex']);
-        if ($hex) {
-            $address = $this->toHex($address);
-        }
+        $address = is_null($address) ? $this->address['hex'] : $this->toHex($address);
 
         return $this->manager->request('wallet/validateaddress', [
             'address' => $address,

@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Api\Wallet;
 
 use App\Http\Requests\Api\BaseRequest;
+use App\Services\TronApi\Tron;
+use Closure;
 
 class StoreWalletRequest extends BaseRequest
 {
@@ -14,7 +16,13 @@ class StoreWalletRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'address' => ['required', 'filled', 'string', 'starts_with:T', 'size:34'],
+            'address' => ['required', 'filled', function (string $attribute, mixed $value, Closure $fail) {
+                $response = (new Tron())->validateAddress($value);
+
+                if (isset($response['result']) && !$response['result']) {
+                    $fail('The :attribute must be a valid wallet address.');
+                }
+            }],
         ];
     }
 
