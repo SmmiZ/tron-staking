@@ -10,6 +10,8 @@ class TronTx extends Model
 {
     use HasFactory;
 
+    protected $table = 'tron_txs';
+
     protected $fillable = [
         'from',
         'to',

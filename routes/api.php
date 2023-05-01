@@ -1,6 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController, InfoController, ReactorController, StakeController, WalletController};
+use App\Http\Controllers\Api\{AuthController,
+    InfoController,
+    ReactorController,
+    StakeController,
+    TransactionController,
+    WalletController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,5 +47,11 @@ Route::name('api.')->group(function () {
 
         /** REACTORS */
         Route::apiResource('reactors', ReactorController::class)->except(['update']);
+
+        /** TRANSACTIONS */
+        Route::prefix('transactions')->name('transactions.')->group(function () {
+            Route::get('internal', [TransactionController::class, 'internalTxs'])->name('internal');
+//            Route::get('tron', [TransactionController::class, 'tronTxs'])->name('tron');
+        });
     });
 });
