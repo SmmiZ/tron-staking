@@ -55,7 +55,7 @@ class Handler extends ExceptionHandler
                 'status' => false,
                 'error' => $e->getMessage(),
                 'errors' => [
-                    'unauthenticated' => ['Unauthenticated.']
+                    'essence' => ['Unauthenticated.']
                 ],
             ], 401) : new Response(view('errors.401'), 401);
         });
@@ -64,7 +64,7 @@ class Handler extends ExceptionHandler
                 'status' => false,
                 'error' => $e->getMessage(),
                 'errors' => [
-                    'unauthenticated' => ['Unauthenticated.']
+                    'essence' => ['Forbidden.']
                 ],
             ], 403) : new Response(view('errors.403'), 403);
         });
