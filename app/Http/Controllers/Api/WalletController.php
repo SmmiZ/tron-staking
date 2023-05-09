@@ -59,8 +59,8 @@ class WalletController extends Controller
      */
     public function checkAccess(Request $request, Wallet $wallet): Response
     {
+        $this->authorize('checkAccess', $wallet);
         $tron = new Tron();
-
         return response([
             'status' => $tron->hasAccess($wallet->address),
         ]);

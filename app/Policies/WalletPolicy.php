@@ -101,4 +101,16 @@ class WalletPolicy
     {
         return false;
     }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     *
+     * @param User $user
+     * @param Wallet $wallet
+     * @return bool
+     */
+    public function checkAccess(User $user, Wallet $wallet): bool
+    {
+        return $user->id === $wallet->user_id;
+    }
 }

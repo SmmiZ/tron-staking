@@ -2,10 +2,15 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Throwable;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -44,20 +49,53 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+        });
+        $this->renderable(function (AuthenticationException $e, Request $request) {
+            return $request->expectsJson() ? response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+                'errors' => [
+                    'unauthenticated' => ['Unauthenticated.']
+                ],
+            ], 401) : new Response(view('errors.401'), 401);
+        });
+        $this->renderable(function (AccessDeniedHttpException $e, Request $request) {
+            return $request->expectsJson() ? response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+                'errors' => [
+                    'unauthenticated' => ['Unauthenticated.']
+                ],
+            ], 403) : new Response(view('errors.403'), 403);
+        });
+        $this->renderable(function (NotFoundHttpException $e, Request $request) {
+            return $request->wantsJson() ? new Response([
+                'status' => false,
+                'error' => 'Cannot Find',
+                'errors' => [
+                    'essence' => ['Cannot Find']
+                ]
+            ], 404) : new Response(view('errors.404'), 404);
+        });
+        $this->renderable(function (ValidationException $e, Request $request) {
+            return $request->wantsJson() ? new Response([
+                'status' => false,
+                'error' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422) : new Response(view('errors.422'), 422);
         });
 
+
         $this->renderable(function (Throwable $e, Request $request) {
-            if ($request->is('api/*') && !($e instanceof ValidationException)) {
+            if ($request->is('api/*')) {
                 $error = config('app.debug') ? $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() : $e->getMessage();
                 return response([
                     'status' => false,
                     'error' => $error,
                     'errors' => (object)$e->getPrevious(),
-                ], 422);
+                ], 500);
             }
-
-            return null;
+            return new Response(view('errors.500'), 500);
         });
     }
 }

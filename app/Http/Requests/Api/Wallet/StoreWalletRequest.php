@@ -16,7 +16,7 @@ class StoreWalletRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'address' => ['required', 'filled', function (string $attribute, mixed $value, Closure $fail) {
+            'address' => ['required', 'unique:wallets', 'filled', function (string $attribute, mixed $value, Closure $fail) {
                 $response = (new Tron())->validateAddress($value);
 
                 if (isset($response['result']) && !$response['result']) {
