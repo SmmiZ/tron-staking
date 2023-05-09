@@ -11,6 +11,7 @@ use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StakeController extends Controller
 {
@@ -27,9 +28,11 @@ class StakeController extends Controller
         ]);
     }
 
-    public function show(Request $request): StakeResource
+    public function show(Request $request): StakeResource|HttpResponseException
     {
-        return new StakeResource($request->user()->stake);
+        return  $request->user()->stake
+            ? new StakeResource($request->user()->stake)
+            : abort(404);
     }
 
     public function getAvailableUnfreezeTrxAmount(Request $request): Response
