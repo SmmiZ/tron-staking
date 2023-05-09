@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Console\Commands\{GetRewards, LeaderLevelDowngrade, ProcessingOrders};
+use App\Console\Commands\{GetRewards, LeaderLevelDowngrade, MerchantCheckCommand, ProcessingOrders};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -24,6 +24,9 @@ class Kernel extends ConsoleKernel
 
         //Понижение лидерского уровня пользователей
         $schedule->command(LeaderLevelDowngrade::class)->everyFiveMinutes();
+
+        //Проверяет merchant
+        $schedule->command(MerchantCheckCommand::class)->everyFiveMinutes();
     }
 
     /**

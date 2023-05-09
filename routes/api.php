@@ -1,11 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController,
+use App\Http\Controllers\Api\{
+    AuthController,
     InfoController,
+    MerchantController,
     ReactorController,
     StakeController,
     TransactionController,
-    WalletController};
+    WalletController
+};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,13 +48,19 @@ Route::name('api.')->group(function () {
         Route::apiResource('wallets', WalletController::class);
         Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
 
+
         /** REACTORS */
         Route::apiResource('reactors', ReactorController::class)->except(['update']);
 
         /** TRANSACTIONS */
         Route::prefix('transactions')->name('transactions.')->group(function () {
             Route::get('internal', [TransactionController::class, 'internalTxs'])->name('internal');
-//            Route::get('tron', [TransactionController::class, 'tronTxs'])->name('tron');
+            //            Route::get('tron', [TransactionController::class, 'tronTxs'])->name('tron');
         });
+
+
+
+        /** MERCHANT */
+        Route::get('merchant/new', [MerchantController::class, 'tempAddressForTopUp'])->name('merchant.new-address');
     });
 });

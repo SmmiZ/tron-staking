@@ -84,11 +84,11 @@ class Tron
      *
      * @throws TronException
      */
-    public function __construct()
+    public function __construct(string $wallet = NULL, string $privateKey = NULL)
     {
         $fullNode = new HttpProvider(config('app.tron_net'));
-        $this->setAddress(config('app.hot_spot_wallet'));
-        $this->setPrivateKey(config('app.hot_spot_private_key'));
+        $this->setAddress($wallet ?? config('app.hot_spot_wallet'));
+        $this->setPrivateKey($privateKey ?? config('app.hot_spot_private_key'));
 
         //todo не ясно - зачем остальные параметры, кроме fullNode. Вырезать?
         $this->setManager(
