@@ -140,7 +140,7 @@ class AuthController extends Controller
         $leader = User::withCount('reactors')->firstWhere('the_code', $request->invitation_code);
 
         return response([
-            'status' => $leader->reactors_count > 0,
+            'status' => $leader && $leader?->reactors_count > 0,
             'data' => [],
         ]);
     }
