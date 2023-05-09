@@ -49,11 +49,12 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (Throwable $e, Request $request) {
             if ($request->is('api/*') && !($e instanceof ValidationException)) {
+                $error = config('app.debug') ? $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() : $e->getMessage();
                 return response([
                     'status' => false,
-                    'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),//todo в дальнейшем поправить
+                    'error' => $error,
                     'errors' => (object)$e->getPrevious(),
-                ], 500);
+                ], 422);
             }
 
             return null;
