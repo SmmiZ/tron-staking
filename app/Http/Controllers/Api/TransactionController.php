@@ -10,11 +10,11 @@ class TransactionController extends Controller
 {
     public function internalTxs(Request $request): InternalTransactionCollection
     {
-        return new InternalTransactionCollection($request->user()->internalTxs);
+        return new InternalTransactionCollection($request->user()->internalTxs()->paginate(20));
     }
 
     public function tronTxs(Request $request): TronTransactionCollection
     {
-        return new TronTransactionCollection($request->user()->tronTxs);
+        return new TronTransactionCollection($request->user()->tronTxs()->paginate(20));
     }
 }

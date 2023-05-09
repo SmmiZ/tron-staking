@@ -18,7 +18,7 @@ class ReactorController extends Controller
 
     public function index(Request $request): ReactorCollection
     {
-        return new ReactorCollection($request->user()->reactors);
+        return new ReactorCollection($request->user()->reactors()->paginate(20));
     }
 
     public function store(StoreReactorRequest $request): Response
