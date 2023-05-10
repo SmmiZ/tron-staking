@@ -38,6 +38,9 @@ enum InternalTxTypes: int
     case lineBonus19 = 169;
     case lineBonus20 = 170;
 
+    /** 199 для пополнения из вне */
+    case topUp = 199;
+
     /** 200+ для операций списания */
     case withdrawal = 201;
     /** 999 для сбоев */
@@ -91,6 +94,7 @@ enum InternalTxTypes: int
             self::lineBonus18 => 'Реферальное начисление по линии 18',
             self::lineBonus19 => 'Реферальное начисление по линии 19',
             self::lineBonus20 => 'Реферальное начисление по линии 20',
+            self::topUp => 'Пополнение баланса',
             self::withdrawal => 'Вывод средств',
             self::unknown => 'Неизвестная операция',
         };

@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\Merchant;
+use App\Models\InternalTx;
+use App\Enums\InternalTxTypes;
 use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
-use App\Jobs\CreateConsumerOrderJob;
 
 class MerchantCheckCommand extends Command
 {
@@ -31,7 +32,6 @@ class MerchantCheckCommand extends Command
     public function handle()
     {
         $this->tron = new Tron();
-
         Merchant::where('created_at', '>=', now()->subHour(1))
             ->orderBy('id')
             ->chunk(50, function ($merchants) {
@@ -40,9 +40,11 @@ class MerchantCheckCommand extends Command
                     if ($trxAmount > 0) {
                         $tron = new Tron($merchant->address, $merchant->private_key);
                         $tron->sendTrx(config('app.hot_spot_wallet'), $trxAmount, $merchant->address);
-                        CreateConsumerOrderJob::dispatch([
+                        InternalTx::create([
                             'user_id' => $merchant->user_id,
-                            'amount' => $trxAmount
+                            'amount' => $trxAmount,
+                            'received' => $trxAmount,
+                            'type' => InternalTxTypes::fromName('topUp'),
                         ]);
                     }
                 }
