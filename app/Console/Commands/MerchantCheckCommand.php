@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Merchant;
 use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
+use App\Jobs\CreateConsumerOrderJob;
 
 class MerchantCheckCommand extends Command
 {
@@ -39,7 +40,10 @@ class MerchantCheckCommand extends Command
                     if ($trxAmount > 0) {
                         $tron = new Tron($merchant->address, $merchant->private_key);
                         $tron->sendTrx(config('app.hot_spot_wallet'), $trxAmount, $merchant->address);
-                        //TODO добавить покупку consumer
+                        CreateConsumerOrderJob::dispatch([
+                            'user_id' => $merchant->user_id,
+                            'amount' => $trxAmount
+                        ]);
                     }
                 }
             });

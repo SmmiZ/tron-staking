@@ -50,52 +50,21 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
         });
-        $this->renderable(function (AuthenticationException $e, Request $request) {
-            return $request->expectsJson() ? response()->json([
-                'status' => false,
-                'error' => $e->getMessage(),
-                'errors' => [
-                    'essence' => ['Unauthenticated.']
-                ],
-            ], 401) : new Response(view('errors.401'), 401);
-        });
-        $this->renderable(function (AccessDeniedHttpException $e, Request $request) {
-            return $request->expectsJson() ? response()->json([
-                'status' => false,
-                'error' => $e->getMessage(),
-                'errors' => [
-                    'essence' => ['Forbidden.']
-                ],
-            ], 403) : new Response(view('errors.403'), 403);
-        });
-        $this->renderable(function (NotFoundHttpException $e, Request $request) {
-            return $request->wantsJson() ? new Response([
-                'status' => false,
-                'error' => 'Cannot Find',
-                'errors' => [
-                    'essence' => ['Cannot Find']
-                ]
-            ], 404) : new Response(view('errors.404'), 404);
-        });
-        $this->renderable(function (ValidationException $e, Request $request) {
-            return $request->wantsJson() ? new Response([
-                'status' => false,
-                'error' => $e->getMessage(),
-                'errors' => $e->errors(),
-            ], 422) : new Response(view('errors.422'), 422);
-        });
-
 
         $this->renderable(function (Throwable $e, Request $request) {
-            if ($request->is('api/*')) {
-                $error = config('app.debug') ? $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() : $e->getMessage();
-                return response([
-                    'status' => false,
-                    'error' => $error,
-                    'errors' => (object)$e->getPrevious(),
-                ], 500);
-            }
-            return new Response(view('errors.500'), 500);
+
+            $data = match (get_class($e)) {
+                AuthenticationException::class => ['code' => 401, 'error' => $e->getMessage(), 'errors' => ['essence' => ['Unauthenticated.']]],
+                AccessDeniedHttpException::class => ['code' => 403, 'error' => $e->getMessage(), 'errors' => ['essence' => ['Forbidden.']]],
+                NotFoundHttpException::class => ['code' => 404, 'error' => 'Cannot Find', 'errors' => ['essence' => ['Cannot Find.']]],
+                ValidationException::class => ['code' => 422, 'error' => $e->getMessage(), 'errors' => $e->errors()],
+                default => ['code' => 500, 'error' => $e->getMessage(), 'errors' => (object)$e->getPrevious()],
+            };
+            return $request->wantsJson() ? new Response([
+                'status' => false,
+                'error' => $data['error'],
+                'errors' => $data['errors'],
+            ], $data['code']) : new Response(view('errors.' . $data['code']), $data['code']);
         });
     }
 }

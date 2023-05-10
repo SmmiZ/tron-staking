@@ -31,7 +31,6 @@ class MerchantController extends Controller
                 'private_key' => $newAddress->getPrivateKey(),
             ]);
         }
-
         return response([
             'status' => true,
             'data' => [

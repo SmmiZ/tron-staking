@@ -28,11 +28,9 @@ class StakeController extends Controller
         ]);
     }
 
-    public function show(Request $request): StakeResource|HttpResponseException
+    public function show(Request $request): StakeResource
     {
-        return  $request->user()->stake
-            ? new StakeResource($request->user()->stake)
-            : abort(404);
+        return  new StakeResource($request->user()->stake()->firstOrFail());
     }
 
     public function getAvailableUnfreezeTrxAmount(Request $request): Response
