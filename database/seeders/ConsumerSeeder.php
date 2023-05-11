@@ -15,6 +15,7 @@ class ConsumerSeeder extends Seeder
     public function run(): void
     {
         $consumer = Consumer::query()->create([
+            'user_id' => 1,
             'name' => 'Main consumer',
             'address' => config('app.hot_spot_wallet') ?? 'address',
             'resource_amount' => 10000,

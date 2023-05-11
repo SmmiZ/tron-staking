@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('internal_txs', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->unsignedBigInteger('amount');
-            $table->unsignedBigInteger('received')->default(0);
+            $table->decimal('amount', 16, 6);
+            $table->decimal('received', 16, 6)->default(0);
             $table->unsignedInteger('type');
             $table->timestamps();
         });

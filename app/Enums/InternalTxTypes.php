@@ -43,6 +43,8 @@ enum InternalTxTypes: int
 
     /** 200+ для операций списания */
     case withdrawal = 201;
+    case consumer = 202;
+
     /** 999 для сбоев */
     case unknown = 999;
 
@@ -96,6 +98,7 @@ enum InternalTxTypes: int
             self::lineBonus20 => 'Реферальное начисление по линии 20',
             self::topUp => 'Пополнение баланса',
             self::withdrawal => 'Вывод средств',
+            self::consumer => 'Покупка контракта на поставку',
             self::unknown => 'Неизвестная операция',
         };
     }

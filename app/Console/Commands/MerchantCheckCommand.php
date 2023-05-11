@@ -22,7 +22,7 @@ class MerchantCheckCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Проверяет кошельки на наличие средств и зачесляет на баланс пользователей';
 
     private Tron $tron;
 

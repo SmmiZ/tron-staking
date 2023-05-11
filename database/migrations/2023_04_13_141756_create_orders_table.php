@@ -19,6 +19,7 @@ return new class extends Migration
             $table->tinyInteger('resource')->default(Resources::ENERGY->value);
             $table->decimal('resource_amount', 22, 4)->default(0);
             $table->tinyInteger('status')->default(Statuses::new->value);
+            $table->unsignedSmallInteger('period')->default(7);
             $table->timestamps();
             $table->softDeletes();
         });

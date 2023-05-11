@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\{
     AuthController,
     InfoController,
+    ConsumerController,
     MerchantController,
     ReactorController,
     StakeController,
@@ -51,6 +52,11 @@ Route::name('api.')->group(function () {
 
         /** REACTORS */
         Route::apiResource('reactors', ReactorController::class)->except(['update']);
+
+        /** CONSUMERS */
+        Route::apiResource('consumers', ConsumerController::class)->except(['update']);
+        Route::post('consumers/pay', [ConsumerController::class, 'payConsumer'])->name('consumers.pay');
+
 
         /** TRANSACTIONS */
         Route::prefix('transactions')->name('transactions.')->group(function () {

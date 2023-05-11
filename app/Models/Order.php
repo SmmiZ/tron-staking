@@ -17,6 +17,7 @@ class Order extends Model
         'resource_amount',
         'resource',
         'status',
+        'period',
     ];
 
     protected $casts = [

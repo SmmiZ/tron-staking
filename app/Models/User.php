@@ -66,6 +66,11 @@ class User extends Authenticatable
         return $this->hasMany(Reactor::class);
     }
 
+    public function consumers(): HasMany
+    {
+        return $this->hasMany(Consumer::class);
+    }
+
     public function downgrade(): hasOne
     {
         return $this->hasOne(UserDowngrade::class);
