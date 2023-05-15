@@ -17,6 +17,11 @@ class TronTransactionResource extends BaseResource
     {
         return [
             'id' => $this->id,
+            'from' => $this->from,
+            'to' => $this->to,
+            'type' => $this->type->translate(),
+            'trx_amount' => (float)$this->trx_amount,
+            'tx_id' => $this->tx_id,
             'created_at' => $this->created_at->format('d-m-Y H:i:s'),
             'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
         ];

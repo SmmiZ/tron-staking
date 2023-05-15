@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough, HasOne};
+use Illuminate\Database\Eloquent\Relations\{HasMany, HasOne};
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
@@ -39,11 +40,6 @@ class User extends Authenticatable
     public function wallets(): HasMany
     {
         return $this->hasMany(Wallet::class);
-    }
-
-    public function tronTxs(): HasManyThrough
-    {
-        return $this->hasManyThrough(TronTx::class, Wallet::class);
     }
 
     public function internalTxs(): HasMany
@@ -84,5 +80,17 @@ class User extends Authenticatable
     public function level(): HasOne
     {
         return $this->hasOne(LeaderLevel::class, 'level', 'leader_level');
+    }
+
+    /**
+     * Запрос на получение из БД транзакций сети TRON, в которых участвовали кошельки юзера
+     *
+     * @return Builder
+     */
+    public function scopeTronTxs(): Builder
+    {
+        $wallets = $this->wallets()->pluck('address');
+
+        return TronTx::query()->whereIn('from', $wallets)->orWhereIn('to', $wallets);
     }
 }

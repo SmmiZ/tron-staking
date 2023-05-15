@@ -15,6 +15,8 @@ class TransactionController extends Controller
 
     public function tronTxs(Request $request): TronTransactionCollection
     {
-        return new TronTransactionCollection($request->user()->tronTxs()->paginate(20));
+        $user = $request->user()->load('wallets:user_id,address');
+
+        return new TronTransactionCollection($user->tronTxs()->paginate(20));
     }
 }

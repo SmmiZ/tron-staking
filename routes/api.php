@@ -49,7 +49,6 @@ Route::name('api.')->group(function () {
         Route::apiResource('wallets', WalletController::class);
         Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
 
-
         /** REACTORS */
         Route::apiResource('reactors', ReactorController::class)->except(['update']);
 
@@ -57,14 +56,11 @@ Route::name('api.')->group(function () {
         Route::apiResource('consumers', ConsumerController::class)->except(['update']);
         Route::post('consumers/pay', [ConsumerController::class, 'payConsumer'])->name('consumers.pay');
 
-
         /** TRANSACTIONS */
         Route::prefix('transactions')->name('transactions.')->group(function () {
             Route::get('internal', [TransactionController::class, 'internalTxs'])->name('internal');
-            //            Route::get('tron', [TransactionController::class, 'tronTxs'])->name('tron');
+            Route::get('tron', [TransactionController::class, 'tronTxs'])->name('tron');
         });
-
-
 
         /** MERCHANT */
         Route::get('merchant/new', [MerchantController::class, 'tempAddressForTopUp'])->name('merchant.new-address');
