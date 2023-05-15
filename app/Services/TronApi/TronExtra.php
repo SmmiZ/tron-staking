@@ -7,6 +7,9 @@ use App\Services\TronApi\Support\{Base58Check, Hash};
 
 class TronExtra
 {
+    public const ADDRESS_SIZE = 34;
+    public const ADDRESS_PREFIX_BYTE = 0x41;
+
     /**
      * Set is object
      *

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\{HasMany, HasOne};
 
 class Consumer extends Model
 {
@@ -19,5 +19,10 @@ class Consumer extends Model
     public function order(): HasOne
     {
         return $this->hasOne(Order::class);
+    }
+
+    public function resourceConsumptions(): HasMany
+    {
+        return $this->hasMany(ResourceConsumption::class);
     }
 }

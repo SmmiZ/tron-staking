@@ -6,7 +6,7 @@ namespace App\Services\TronApi;
 
 use App\Enums\TronTxTypes;
 use App\Models\Wallet;
-use App\Services\TronApi\Concerns\{ManagesTronscan, ManagesUniversal};
+use App\Services\TronApi\Concerns\ManagesUniversal;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Provider\{HttpProvider, HttpProviderInterface};
 use App\Services\TronApi\Support\{Base58, Crypto, Hash, Keccak, Secp, Utils};
@@ -17,14 +17,12 @@ use Elliptic\EC;
  */
 class Tron
 {
-    use ManagesTronscan;
     use ManagesUniversal;
     use TronAwareTrait;
 
-    public const ADDRESS_SIZE = 34;
     public const ADDRESS_PREFIX = '41';
-    public const ADDRESS_PREFIX_BYTE = 0x41;
     public const ONE_SUN = 1000000;
+    public const USDT_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 
     /**
      * Default Address:

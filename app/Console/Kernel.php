@@ -2,7 +2,11 @@
 
 namespace App\Console;
 
-use App\Console\Commands\{GetRewards, LeaderLevelDowngrade, MerchantCheckCommand, ProcessingOrders};
+use App\Console\Commands\{CalcResourceConsumption,
+    GetRewards,
+    LeaderLevelDowngrade,
+    MerchantCheckCommand,
+    ProcessingOrders};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -27,6 +31,9 @@ class Kernel extends ConsoleKernel
 
         //Проверяет merchant
         $schedule->command(MerchantCheckCommand::class)->everyFiveMinutes();
+
+        //Формирует статистику потребления ресурсов
+        $schedule->command(CalcResourceConsumption::class)->dailyAt('23:59');
     }
 
     /**
