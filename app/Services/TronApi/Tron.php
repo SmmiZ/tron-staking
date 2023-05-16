@@ -334,6 +334,21 @@ class Tron
     }
 
     /**
+     * Забрать на кошелек весь размороженный TRX
+     *
+     * @param string $userAddress
+     * @return array
+     * @throws TronException
+     */
+    public function withdrawDefrostedTrx(string $userAddress): array
+    {
+        $permissionId = $this->getPermissionId($userAddress);
+        $withdraw = $this->transactionBuilder->withdrawExpireUnfreeze($userAddress, $permissionId);
+
+        return $this->signAndSendTransaction($withdraw);
+    }
+
+    /**
      * Делегировать ресурс
      *
      * @param string $ownerAddress

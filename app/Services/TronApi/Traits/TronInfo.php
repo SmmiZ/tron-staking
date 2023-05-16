@@ -60,14 +60,14 @@ trait TronInfo
             return 0;
         }
 
-        return $fromTron ? $this->fromTron($account['balance']) : $account['balance'];
+        return $fromTron ? $this->fromSun2Trx($account['balance']) : $account['balance'];
     }
 
     /**
      * Получить баланс в TRX
      *
      * @param string|null $address
-     * @return float|int
+     * @return float|int TRX
      * @throws TronException
      */
     public function getTrxBalance(string $address = null): float|int
@@ -78,7 +78,7 @@ trait TronInfo
             return 0;
         }
 
-        return $this->fromTron($account['balance']);
+        return $this->fromSun2Trx($account['balance']);
     }
 
     /**
@@ -120,7 +120,11 @@ trait TronInfo
             'address' => $this->toHex($address),
         ]);
 
-        return ($response['reward'] / Tron::ONE_SUN) ?? 0;
+        if (!isset($response['reward'])) {
+            return 0;
+        }
+
+        return $this->fromSun2Trx($response['reward']);
     }
 
     /**
@@ -284,19 +288,25 @@ trait TronInfo
     }
 
     /**
-     * @todo не понятно, как работает и работает ли вообще
-     * @see https://developers.tron.network/reference/getcanwithdrawunfreezeamount-1
+     * Получить кол-во размороженных, и доступных к выводу, TRX на кошельке
      *
+     * @see https://developers.tron.network/reference/getcanwithdrawunfreezeamount-1
      * @param string $ownerAddress
-     * @return array
+     * @return int TRX
      * @throws TronException
      */
-    public function getCanWithdrawUnfreezeAmount(string $ownerAddress): array
+    public function getCanWithdrawUnfreezeAmount(string $ownerAddress): int
     {
-        return $this->manager->request('wallet/getcanwithdrawunfreezeamount', [
+        $response = $this->manager->request('wallet/getcanwithdrawunfreezeamount', [
             'owner_address' => $this->toHex($ownerAddress),
-            'timestamp' => now()->timestamp,
+            'timestamp' => now()->getTimestampMs(),
         ]);
+
+        if (!isset($response['amount'])) {
+            return 0;
+        }
+
+        return $this->fromSun2Trx($response['amount']);
     }
 
     /**

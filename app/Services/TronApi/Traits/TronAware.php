@@ -106,23 +106,23 @@ trait TronAware
     }
 
     /**
-     * Convert trx to float
+     * Convert SUN to TRX format
      *
-     * @param $amount
+     * @param int $amount
      * @return float
      */
-    public function fromTron($amount): float
+    public function fromSun2Trx(int $amount): float
     {
         return (float)bcdiv((string)$amount, (string)1e6, 8);
     }
 
     /**
-     * Convert float to trx format
+     * Convert TRX to SUN format
      *
      * @param $double
      * @return int
      */
-    public function toTron($double): int
+    public function fromTrx2Sun($double): int
     {
         return (int)bcmul((string)$double, (string)1e6, 0);
     }
