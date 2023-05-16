@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Services\TronApi\Provider;
 
-use GuzzleHttp\{Psr7\Request, Client, ClientInterface};
+use GuzzleHttp\{Exception\GuzzleException, Psr7\Request, Client};
 use Psr\Http\Message\StreamInterface;
 use App\Services\TronApi\Exception\{NotFoundException, TronException};
 use App\Services\TronApi\Support\Utils;
@@ -12,74 +14,56 @@ class HttpProvider implements HttpProviderInterface
     /**
      * HTTP Client Handler
      *
-     * @var ClientInterface.
+     * @var Client.
      */
-    protected $httpClient;
+    protected Client $httpClient;
 
     /**
      * Server or RPC URL
      *
      * @var string
     */
-    protected $host;
+    protected string $host;
 
     /**
      * Waiting time
      *
      * @var int
      */
-    protected $timeout = 30000;
+    protected int $timeout = 30000;
 
     /**
      * Get custom headers
      *
      * @var array
     */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * Get the pages
      *
      * @var string
     */
-    protected $statusPage = '/';
+    protected string $statusPage = '/';
 
     /**
      * Create an HttpProvider object
      *
      * @param string $host
-     * @param int $timeout
-     * @param $user
-     * @param $password
-     * @param array $headers
-     * @param string $statusPage
      * @throws TronException
      */
-    public function __construct(string $host, int $timeout = 30000,
-                                $user = false, $password = false,
-                                array $headers = [], string $statusPage = '/')
+    public function __construct(string $host)
     {
-        if(!Utils::isValidUrl($host)) {
+        if (!Utils::isValidUrl($host)) {
             throw new TronException('Invalid URL provided to HttpProvider');
         }
 
-        if(is_nan($timeout) || $timeout < 0) {
-            throw new TronException('Invalid timeout duration provided');
-        }
-
-        if(!Utils::isArray($headers)) {
-            throw new TronException('Invalid headers array provided');
-        }
-
         $this->host = $host;
-        $this->timeout = $timeout;
-        $this->statusPage = $statusPage;
-        $this->headers = $headers;
 
         $this->httpClient = new Client([
-            'base_uri'  =>  $host,
-            'timeout'   =>  $timeout,
-            'auth'      =>  $user && [$user, $password]
+            'base_uri' => $host,
+            'timeout' => $this->timeout,
+            'auth' => false
         ]);
     }
 
@@ -97,18 +81,13 @@ class HttpProvider implements HttpProviderInterface
      * Check connection
      *
      * @return bool
-     * @throws TronException
+     * @throws TronException|GuzzleException
      */
-    public function isConnected() : bool
+    public function isConnected(): bool
     {
         $response = $this->request($this->statusPage);
 
-        if(array_key_exists('blockID', $response)) {
-            return true;
-        } elseif(array_key_exists('status', $response)) {
-            return true;
-        }
-        return false;
+        return array_key_exists('blockID', $response) || array_key_exists('status', $response);
     }
 
     /**
@@ -137,20 +116,21 @@ class HttpProvider implements HttpProviderInterface
      * @param $url
      * @param array $payload
      * @param string $method
-     * @return array|mixed
+     * @return array
      * @throws TronException
+     * @throws GuzzleException
      */
     public function request($url, array $payload = [], string $method = 'get'): array
     {
         $method = strtoupper($method);
 
-        if(!in_array($method, ['GET', 'POST'])) {
+        if (!in_array($method, ['GET', 'POST'])) {
             throw new TronException('The method is not defined');
         }
 
         $options = [
-            'headers'   => $this->headers,
-            'body'      => json_encode($payload)
+            'headers' => $this->headers,
+            'body' => json_encode($payload)
         ];
 
         $request = new Request($method, $url, $options['headers'], $options['body']);
@@ -167,21 +147,21 @@ class HttpProvider implements HttpProviderInterface
      *
      * @param StreamInterface $stream
      * @param int $status
-     * @return array|mixed
+     * @return array
      */
     protected function decodeBody(StreamInterface $stream, int $status): array
     {
-        $decodedBody = json_decode($stream->getContents(),true);
+        $decodedBody = json_decode($stream->getContents(), true);
 
-        if((string)$stream == 'OK') {
+        if ((string)$stream == 'OK') {
             $decodedBody = [
-                'status'    =>  1
+                'status' => 1
             ];
-        }elseif ($decodedBody == null or !is_array($decodedBody)) {
+        } elseif ($decodedBody == null || !is_array($decodedBody)) {
             $decodedBody = [];
         }
 
-        if($status == 404) {
+        if ($status == 404) {
             throw new NotFoundException('Page not found');
         }
 

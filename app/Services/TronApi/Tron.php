@@ -66,17 +66,10 @@ class Tron
     public function __construct(string $wallet = null, string $privateKey = null)
     {
         $fullNode = new HttpProvider(config('app.tron_net'));
+
         $this->setAddress($wallet ?? config('app.hot_spot_wallet'));
         $this->setPrivateKey($privateKey ?? config('app.hot_spot_private_key'));
-
-        //todo не ясно - зачем остальные параметры, кроме fullNode. Вырезать?
-        $this->setManager(
-            new TronManager($this, [
-                'fullNode' => $fullNode,
-                'solidityNode' => $fullNode,
-                'eventServer' => $fullNode,
-            ])
-        );
+        $this->setManager(new TronManager($fullNode));
 
         $this->transactionBuilder = new TransactionBuilder($this);
     }
@@ -84,11 +77,11 @@ class Tron
     /**
      * Enter the link to the manager nodes
      *
-     * @param $providers
+     * @param TronManager $manager
      */
-    public function setManager($providers): void
+    public function setManager(TronManager $manager): void
     {
-        $this->manager = $providers;
+        $this->manager = $manager;
     }
 
     /**

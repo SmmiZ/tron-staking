@@ -3,7 +3,6 @@
 namespace App\Services\TronApi\Traits;
 
 use App\Services\TronApi\Exception\TronException;
-use App\Services\TronApi\Tron;
 use App\Services\TronApi\Support\{Base58, Crypto, Hash, Keccak};
 
 trait TronInfo

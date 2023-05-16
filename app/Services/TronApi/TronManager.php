@@ -1,72 +1,47 @@
 <?php
+
 namespace App\Services\TronApi;
 
-
 use App\Services\TronApi\Exception\TronException;
+use GuzzleHttp\Exception\GuzzleException;
 use App\Services\TronApi\Provider\{HttpProvider, HttpProviderInterface};
 
 class TronManager
 {
     /**
-     * Default Nodes
-     *
-     * @var array
-    */
-    protected array $defaultNodes = [
-        'fullNode'      =>  'https://api.trongrid.io',
-        'solidityNode'  =>  'https://api.trongrid.io',
-        'eventServer'   =>  'https://api.trongrid.io',
-        'explorer'      =>  'https://apilist.tronscan.org',
-        'signServer'    =>  ''
-    ];
-
-    /**
      * Providers
      *
      * @var array
-    */
+     */
     protected array $providers = [
-        'fullNode'      =>  [],
-        'solidityNode'  =>  [],
-        'eventServer'   =>  [],
-        'explorer'      =>  [],
-        'signServer'    =>  []
+        'fullNode' => [],
+        'solidityNode' => [],
+        'eventServer' => [],
+        'explorer' => [],
+        'signServer' => []
     ];
 
     /**
      * Status Page
      *
      * @var array
-    */
+     */
     protected array $statusPage = [
-        'fullNode'      =>  'wallet/getnowblock',
-        'solidityNode'  =>  'walletsolidity/getnowblock',
-        'eventServer'   =>  'healthcheck',
-        'explorer'      =>  'api/system/status'
+        'fullNode' => 'wallet/getnowblock',
+        'solidityNode' => 'walletsolidity/getnowblock',
+        'eventServer' => 'healthcheck',
+        'explorer' => 'api/system/status'
     ];
 
-    /**
-     * @throws TronException
-     */
-    public function __construct(Tron $tron, array $providers)
+    public function __construct(HttpProvider $provider)
     {
-        $this->providers = $providers;
+        $this->providers = $providers = [
+            'fullNode' => $provider,
+            'solidityNode' => $provider,
+            'eventServer' => $provider,
+        ];
 
-        foreach ($providers as $key => $value)
-        {
-            //Do not skip the supplier is empty
-            if ($value == null) {
-                $this->providers[$key] = new HttpProvider(
-                    $this->defaultNodes[$key]
-                );
-            };
-
-            if(is_string($providers[$key]))
-                $this->providers[$key] = new HttpProvider($value);
-
-            if(in_array($key, ['signServer']))
-                continue;
-
+        foreach ($providers as $key => $value) {
             $this->providers[$key]->setStatusPage($this->statusPage[$key]);
         }
     }
@@ -76,7 +51,8 @@ class TronManager
      *
      * @return array
      */
-    public function getProviders() {
+    public function getProviders(): array
+    {
         return $this->providers;
     }
 
@@ -86,7 +62,7 @@ class TronManager
      * @throws TronException
      * @return HttpProviderInterface
      */
-    public function fullNode() : HttpProviderInterface
+    public function fullNode(): HttpProviderInterface
     {
         if (!array_key_exists('fullNode', $this->providers)) {
             throw new TronException('Full node is not activated.');
@@ -101,7 +77,7 @@ class TronManager
      * @throws TronException
      * @return HttpProviderInterface
      */
-    public function solidityNode() : HttpProviderInterface
+    public function solidityNode(): HttpProviderInterface
     {
         if (!array_key_exists('solidityNode', $this->providers)) {
             throw new TronException('Solidity node is not activated.');
@@ -134,7 +110,7 @@ class TronManager
     public function explorer(): HttpProviderInterface
     {
         if (!array_key_exists('explorer', $this->providers)) {
-            throw new TronException('explorer is not activated.');
+            throw new TronException('Explorer is not activated.');
         }
 
         return $this->providers['explorer'];
@@ -168,6 +144,7 @@ class TronManager
     {
         $split = explode('/', $url);
 
+        //todo если не будут использоваться варианты кроме fullNode, то можно вырезать лишние проверки и методы
         return match (true) {
             in_array($split[0], ['walletsolidity', 'walletextension']) => $this->solidityNode()->request($url, $params, $method),
             $split[0] == 'event' => $this->eventServer()->request($url, $params),
@@ -181,7 +158,8 @@ class TronManager
      * Check connections
      *
      * @return array
-    */
+     * @throws TronException|GuzzleException
+     */
     public function isConnected(): array
     {
         $array = [];
