@@ -974,4 +974,37 @@ class Tron
             'timestamp' => now()->timestamp,
         ]);
     }
+
+    /**
+     * Получить информацию о контракте
+     *
+     * @see https://developers.tron.network/reference/getcontractinfo
+     * @param string $contractAddress
+     * @return array
+     * @throws TronException
+     */
+    public function getContractInfo(string $contractAddress): array
+    {
+        return $this->manager->request('wallet/getcontractinfo', [
+            'value' => $this->toHex($contractAddress),
+        ]);
+    }
+
+    /**
+     * Получить информацию об энергопотреблении контракта
+     *
+     * @see https://developers.tron.network/reference/triggerconstantcontract
+     * @param string $contractAddress
+     * @return array
+     * @throws TronException
+     */
+    public function triggerConstantContract(string $contractAddress): array
+    {
+        return $this->manager->request('wallet/triggerconstantcontract', [
+            'owner_address' => $this->address['hex'],
+            'contract_address' => $this->toHex($contractAddress),
+            'function_selector' => 'transfer(address,uint256)',
+            'parameter' => '000000000000000000000000a614f803b6fd780986a42c78ec9c7f77e6ded13c',
+        ]);
+    }
 }
