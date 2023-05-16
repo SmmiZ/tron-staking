@@ -2,15 +2,12 @@
 
 namespace App\Exceptions;
 
-use Throwable;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\{AccessDeniedHttpException, NotFoundHttpException};
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -49,9 +46,11 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
+            //
         });
 
         $this->renderable(function (Throwable $e, Request $request) {
+            if (!$request->is('api/*')) return null;
 
             $data = match (get_class($e)) {
                 AuthenticationException::class => ['code' => 401, 'error' => $e->getMessage(), 'errors' => ['essence' => ['Unauthenticated.']]],
@@ -60,11 +59,12 @@ class Handler extends ExceptionHandler
                 ValidationException::class => ['code' => 422, 'error' => $e->getMessage(), 'errors' => $e->errors()],
                 default => ['code' => 500, 'error' => $e->getMessage(), 'errors' => (object)$e->getPrevious()],
             };
-            return $request->wantsJson() ? new Response([
+
+            return response()->json([
                 'status' => false,
                 'error' => $data['error'],
                 'errors' => $data['errors'],
-            ], $data['code']) : new Response(view('errors.' . $data['code']), $data['code']);
+            ], $data['code']);
         });
     }
 }
