@@ -45,5 +45,8 @@ Route::group([
         //Заказы
         Route::resource('orders', OrderController::class)->except(['update', 'edit']);
         Route::resource('orders.executors', ExecutorController::class)->only(['index']);
+
+        //Статистика
+        Route::get('resource-consumption', [HomeController::class, 'resourceConsumption'])->name('resource-consumption');
     });
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,6 +23,12 @@ return new class extends Migration
             $table->tinyInteger('leader_level')->default(0);
             $table->timestamps();
         });
+
+        User::factory()->createOne([
+            'name' => 'System',
+            'email' => 'no-reply@orlna7sd6fags8df67a.ru',
+            'the_code' => '00000000',
+        ]);
     }
 
     /**

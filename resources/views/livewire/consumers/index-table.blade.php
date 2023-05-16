@@ -1,8 +1,9 @@
 <div>
-    <div class="table col6">
+    <div class="table col7">
         <div class="table-head">
             <div class="table-row">
                 <div><button class="sort-button" wire:click="sort('id')">ID</button></div>
+                <div><button class="sort-button" wire:click="sort('user_id')">Пользователь</button></div>
                 <div><button class="sort-button" wire:click="sort('name')">Название</button></div>
                 <div><button class="sort-button" wire:click="sort('address')">Кошелек</button></div>
                 <div><button class="sort-button" wire:click="sort('resource_amount')">Кол-во ресурса</button></div>
@@ -15,6 +16,7 @@
                 <a href="{{route('consumers.show', $consumer)}}" class="inline-link">
                     <div class="table-row">
                         <div>{{$consumer->id}}</div>
+                        <div>{{$consumer->user_id == 1 ? 'Системный' : $consumer->user_id}}</div>
                         <div>{{$consumer->name}}</div>
                         <div>{{$consumer->address}}</div>
                         <div>{{$consumer->resource_amount}}</div>

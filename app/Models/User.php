@@ -32,6 +32,12 @@ class User extends Authenticatable
         'leader_level',
     ];
 
+    /** Исключаем системного юзера из всех запросов по умолчанию */
+    public function newQuery(): Builder
+    {
+        return parent::newQuery()->whereNot('id', 1);
+    }
+
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);

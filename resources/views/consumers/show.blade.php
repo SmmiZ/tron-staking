@@ -23,6 +23,16 @@
                             <div>{{$consumer->id}}</div>
                         </div>
                         <div class="table-row">
+                            <div>Пользователь</div>
+                            <div>
+                                @if($consumer->user_id != 1)
+                                    <a href="{{route('users.show', $consumer->user_id)}}" class="inline-link">{{$consumer->user_id}}</a>
+                                @else
+                                    Системный
+                                @endif
+                            </div>
+                        </div>
+                        <div class="table-row">
                             <div>Имя</div>
                             <div>{{ $consumer->name }}</div>
                         </div>

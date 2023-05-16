@@ -27,6 +27,7 @@ class CreateConsumerRequest extends FormRequest
             'name' => ['required', 'filled', 'string'],
             'address' => ['required', 'filled', 'string', 'starts_with:T', 'size:34'],
             'resource_amount' => ['required', 'filled', 'numeric'],
+            'user_id' => ['required', 'filled', 'numeric', 'exists:users,id'],
         ];
     }
 }

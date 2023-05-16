@@ -11,6 +11,7 @@ class Consumer extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'address',
         'resource_amount',

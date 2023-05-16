@@ -34,6 +34,10 @@
                     <input type="text" name="resource" value="{{\App\Enums\Resources::ENERGY->name}}" disabled>
                     <label>Ресурс</label>
                 </div>
+                <div class="input-group">
+                    <input type="number" name="user_id" value="1">
+                    <label>ID пользователя (<b>1 - системный</b>)</label>
+                </div>
             </form>
             <div class="form-button">
                 <button form="createConsumerForm" type="submit" class="btn del">Добавить</button>

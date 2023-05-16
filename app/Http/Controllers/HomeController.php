@@ -15,4 +15,14 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    /**
+     * Экран статистики расхода ресурсов потребителями
+     *
+     * @return View
+     */
+    public function resourceConsumption(): View
+    {
+        return view('info.resource-consumption');
+    }
 }

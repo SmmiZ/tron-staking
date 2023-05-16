@@ -12,11 +12,9 @@ class ConsumerPolicy
     /**
      * Предварительная проверка доступа
      *
-     * @param User $user
-     * @param $ability
      * @return true|void
      */
-    public function before(User $user, $ability)
+    public function before()
     {
         if (auth('staff')->user()?->isAdmin()) {
             return true;

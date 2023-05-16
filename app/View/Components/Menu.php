@@ -2,9 +2,8 @@
 
 namespace App\View\Components;
 
-use App\Models\{Consumer, Order, TronTx, User};
+use App\Models\{Consumer, Order, ResourceConsumption, TronTx, User};
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\{Auth};
 use Illuminate\View\Component;
 
 class Menu extends Component
@@ -27,6 +26,8 @@ class Menu extends Component
         $this->addMenu('orders.index', 'orders', 'Заказы', 'mdi-application', Order::class);
 
         $this->addMenu('transactions.index', 'transactions', 'Транзакции', 'mdi-arrow-left-right-bold-outline', TronTx::class);
+
+        $this->addMenu('resource-consumption', 'resource-consumption', 'Статистика ресурсов', 'mdi-select-compare', ResourceConsumption::class);
     }
 
     /**
@@ -41,7 +42,7 @@ class Menu extends Component
      */
     protected function addMenu(string $routeName, string $segment, string $linkName, string $icon, ?string $className = NULL): void
     {
-        $canView = !$className || Auth::user()->can('viewAny', $className);
+        $canView = !$className || auth()->user()->can('viewAny', $className);
 
         if ($canView) {
             $this->menu[] = [
