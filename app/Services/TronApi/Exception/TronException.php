@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Services\TronApi\Exception;
 
-class TronException extends \Exception {
+class TronException extends \Exception
+{
     //
 }

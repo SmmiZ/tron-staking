@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\TronApi;
+namespace App\Services\TronApi\Traits;
 
+use App\Services\TronApi\Exception;
 use App\Services\TronApi\Support\{Base58Check, BigInteger, Keccak};
 
-trait TronAwareTrait
+trait TronAware
 {
     /**
      * Convert from Hex

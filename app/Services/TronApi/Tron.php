@@ -6,10 +6,10 @@ namespace App\Services\TronApi;
 
 use App\Enums\TronTxTypes;
 use App\Models\Wallet;
-use App\Services\TronApi\Concerns\ManagesUniversal;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Provider\{HttpProvider, HttpProviderInterface};
-use App\Services\TronApi\Support\{Base58, Crypto, Hash, Keccak, Secp, Utils};
+use App\Services\TronApi\Support\{Base58, Crypto, Hash, Keccak, Secp};
+use App\Services\TronApi\Traits\{TronAware};
 use Elliptic\EC;
 
 /**
@@ -17,8 +17,7 @@ use Elliptic\EC;
  */
 class Tron
 {
-    use ManagesUniversal;
-    use TronAwareTrait;
+    use TronAware;
 
     public const ADDRESS_PREFIX = '41';
     public const ONE_SUN = 1000000;
@@ -42,14 +41,7 @@ class Tron
      *
      * @var string
      */
-    protected $privateKey;
-
-    /**
-     * Default block
-     *
-     * @var string|integer|bool
-     */
-    protected $defaultBlock = 'latest';
+    protected string $privateKey;
 
     /**
      * Transaction Builder
@@ -59,11 +51,6 @@ class Tron
     protected TransactionBuilder $transactionBuilder;
 
     /**
-     * Transaction Builder
-     */
-    protected TransactionBuilder $trc20Contract;
-
-    /**
      * Provider manager
      *
      * @var TronManager
@@ -71,18 +58,11 @@ class Tron
     protected TronManager $manager;
 
     /**
-     * Object Result
-     *
-     * @var bool
-     */
-    protected bool $isObject = false;
-
-    /**
      * Create a new Tron object
      *
      * @throws TronException
      */
-    public function __construct(string $wallet = NULL, string $privateKey = NULL)
+    public function __construct(string $wallet = null, string $privateKey = null)
     {
         $fullNode = new HttpProvider(config('app.tron_net'));
         $this->setAddress($wallet ?? config('app.hot_spot_wallet'));
@@ -154,38 +134,6 @@ class Tron
     }
 
     /**
-     * Enter the default block
-     *
-     * @param bool $blockID
-     * @return void
-     * @throws TronException
-     */
-    public function setDefaultBlock(bool $blockID = false): void
-    {
-        if ($blockID === false || $blockID == 'latest' || $blockID == 'earliest' || $blockID === 0) {
-            $this->defaultBlock = $blockID;
-
-            return;
-        }
-
-        if (!is_integer($blockID)) {
-            throw new TronException('Invalid block ID provided');
-        }
-
-        $this->defaultBlock = abs($blockID);
-    }
-
-    /**
-     * Get default block
-     *
-     * @return string|integer|bool
-     */
-    public function getDefaultBlock()
-    {
-        return $this->defaultBlock;
-    }
-
-    /**
      * Enter your private account key
      *
      * @param string $privateKey
@@ -202,12 +150,9 @@ class Tron
      */
     public function setAddress(string $address): void
     {
-        $_toHex = $this->address2HexString($address);
-        $_fromHex = $this->hexString2Address($address);
-
         $this->address = [
-            'hex' => $_toHex,
-            'base58' => $_fromHex,
+            'hex' => $this->address2HexString($address),
+            'base58' => $this->hexString2Address($address),
         ];
     }
 
@@ -229,85 +174,6 @@ class Tron
     public function providers(): array
     {
         return $this->manager->getProviders();
-    }
-
-    /**
-     * Last block number
-     *
-     * @return array
-     * @throws TronException
-     */
-    public function getCurrentBlock(): array
-    {
-        return $this->manager->request('wallet/getnowblock');
-    }
-
-    /**
-     * Get block details using HashString or blockNumber
-     *
-     * @param null $block
-     * @return array
-     * @throws TronException
-     */
-    public function getBlock($block = null): array
-    {
-        $block = (is_null($block) ? $this->defaultBlock : $block);
-
-        if ($block === false) {
-            throw new TronException('No block identifier provided');
-        }
-
-        if ($block == 'earliest') {
-            $block = 0;
-        }
-
-        if ($block == 'latest') {
-            return $this->getCurrentBlock();
-        }
-
-        if (Utils::isHex($block)) {
-            return $this->getBlockByHash($block);
-        }
-
-        return $this->getBlockByNumber($block);
-    }
-
-    /**
-     * Query block by ID
-     *
-     * @param string $hashBlock
-     * @return array
-     * @throws TronException
-     */
-    public function getBlockByHash(string $hashBlock): array
-    {
-        return $this->manager->request('wallet/getblockbyid', [
-            'value' => $hashBlock,
-        ]);
-    }
-
-    /**
-     * Query block by height
-     *
-     * @param int $blockID
-     * @return array
-     * @throws TronException
-     */
-    public function getBlockByNumber(int $blockID): array
-    {
-        if ($blockID < 0) {
-            throw new TronException('Invalid block number provided');
-        }
-
-        $response = $this->manager->request('wallet/getblockbynum', [
-            'num' => $blockID,
-        ]);
-
-        if (empty($response)) {
-            throw new TronException('Block not found');
-        }
-
-        return $response;
     }
 
     /**
@@ -756,24 +622,6 @@ class Tron
     }
 
     /**
-     * Query the latest blocks
-     *
-     * @param int $limit
-     * @return array
-     * @throws TronException
-     */
-    public function getLatestBlocks(int $limit = 1): array
-    {
-        if (!is_integer($limit) || $limit <= 0) {
-            throw new TronException('Invalid limit provided');
-        }
-
-        return $this->manager->request('wallet/getblockbylatestnum', [
-            'num' => $limit,
-        ])['block'];
-    }
-
-    /**
      * Проголосовать за наблюдателя (SR)
      *
      * @param string $witnessAddress
@@ -896,8 +744,8 @@ class Tron
 
         // Generate keys
         $key = $ec->genKeyPair();
-        $priv = $ec->keyFromPrivate($key->priv);
-        $pubKeyHex = $priv->getPublic(false, "hex");
+        $private = $ec->keyFromPrivate($key->priv);
+        $pubKeyHex = $private->getPublic(false, 'hex');
 
         $pubKeyBin = hex2bin($pubKeyHex);
         $addressHex = $this->getAddressHex($pubKeyBin);
@@ -905,7 +753,7 @@ class Tron
         $addressBase58 = $this->getBase58CheckAddress($addressBin);
 
         return new TronAddress([
-            'private_key' => $priv->getPrivate('hex'),
+            'private_key' => $private->getPrivate('hex'),
             'public_key' => $pubKeyHex,
             'address_hex' => $addressHex,
             'address_base58' => $addressBase58,
