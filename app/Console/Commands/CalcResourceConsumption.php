@@ -15,7 +15,7 @@ class CalcResourceConsumption extends Command
      *
      * @var string
      */
-    protected $signature = 'app:calc-resource-consumption';
+    protected $signature = 'app:calc-resource-consumption {date?}';
 
     /**
      * The console command description.
@@ -30,28 +30,34 @@ class CalcResourceConsumption extends Command
     public function handle()
     {
         $toInsert = [];
-        $now = now();
         $this->tron = new Tron();
+        $startDate = now()->createFromDate($this->argument('date'));
 
-        Consumer::query()->select(['id', 'address'])->chunkById(100, function ($consumers) use (&$toInsert, $now) {
+        Consumer::query()->select(['id', 'address'])->chunkById(100, function ($consumers) use (&$toInsert, $startDate) {
             foreach ($consumers as $consumer) {
-                $response = $this->getUsdtTransactions($consumer->address, $now->startOfDay()->getTimestampMs());
+                foreach ($startDate->toPeriod(now()->endOfDay(), '1', 'day') as $day) {
+                    $response = $this->getUsdtTransactions(
+                        $consumer->address,
+                        $day->startOfDay()->getTimestampMs(),
+                        $day->endOfDay()->getTimestampMs()
+                    );
 
-                $result = collect($response['data'])->where('value', '>', 0)->count();
+                    $result = collect($response['data'])->where('value', '>', 0)->count();
 
-                if ($result == 0) continue;
+                    if ($result == 0) continue;
 
-                $toInsert[] = [
-                    'consumer_id' => $consumer->id,
-                    'energy_amount' => $result * 32000,
-                    'bandwidth_amount' => $result * 350,
-                    'day' => $now,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+                    $toInsert[] = [
+                        'consumer_id' => $consumer->id,
+                        'energy_amount' => $result * 32000,
+                        'bandwidth_amount' => $result * 350,
+                        'day' => $day,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             }
 
-            sleep(2);
+            sleep(1);
         });
 
         ResourceConsumption::query()->insert($toInsert);
@@ -59,11 +65,12 @@ class CalcResourceConsumption extends Command
         $this->info('The command was successful!');
     }
 
-    private function getUsdtTransactions(string $ownerAddress, int $minTimestamp): array
+    private function getUsdtTransactions(string $ownerAddress, int $minTimestamp, int $maxTimestamp): array
     {
         $filters = 'only_from=true&only_confirmed=true&limit=200'
             . '&contract_address=' . Tron::USDT_CONTRACT
-            . '&min_timestamp=' . $minTimestamp;
+            . '&min_timestamp=' . $minTimestamp
+            . '&max_timestamp=' . $maxTimestamp;
 
         return $this->tron->getManager()->request("v1/accounts/$ownerAddress/transactions/trc20?$filters", [], 'get');
     }
