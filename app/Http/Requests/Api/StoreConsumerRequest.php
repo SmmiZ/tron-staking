@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Http\Requests\Api\BaseRequest;
 use App\Services\TronApi\Tron;
 use Closure;
 
@@ -19,7 +18,7 @@ class StoreConsumerRequest extends BaseRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array
      */
     public function rules(): array
     {

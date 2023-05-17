@@ -8,8 +8,6 @@ use Illuminate\Validation\Rule;
 
 class PayConsumerRequest extends FormRequest
 {
-
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -21,7 +19,7 @@ class PayConsumerRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array
      */
     public function rules(): array
     {

@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use Exception;
-use App\Models\Consumer;
 use App\Enums\InternalTxTypes;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Api\{PayConsumerRequest, StoreConsumerRequest};
+use App\Http\Resources\Consumer\{ConsumerCollection, ConsumerResource};
+use App\Models\Consumer;
+use App\Services\TronApi\Tron;
+use Exception;
 use Illuminate\Http\{Request, Response};
-use App\Http\Requests\Api\PayConsumerRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use App\Http\Requests\Api\StoreConsumerRequest;
-use App\Http\Resources\Consumer\ConsumerResource;
-use App\Http\Resources\Consumer\ConsumerCollection;
+use Throwable;
 
 class ConsumerController extends Controller
 {
@@ -45,28 +46,29 @@ class ConsumerController extends Controller
         ]);
     }
 
-
     /**
-     * 
-     * Оплачивает созданную заявку
-     * 
-     * @var PayConsumerRequest $request
+     * Оплатить свои потребительские аккаунты
+     *
      * @return Response
+     * @throws ValidationException
+     * @var PayConsumerRequest $request
      */
     public function payConsumer(PayConsumerRequest $request): Response
     {
         $consumers = Consumer::whereIn('id', $request->consumers)->get();
         $balance = $request->user()->internalTxs()->balance()->value('amount');
-        $toPay = ($consumers->sum('resource_amount') * config('app.energy_price') / 1_000_000) * $request->days;
+        $toPay = ($consumers->sum('resource_amount') * config('app.energy_price') / Tron::ONE_SUN) * $request->days;
+
         if ($balance < $toPay) {
             throw ValidationException::withMessages(['balance' => 'Not enough money']);
         }
+
         DB::beginTransaction();
         try {
             $request->user()->internalTxs()->create([
                 'amount' => $toPay,
                 'received' => $toPay,
-                'type' => InternalTxTypes::fromName('consumer'),
+                'type' => InternalTxTypes::consumer,
             ]);
             foreach ($consumers as $consumer) {
                 $consumer->order()->create([
@@ -77,11 +79,12 @@ class ConsumerController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            info($e);
+            Log::critical('Error while paying consumer', ['error' => $e]);
+
             return new Response([
-                'error' => $e->getMessage(),
-                'errors' => ['exception' => $e->getMessage(),],
                 'status' => false,
+                'error' => $e->getMessage(),
+                'errors' => (object)['exception' => $e->getMessage()],
             ], 422);
         }
 
