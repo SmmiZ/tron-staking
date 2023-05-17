@@ -6,7 +6,8 @@ enum Statuses: int
 {
     case new = 1;
     case pending = 2;
-    case closed = 3;
+    case completed = 3;
+    case declined = 4;
 
     public const OPEN_STATUSES = [
         self::new,
@@ -18,7 +19,8 @@ enum Statuses: int
         return match ($this) {
             self::new => 'Новый',
             self::pending => 'Выполняется',
-            self::closed => 'Закрыт',
+            self::completed => 'Завершен',
+            self::declined => 'Отклонен',
         };
     }
 }

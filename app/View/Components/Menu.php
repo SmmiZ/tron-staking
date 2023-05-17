@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\{Consumer, Order, ResourceConsumption, TronTx, User};
+use App\Models\{Consumer, Order, ResourceConsumption, TronTx, User, Withdrawal};
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -28,6 +28,8 @@ class Menu extends Component
         $this->addMenu('transactions.index', 'transactions', 'Транзакции', 'mdi-arrow-left-right-bold-outline', TronTx::class);
 
         $this->addMenu('resource-consumption', 'resource-consumption', 'Статистика ресурсов', 'mdi-select-compare', ResourceConsumption::class);
+
+        $this->addMenu('withdrawals.index', 'withdrawals', 'Заявки на вывод', 'mdi-bank-transfer-out', Withdrawal::class);
     }
 
     /**

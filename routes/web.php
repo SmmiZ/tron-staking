@@ -6,7 +6,8 @@ use App\Http\Controllers\{ConsumerController,
     HomeController,
     OrderController,
     TransactionController,
-    UserController};
+    UserController,
+    WithdrawalController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,14 +28,13 @@ Route::get('/', function () {
 Route::group([
     'prefix' => 'staff-lobby',
 ], function () {
-    //Авторизация
+    /** Авторизация */
     Route::group([/*'middleware' => 'throttle:staff_login'*/], function () {
         Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [LoginController::class, 'login']);
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     });
 
-    //Действия
     Route::group(['middleware' => ['auth:staff']], function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -42,11 +42,18 @@ Route::group([
         Route::resource('users', UserController::class)->only(['index', 'show']);
         Route::resource('transactions', TransactionController::class)->only(['index', 'show']);
 
-        //Заказы
-        Route::resource('orders', OrderController::class)->except(['update', 'edit']);
+        /** Заказы */
+        Route::resource('orders', OrderController::class)->only(['index', 'show', 'destroy']);
         Route::resource('orders.executors', ExecutorController::class)->only(['index']);
 
-        //Статистика
+        /** Статистика */
         Route::get('resource-consumption', [HomeController::class, 'resourceConsumption'])->name('resource-consumption');
+
+        /** Заявки на вывод */
+        Route::resource('withdrawals', WithdrawalController::class)->only(['index', 'show']);
+        Route::group(['prefix' => 'withdrawals', 'as' => 'withdrawals.'], function () {
+            Route::post('{withdrawal}/accept', [WithdrawalController::class, 'accept'])->name('accept');
+            Route::post('{withdrawal}/decline', [WithdrawalController::class, 'decline'])->name('decline');
+        });
     });
 });

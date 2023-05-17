@@ -37,7 +37,7 @@ class ExecuteOrder implements ShouldQueue
             foreach ($users as $user) {
                 $this->order->refresh();
 
-                if ($this->order->status === Statuses::closed) {
+                if ($this->order->status === Statuses::completed) {
                     exit();
                 }
 
