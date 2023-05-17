@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        User::factory()->createOne([
+        User::query()->create([
             'name' => 'System',
             'email' => 'no-reply@orlna7sd6fags8df67a.ru',
             'the_code' => '00000000',

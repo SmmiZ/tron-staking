@@ -28,8 +28,6 @@ class UserFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (User $user) {
-            if ($user->id == 1) return;
-
             if ($user->id == 2) {
                 //Добавляем реальный кошелек первому после системного
                 $user->wallet()->create([
