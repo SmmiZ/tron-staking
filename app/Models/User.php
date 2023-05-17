@@ -88,6 +88,11 @@ class User extends Authenticatable
         return $this->hasOne(LeaderLevel::class, 'level', 'leader_level');
     }
 
+    public function withdrawals(): HasMany
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
+
     /**
      * Запрос на получение из БД транзакций сети TRON, в которых участвовали кошельки юзера
      *

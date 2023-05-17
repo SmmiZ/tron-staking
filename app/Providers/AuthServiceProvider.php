@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
-use App\Models\{Consumer, Order, Reactor, ResourceConsumption, Stake, TronTx, User, Wallet};
+use App\Models\{Consumer, Order, Reactor, ResourceConsumption, Stake, TronTx, User, Wallet, Withdrawal};
 use App\Policies\{ConsumerPolicy,
     OrderPolicy,
     ReactorPolicy,
@@ -11,7 +11,8 @@ use App\Policies\{ConsumerPolicy,
     StakePolicy,
     TronTxPolicy,
     UserPolicy,
-    WalletPolicy};
+    WalletPolicy,
+    WithdrawalPolicy};
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -30,6 +31,7 @@ class AuthServiceProvider extends ServiceProvider
          Wallet::class => WalletPolicy::class,
          Reactor::class => ReactorPolicy::class,
          ResourceConsumption::class => ResourceConsumptionPolicy::class,
+         Withdrawal::class => WithdrawalPolicy::class,
     ];
 
     /**

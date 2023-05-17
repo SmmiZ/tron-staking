@@ -8,7 +8,8 @@ use App\Http\Controllers\Api\{AuthController,
     StakeController,
     StructureController,
     TransactionController,
-    WalletController};
+    WalletController,
+    WithdrawalController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,5 +69,8 @@ Route::name('api.')->group(function () {
             Route::get('levels', [StructureController::class, 'levels'])->name('levels');
             Route::get('partners', [StructureController::class, 'partners'])->name('partners');
         });
+
+        /** WITHDRAWALS */
+        Route::apiResource('withdrawals', WithdrawalController::class)->except(['update']);
     });
 });

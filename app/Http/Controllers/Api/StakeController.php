@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Stake\StoreStakeRequest;
+use App\Http\Requests\Api\TrxAmountRequest;
 use App\Http\Resources\Stake\StakeResource;
 use App\Jobs\WithdrawDefrostedTrx;
 use App\Models\OrderExecutor;
@@ -17,7 +17,7 @@ class StakeController extends Controller
     /**
      * @throws TronException
      */
-    public function stake(StoreStakeRequest $request): Response
+    public function stake(TrxAmountRequest $request): Response
     {
         $status = (new StakeService($request->user()->wallet))->stake($request->validated('trx_amount'));
 
@@ -48,7 +48,7 @@ class StakeController extends Controller
     /**
      * @throws TronException
      */
-    public function unstake(StoreStakeRequest $request): Response
+    public function unstake(TrxAmountRequest $request): Response
     {
         $trxAmount = $request->validated('trx_amount');
         $status = (new StakeService($request->user()->wallet))->unstake($trxAmount);

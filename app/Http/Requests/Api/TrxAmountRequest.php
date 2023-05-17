@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Api\Stake;
+namespace App\Http\Requests\Api;
 
-use App\Http\Requests\Api\BaseRequest;
-
-class StoreStakeRequest extends BaseRequest
+class TrxAmountRequest extends BaseRequest
 {
     /**
      * Get the validation rules that apply to the request.
