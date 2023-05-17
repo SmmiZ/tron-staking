@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class LeaderLevel extends Model
@@ -22,4 +23,11 @@ class LeaderLevel extends Model
         'alt_conditions' => 'object',
         'line_percents' => 'array',
     ];
+
+    public function name(): Attribute
+    {
+        $localeColumn = app()->getLocale() == 'ru' ? 'name_ru' : 'name_en';
+
+        return Attribute::get(fn($value) => $this->$localeColumn);
+    }
 }
