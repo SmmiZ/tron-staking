@@ -19,6 +19,7 @@ class PartnerResource extends BaseResource
             'id' => $this->id,
             'name' => $this->name,
             'level_name' => $this->level->name,
+            'stake' => $this->stake->trx_amount ?? 0,
         ];
     }
 }
