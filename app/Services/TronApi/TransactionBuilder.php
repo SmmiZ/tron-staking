@@ -44,7 +44,7 @@ class TransactionBuilder
             throw new TronException('Invalid amount provided');
         }
 
-        if(is_null($from)) {
+        if (is_null($from)) {
             $from = $this->tron->address['hex'];
         }
 
@@ -58,11 +58,11 @@ class TransactionBuilder
         $options = [
             'to_address' => $to,
             'owner_address' => $from,
-            'amount' => $this->tron->toTron($amount),
+            'amount' => $this->tron->fromTrx2Sun($amount),
         ];
 
-        if(!is_null($message)) {
-            $params['extra_data'] = $this->tron->stringUtf8toHex($message);
+        if (!is_null($message)) {
+            $options['extra_data'] = $this->tron->stringUtf8toHex($message);
         }
 
         return $this->tron->getManager()->request('wallet/createtransaction', $options);
@@ -125,7 +125,7 @@ class TransactionBuilder
             'to_address' => $this->tron->address2HexString($issuerAddress),
             'owner_address' => $this->tron->address2HexString($buyer),
             'asset_name' => $this->tron->stringUtf8toHex($tokenID),
-            'amount' => $this->tron->toTron($amount)
+            'amount' => $this->tron->fromTrx2Sun($amount)
         ]);
 
         if (array_key_exists('Error', $purchase)) {
@@ -247,8 +247,8 @@ class TransactionBuilder
 
     /**
      * Заморозить TRX
-     * @see https://developers.tron.network/reference/freezebalancev2-1
      *
+     * @see https://developers.tron.network/reference/freezebalancev2-1
      * @param float $trxAmount
      * @param string $address
      * @param int|null $permissionId
@@ -286,9 +286,26 @@ class TransactionBuilder
     }
 
     /**
-     * Передать ресурсы с одного адреса на другой
-     * @see https://developers.tron.network/reference/delegateresource-1
+     * Запрос на вывод размороженных TRX
      *
+     * @see https://developers.tron.network/reference/withdrawexpireunfreeze
+     * @param string $address
+     * @param int $permissionId
+     * @return array
+     * @throws TronException
+     */
+    public function withdrawExpireUnfreeze(string $address, int $permissionId): array
+    {
+        return $this->tron->getManager()->request('wallet/withdrawexpireunfreeze', [
+            'owner_address' => $this->tron->toHex($address),
+            'Permission_id' => $permissionId
+        ]);
+    }
+
+    /**
+     * Передать ресурсы с одного адреса на другой
+     *
+     * @see https://developers.tron.network/reference/delegateresource-1
      * @param int $trxAmount
      * @param string $ownerAddress
      * @param string $receiverAddress
@@ -310,8 +327,8 @@ class TransactionBuilder
 
     /**
      * Получить максимальный размер возможного делегирования
-     * @see https://developers.tron.network/reference/getcandelegatedmaxsize
      *
+     * @see https://developers.tron.network/reference/getcandelegatedmaxsize
      * @throws TronException
      */
     public function getCanDelegatedMaxSize(string $ownerAddress): array
@@ -324,8 +341,8 @@ class TransactionBuilder
 
     /**
      * Запрос на отзыв ресурса
-     * @see https://developers.tron.network/reference/undelegateresource-1
      *
+     * @see https://developers.tron.network/reference/undelegateresource-1
      * @param int $trxAmount
      * @param string $ownerAddress
      * @param string $receiverAddress
@@ -347,6 +364,7 @@ class TransactionBuilder
     /**
      * Запрос на получение вознаграждения
      *
+     * @see https://developers.tron.network/reference/withdrawbalance
      * @param string $address
      * @param int $permissionId
      * @return array
@@ -362,8 +380,8 @@ class TransactionBuilder
 
     /**
      * Проголосовать за SR
-     * @see https://developers.tron.network/reference/votewitnessaccount
      *
+     * @see https://developers.tron.network/reference/votewitnessaccount
      * @param string $ownerAddress
      * @param string $witnessAddress
      * @param int $voteAmount
