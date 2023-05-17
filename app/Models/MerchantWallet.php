@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Merchant extends Model
+class MerchantWallet extends Model
 {
     use HasFactory;
-
-    protected $table = 'merchant';
 
     /**
      * The attributes that are mass assignable.

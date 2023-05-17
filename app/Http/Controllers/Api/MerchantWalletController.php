@@ -2,40 +2,41 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Merchant;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\{Request, Response};
+use App\Models\MerchantWallet;
+use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
+use Illuminate\Http\{Request, Response};
 
-class MerchantController extends Controller
+class MerchantWalletController extends Controller
 {
-
-
     /**
-     * 
-     * Создаёт для оплаты новый кошелёк
-     * 
+     * Получить временный кошелёк для оплаты
+     *
      * @param Request $request
      * @return Response
+     * @throws TronException
      */
-    public function tempAddressForTopUp(Request $request): Response
+    public function getTempAddress(Request $request): Response
     {
-        $merchant = Merchant::where('user_id', $request->user()->id)->where('created_at', '>', now()->subMinutes(30))->latest()->first();
+        $merchant = MerchantWallet::where('user_id', $request->user()->id)->where('created_at', '>', now()->subMinutes(30))->latest()->first();
+
         if (!$merchant) {
             $tron = new Tron();
             $newAddress = $tron->generateAddress();
-            $merchant = Merchant::create([
+            $merchant = MerchantWallet::create([
                 'user_id' => $request->user()->id,
                 'address' => $newAddress->getAddress(true),
                 'hex_address' => $newAddress->getAddress(),
                 'private_key' => $newAddress->getPrivateKey(),
             ]);
         }
+
         return response([
             'status' => true,
             'data' => [
                 'address' => $merchant->address,
-                'timeleft' => $merchant->created_at->addHour()->diffInSeconds(now())
+                'time_left' => $merchant->created_at->addHour()->diffInSeconds(now())
             ],
         ]);
     }

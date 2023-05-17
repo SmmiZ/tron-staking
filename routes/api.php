@@ -4,7 +4,7 @@ use App\Http\Controllers\Api\{
     AuthController,
     InfoController,
     ConsumerController,
-    MerchantController,
+    MerchantWalletController,
     ReactorController,
     StakeController,
     TransactionController,
@@ -62,7 +62,7 @@ Route::name('api.')->group(function () {
             Route::get('tron', [TransactionController::class, 'tronTxs'])->name('tron');
         });
 
-        /** MERCHANT */
-        Route::get('merchant/new', [MerchantController::class, 'tempAddressForTopUp'])->name('merchant.new-address');
+        /** MERCHANT WALLETS */
+        Route::get('merchant-wallet', [MerchantWalletController::class, 'getTempAddress'])->name('merchant-wallet');
     });
 });

@@ -4,16 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\InternalTxTypes;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Api\{PayConsumerRequest, StoreConsumerRequest};
 use App\Http\Resources\Consumer\{ConsumerCollection, ConsumerResource};
 use App\Models\Consumer;
 use App\Services\TronApi\Tron;
 use Exception;
 use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{DB, Log};
 use Illuminate\Validation\ValidationException;
-use Throwable;
 
 class ConsumerController extends Controller
 {
