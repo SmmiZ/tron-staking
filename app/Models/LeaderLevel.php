@@ -16,6 +16,8 @@ class LeaderLevel extends Model
     ];
 
     protected $casts = [
+        'level' => 'integer',
+        'reward' => 'integer',
         'conditions' => 'object',
         'alt_conditions' => 'object',
         'line_percents' => 'array',
