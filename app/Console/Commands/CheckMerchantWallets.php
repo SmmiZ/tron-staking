@@ -31,17 +31,17 @@ class CheckMerchantWallets extends Command
     public function handle()
     {
         $this->tron = new Tron();
-        MerchantWallet::where('created_at', '>=', now()->subHour())->orderBy('id')->chunk(50, function ($merchants) {
-            foreach ($merchants as $merchant) {
-                $trxAmount = $this->tron->getTrxBalance($merchant->address);
+        MerchantWallet::where('created_at', '>=', now()->subHour())->orderBy('id')->chunk(50, function ($merchantWallets) {
+            foreach ($merchantWallets as $merchantWallet) {
+                $trxAmount = $this->tron->getTrxBalance($merchantWallet->address);
 
                 if ($trxAmount < 1) continue;
 
-                $tron = new Tron($merchant->address, $merchant->private_key);
-                $tron->sendTrx(config('app.hot_spot_wallet'), $trxAmount, $merchant->address);
+                $tron = new Tron($merchantWallet->address, $merchantWallet->private_key);
+                $tron->sendTrx(config('app.hot_spot_wallet'), $trxAmount, $merchantWallet->address);
 
                 InternalTx::create([
-                    'user_id' => $merchant->user_id,
+                    'user_id' => $merchantWallet->user_id,
                     'amount' => $trxAmount,
                     'received' => $trxAmount,
                     'type' => InternalTxTypes::fromName('topUp'),
