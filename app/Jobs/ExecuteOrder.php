@@ -33,24 +33,29 @@ class ExecuteOrder implements ShouldQueue
      */
     public function handle(): void
     {
-        User::with(['wallet', 'stake'])->whereHas('wallet')->orderBy('sort')->chunk(50, function ($users) {
-            foreach ($users as $user) {
-                $this->order->refresh();
+        User::with(['wallet', 'stake:id,user_id,trx_amount'])
+            ->whereHas('wallet')
+            ->whereRelation('stake', 'trx_amount', '>', 0)
+            ->orderBy('sort')
+            ->chunk(50, function ($users) {
+                foreach ($users as $user) {
+                    $this->order->refresh();
 
-                if ($this->order->status === Statuses::completed) {
-                    exit();
-                }
+                    if ($this->order->status === Statuses::completed) {
+                        exit();
+                    }
 
-                try {
-                    (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
-                } catch (TronException|Throwable $e) {
-                    Log::emergency('ExecuteOrder-Exception', [
-                        'stake_id' => $user->stake->id,
-                        'wallet_id' => $user->wallet->id,
-                        'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
-                    ]);
+                    try {
+                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
+                    } catch (TronException|Throwable $e) {
+                        Log::emergency('ExecuteOrder-Exception', [
+                            'stake_id' => $user->stake->id,
+                            'wallet_id' => $user->wallet->id,
+                            'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
+                        ]);
+                    }
                 }
-            }
-        });
+                sleep(1);
+            });
     }
 }

@@ -70,24 +70,27 @@ class StakeService
      * Делегировать ресурс пользователя для заказа
      *
      * @param Order $order
-     * @param int $stakeAmount
+     * @param int $totalStake
      * @return void
      * @throws TronException
      */
-    public function delegateResourceToOrder(Order $order, int $stakeAmount): void
+    public function delegateResourceToOrder(Order $order, int $totalStake): void
     {
         $requiredResource = $order->resource_amount - $order->executors()->sum('resource_amount');
         $resources = $this->tron->getAccountResources($this->wallet->address);
-        $availableTrx = $resources['tronPowerLimit'] ?? 0;
+
+        $walletTrx = $resources['tronPowerLimit'] ?? 0;
+        $stakedFreeTrx = $totalStake - OrderExecutor::where('user_id', $this->wallet->user_id)->sum('trx_amount');
 
         match (true) {
-            $availableTrx <= 0 => throw new TronException('Not enough Energy to delegate'),
+            $stakedFreeTrx <= 0 => throw new TronException('Not enough staked TRX'),
+            $walletTrx <= 0 => throw new TronException('Not enough TRX in the wallet'),
             $requiredResource <= 0 => throw new TronException('Order is already filled'),
             default => null,
         };
 
         $requiredTrx = ceil($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
-        $trxAmount = min($availableTrx, $stakeAmount, $requiredTrx);
+        $trxAmount = min($walletTrx, $requiredTrx, $stakedFreeTrx);
 
         $response = $this->tron->delegateResource($this->wallet->address, $order->consumer->address, $trxAmount);
         $this->storeTransaction($response);
