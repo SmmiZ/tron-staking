@@ -28,10 +28,9 @@ class ProcessingOrders extends Command
      */
     public function handle()
     {
-        Order::with(['executors'])
-            ->withSum('executors', 'resource_amount')
+        Order::withSum('executors', 'resource_amount')
             ->whereIn('status', Statuses::OPEN_STATUSES)
-            ->having('executors_sum_resource_amount', '<', 'resource_amount')
+            ->havingRaw('executors_sum_resource_amount < resource_amount')
             ->orHavingNull('executors_sum_resource_amount')
             ->orderBy('id')
             ->chunk(50, function ($orders) {
