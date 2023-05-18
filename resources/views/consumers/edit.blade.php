@@ -35,6 +35,10 @@
                     <input type="number" name="resource_amount" value="{{$consumer->resource_amount}}">
                     <label for="resource_amount">Кол-во</label>
                 </div>
+                <div class="input-group">
+                    <input type="number" name="user_id" value="{{$consumer->user_id}}">
+                    <label for="user_id">ID пользователя(<b>1 - системный</b>)</label>
+                </div>
             </form>
             <div class="form-button">
                 <button onclick="editConsumer()" class="btn del">Сохранить</button>
