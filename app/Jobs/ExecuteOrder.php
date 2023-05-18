@@ -33,7 +33,7 @@ class ExecuteOrder implements ShouldQueue
      */
     public function handle(): void
     {
-        User::with(['wallet', 'stake'])->whereHas('wallet')->orderBy('sort')->chunk(50, function ($users) {
+        User::with(['wallet', 'stake'])->whereHas('wallet')->orderBy('sort')->chunkById(50, function ($users) {
             foreach ($users as $user) {
                 $this->order->refresh();
 
@@ -49,7 +49,6 @@ class ExecuteOrder implements ShouldQueue
                         'wallet_id' => $user->wallet->id,
                         'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
                     ]);
-                    dump($e->getMessage());
                 }
             }
         });
