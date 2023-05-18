@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController,
+use App\Http\Controllers\Api\{AccountController,
+    AuthController,
     InfoController,
     ConsumerController,
     MerchantWalletController,
@@ -33,6 +34,12 @@ Route::name('api.')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('leader-code', [AuthController::class, 'addLeaderCode'])->name('add-leader-code');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+        /** ACCOUNT */
+        Route::prefix('account')->name('account.')->group(function () {
+            Route::get('', [AccountController::class, 'show'])->name('show');
+            Route::post('', [AccountController::class, 'update'])->name('update');
+        });
 
         /** INFO */
         Route::get('connect-info', [InfoController::class, 'connectInfo'])->name('connect-info');

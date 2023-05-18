@@ -18,6 +18,7 @@ class PartnerResource extends BaseResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'photo' => $this->photo,
             'level_name' => $this->level->name,
             'stake' => $this->stake->trx_amount ?? 0,
         ];

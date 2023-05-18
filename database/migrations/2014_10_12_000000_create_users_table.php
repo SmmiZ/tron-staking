@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('invitation_code', 8)->nullable();
             $table->string('linear_path')->nullable();
             $table->tinyInteger('leader_level')->default(0);
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
 

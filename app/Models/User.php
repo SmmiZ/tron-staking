@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasOne};
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -30,7 +32,13 @@ class User extends Authenticatable
         'the_code',
         'linear_path',
         'leader_level',
+        'photo',
     ];
+
+    public function photo(): Attribute
+    {
+        return Attribute::get(fn($q) => Storage::disk('public')->url($this->attributes['photo'] ?? 'default.png'));
+    }
 
     /** Исключаем системного юзера из всех запросов по умолчанию */
     public function newQuery(): Builder
