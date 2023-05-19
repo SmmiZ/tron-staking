@@ -32,6 +32,7 @@ class ExecuteOrder implements ShouldQueue
         User::with(['wallet', 'stake:id,user_id,trx_amount'])
             ->whereHas('wallet')
             ->whereRelation('stake', 'trx_amount', '>', 0)
+            ->whereRelation('stake', 'failed_attempts', '<', 3)
             ->orderBy('sort')
             ->chunk(50, function ($users) {
                 foreach ($users as $user) {

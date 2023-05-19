@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Enums\{Statuses, TronTxTypes};
 use App\Events\{NewStakeEvent, UnStakeEvent};
 use App\Jobs\Vote;
-use App\Models\{Order, OrderExecutor, TronTx, Wallet};
+use App\Models\{Order, OrderExecutor, Stake, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Support\Facades\DB;
@@ -72,11 +72,11 @@ class StakeService
         $bandwidth = ($resources['freeNetLimit'] + data_get($resources, 'NetLimit', 0)) - data_get($resources, 'NetUsed', 0);
 
         match (true) {
-            $bandwidth <= 300 => throw new TronException('Not enough bandwidth'),
-            $stakedFreeTrx <= 0 => throw new TronException('Not enough staked TRX'),
-            $walletTrx <= 0 => throw new TronException('Not enough TRX in the wallet'),
+            $bandwidth <= 300 => $this->handleFailedAttempt('Not enough bandwidth'),
+            $stakedFreeTrx <= 0 => $this->handleFailedAttempt('Not enough staked TRX'),
+            $walletTrx <= 0 => $this->handleFailedAttempt('Not enough TRX in the wallet'),
             $requiredResource <= 0 => throw new TronException('Order is already filled'),
-            default => null,
+            default => null
         };
 
         $requiredTrx = ceil($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
@@ -93,6 +93,12 @@ class StakeService
             'unlocked_at' => now()->addDays(3),
         ]);
         $order->update(['status' => Statuses::pending]);
+    }
+
+    private function handleFailedAttempt(string $message)
+    {
+        Stake::where('user_id', $this->wallet->user_id)->increment('failed_attempts');
+        throw new TronException($message);
     }
 
     /**

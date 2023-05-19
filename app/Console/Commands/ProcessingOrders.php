@@ -4,7 +4,8 @@ namespace App\Console\Commands;
 
 use App\Enums\Statuses;
 use App\Jobs\ExecuteOrder;
-use App\Models\Order;
+use App\Models\{Order, OrderExecutor, Stake};
+use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
 
 class ProcessingOrders extends Command
@@ -28,7 +29,14 @@ class ProcessingOrders extends Command
      */
     public function handle()
     {
+        $tron = new Tron();
+        $totalFreeTrx = Stake::where('failed_attempts', '<', 3)->count('trx_amount') - OrderExecutor::count('trx_amount');
+
+        $resources = $tron->getAccountResources();
+        $freeResource = floor($totalFreeTrx * ($resources['TotalEnergyLimit'] / $resources['TotalEnergyWeight']));
+
         Order::withSum('executors', 'resource_amount')
+            ->where('resource_amount', '<=', $freeResource)
             ->whereIn('status', Statuses::OPEN_STATUSES)
             ->havingRaw('executors_sum_resource_amount < resource_amount')
             ->orHavingNull('executors_sum_resource_amount')
