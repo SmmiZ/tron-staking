@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
-use App\Enums\TronTxTypes;
+use App\Enums\{Resources, TronTxTypes};
 use App\Models\Wallet;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Provider\{HttpProvider, HttpProviderInterface};
 use App\Services\TronApi\Support\Secp;
-use App\Services\TronApi\Traits\{TronAware, TronInfo};
+use App\Services\TronApi\Traits\{TronAware, TronInfo, TronStaff};
 use Elliptic\EC;
 
 /**
@@ -19,6 +19,7 @@ class Tron
 {
     use TronAware;
     use TronInfo;
+    use TronStaff;
 
     public const ADDRESS_PREFIX = '41';
     public const ONE_SUN = 1000000;
@@ -299,7 +300,7 @@ class Tron
     public function freezeUserBalance(Wallet $wallet, int $trxAmount): array
     {
         $permissionId = $this->getPermissionId($wallet->address);
-        $freeze = $this->transactionBuilder->freezeBalance2Energy($trxAmount, $wallet->address, $permissionId);
+        $freeze = $this->transactionBuilder->freezeBalance($trxAmount, $wallet->address, Resources::ENERGY, $permissionId);
 
         return $this->signAndSendTransaction($freeze);
     }

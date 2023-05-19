@@ -251,18 +251,24 @@ class TransactionBuilder
      * @see https://developers.tron.network/reference/freezebalancev2-1
      * @param float $trxAmount
      * @param string $address
+     * @param Resources $resource
      * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function freezeBalance2Energy(float $trxAmount, string $address, int $permissionId = null): array
+    public function freezeBalance(float $trxAmount, string $address, Resources $resource, int $permissionId = null): array
     {
-        return $this->tron->getManager()->request('wallet/freezebalancev2', [
+        $data = [
             'owner_address' => $this->tron->toHex($address),
             'frozen_balance' => $trxAmount * $this->tron::ONE_SUN,
-            'resource' => Resources::ENERGY->name,
-            'Permission_id' => $permissionId
-        ]);
+            'resource' => $resource->name,
+        ];
+
+        if ($permissionId) {
+            $data['Permission_id'] = $permissionId;
+        }
+
+        return $this->tron->getManager()->request('wallet/freezebalancev2', $data);
     }
 
     /**

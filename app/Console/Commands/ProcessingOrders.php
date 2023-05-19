@@ -30,13 +30,13 @@ class ProcessingOrders extends Command
     public function handle()
     {
         $tron = new Tron();
-        $totalFreeTrx = Stake::where('failed_attempts', '<', 3)->count('trx_amount') - OrderExecutor::count('trx_amount');
+        $totalAvailableTrx = Stake::where('failed_attempts', '<', 3)->count('trx_amount') - OrderExecutor::count('trx_amount');
 
         $resources = $tron->getAccountResources();
-        $freeResource = floor($totalFreeTrx * ($resources['TotalEnergyLimit'] / $resources['TotalEnergyWeight']));
+        $totalAvailableResource = floor($totalAvailableTrx * ($resources['TotalEnergyLimit'] / $resources['TotalEnergyWeight']));
 
         Order::withSum('executors', 'resource_amount')
-            ->where('resource_amount', '<=', $freeResource)
+            ->where('resource_amount', '<=', $totalAvailableResource)
             ->whereIn('status', Statuses::OPEN_STATUSES)
             ->havingRaw('executors_sum_resource_amount < resource_amount')
             ->orHavingNull('executors_sum_resource_amount')
