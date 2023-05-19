@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\{Statuses, TronTxTypes};
 use App\Events\{NewStakeEvent, UnStakeEvent};
+use App\Jobs\Vote;
 use App\Models\{Order, OrderExecutor, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -46,24 +47,11 @@ class StakeService
         $response = $this->tron->freezeUserBalance($this->wallet, $trxAmount);
 
         event(new NewStakeEvent($this->wallet->user));
+        Vote::dispatch($this->wallet->address)->delay(now()->addMinute());
+
         $this->storeTransaction($response);
-        $this->vote();
 
         return true;
-    }
-
-    /**
-     * Проголосовать за SR
-     *
-     * @return void
-     * @throws TronException
-     */
-    private function vote(): void
-    {
-        $witnessAddress = $this->tron->getTopSrAddress();
-        $response = $this->tron->voteWitness($witnessAddress, $this->wallet);
-
-        $this->storeTransaction($response);
     }
 
     /**
@@ -214,20 +202,15 @@ class StakeService
         $type = TronTxTypes::fromName(data_get($contract, 'type'));
 
         $trxAmount = match ($type) {
-            TronTxTypes::VoteWitnessContract => data_get($contract, 'parameter.value.votes.0.vote_count'),
             TronTxTypes::FreezeBalanceV2Contract => data_get($contract, 'parameter.value.frozen_balance') / Tron::ONE_SUN,
             TronTxTypes::UnfreezeBalanceV2Contract => data_get($contract, 'parameter.value.unfreeze_balance') / Tron::ONE_SUN,
             TronTxTypes::DelegateResourceContract, TronTxTypes::UnDelegateResourceContract => data_get($contract, 'parameter.value.balance') / Tron::ONE_SUN,
             default => $trxAmount
         };
 
-        $to = $type === TronTxTypes::VoteWitnessContract
-            ? data_get($contract, 'parameter.value.votes.0.vote_address')
-            : data_get($contract, 'parameter.value.receiver_address');
-
         TronTx::create([
             'from' => data_get($contract, 'parameter.value.owner_address'),
-            'to' => $to,
+            'to' => data_get($contract, 'parameter.value.receiver_address'),
             'type' => $type,
             'trx_amount' => $trxAmount,
             'tx_id' => $response['txID'],

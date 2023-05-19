@@ -460,13 +460,13 @@ class Tron
      * Проголосовать за наблюдателя (SR)
      *
      * @param string $witnessAddress
-     * @param Wallet|null $wallet
+     * @param string|null $walletAddress
      * @return array
      * @throws TronException
      */
-    public function voteWitness(string $witnessAddress, Wallet $wallet = null): array
+    public function voteWitness(string $witnessAddress, string $walletAddress = null): array
     {
-        $ownerAddress = isset($wallet) ? $wallet->address : $this->address['base58'];
+        $ownerAddress = $walletAddress ?? $this->address['base58'];
         $resources = $this->getAccountResources($ownerAddress);
 
         if (!isset($resources['tronPowerLimit']) || $resources['tronPowerLimit'] <= 0) {
