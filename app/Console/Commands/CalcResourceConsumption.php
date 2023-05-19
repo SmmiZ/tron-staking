@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\{Consumer, ResourceConsumption};
 use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CalcResourceConsumption extends Command
 {
@@ -36,31 +37,40 @@ class CalcResourceConsumption extends Command
         Consumer::query()->select(['id', 'address'])->chunkById(100, function ($consumers) use (&$toInsert, $startDate) {
             foreach ($consumers as $consumer) {
                 foreach ($startDate->toPeriod(now()->endOfDay(), '1', 'day') as $day) {
-                    $response = $this->getUsdtTransactions(
-                        $consumer->address,
-                        $day->startOfDay()->getTimestampMs(),
-                        $day->endOfDay()->getTimestampMs()
-                    );
+                    try {
+                        $response = $this->getUsdtTransactions(
+                            $consumer->address,
+                            $day->startOfDay()->getTimestampMs(),
+                            $day->endOfDay()->getTimestampMs()
+                        );
 
-                    $result = collect($response['data'])->where('value', '>', 0)->count();
+                        $result = collect($response['data'])->where('value', '>', 0)->count();
 
-                    if ($result == 0) continue;
+                        if ($result == 0) continue;
 
-                    $toInsert[] = [
-                        'consumer_id' => $consumer->id,
-                        'energy_amount' => $result * 32000,
-                        'bandwidth_amount' => $result * 350,
-                        'day' => $day,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                        $toInsert[] = [
+                            'consumer_id' => $consumer->id,
+                            'energy_amount' => $result * 32000,
+                            'bandwidth_amount' => $result * 350,
+                            'day' => $day,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    } catch (\Throwable $e) {
+                        $this->error('Error consumer # ' . $consumer->id);
+                        Log::error('Error in CalcResourceConsumption', [
+                            'message' => $e->getMessage(),
+                            'line' => $e->getLine(),
+                            'file' => $e->getFile(),
+                        ]);
+                    }
                 }
             }
 
+            ResourceConsumption::query()->insert($toInsert);
+            $toInsert = [];
             sleep(1);
         });
-
-        ResourceConsumption::query()->insert($toInsert);
 
         $this->info('The command was successful!');
     }
