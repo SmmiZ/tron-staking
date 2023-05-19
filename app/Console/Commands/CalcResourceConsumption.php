@@ -34,8 +34,12 @@ class CalcResourceConsumption extends Command
         $this->tron = new Tron();
         $startDate = now()->createFromDate($this->argument('date'));
 
-        Consumer::query()->select(['id', 'address'])->chunkById(100, function ($consumers) use (&$toInsert, $startDate) {
+        $bar = $this->output->createProgressBar(Consumer::query()->count('id'));
+        $bar->start();
+
+        Consumer::query()->select(['id', 'address'])->chunkById(100, function ($consumers) use (&$toInsert, $startDate, $bar) {
             foreach ($consumers as $consumer) {
+                $bar->advance();
                 foreach ($startDate->toPeriod(now()->endOfDay(), '1', 'day') as $day) {
                     try {
                         $response = $this->getUsdtTransactions(
@@ -72,6 +76,7 @@ class CalcResourceConsumption extends Command
             sleep(1);
         });
 
+        $bar->finish();
         $this->info('The command was successful!');
     }
 
