@@ -80,15 +80,15 @@ class StakeService
         };
 
         $requiredTrx = ceil($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
-        $trxAmount = min($walletTrx, $requiredTrx, $stakedFreeTrx);
+        $trx2Delegate = min($walletTrx, $requiredTrx, $stakedFreeTrx);
 
-        $response = $this->tron->delegateResource($this->wallet->address, $order->consumer->address, $trxAmount);
+        $response = $this->tron->delegateResource($this->wallet->address, $order->consumer->address, $trx2Delegate);
         $this->storeTransaction($response);
 
         //Обновление исполнителя и заказа
-        $givenResourceAmount = $trxAmount / $resources['TotalEnergyWeight'] * $resources['TotalEnergyLimit'];
+        $givenResourceAmount = $trx2Delegate / $resources['TotalEnergyWeight'] * $resources['TotalEnergyLimit'];
         $order->executors()->updateOrCreate(['user_id' => $this->wallet->user_id], [
-            'trx_amount' => DB::raw('trx_amount + ' . $trxAmount),
+            'trx_amount' => DB::raw('trx_amount + ' . $trx2Delegate),
             'resource_amount' => DB::raw('resource_amount + ' . $givenResourceAmount),
             'unlocked_at' => now()->addDays(3),
         ]);

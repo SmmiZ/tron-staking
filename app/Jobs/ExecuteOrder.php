@@ -2,16 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Enums\Statuses;
 use App\Models\{Order, User};
 use App\Services\StakeService;
-use App\Services\TronApi\Exception\TronException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class ExecuteOrder implements ShouldQueue
 {
@@ -41,21 +37,13 @@ class ExecuteOrder implements ShouldQueue
                 foreach ($users as $user) {
                     $this->order->refresh();
 
-                    if ($this->order->status === Statuses::completed) {
+                    if ($this->order->resource_amount <= $this->order->executors()->sum('resource_amount')) {
                         exit();
                     }
 
-                    try {
-                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
-                    } catch (TronException|Throwable $e) {
-                        Log::emergency('ExecuteOrder-Exception', [
-                            'stake_id' => $user->stake->id,
-                            'wallet_id' => $user->wallet->id,
-                            'error' => $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine(),
-                        ]);
-                    }
+                    (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
+                    sleep(1);
                 }
-                sleep(1);
             });
     }
 }

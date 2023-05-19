@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\{Consumer, ResourceConsumption};
 use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class CalcResourceConsumption extends Command
 {
@@ -41,33 +40,24 @@ class CalcResourceConsumption extends Command
             foreach ($consumers as $consumer) {
                 $bar->advance();
                 foreach ($startDate->toPeriod(now()->endOfDay(), '1', 'day') as $day) {
-                    try {
-                        $response = $this->getUsdtTransactions(
-                            $consumer->address,
-                            $day->startOfDay()->getTimestampMs(),
-                            $day->endOfDay()->getTimestampMs()
-                        );
+                    $response = $this->getUsdtTransactions(
+                        $consumer->address,
+                        $day->startOfDay()->getTimestampMs(),
+                        $day->endOfDay()->getTimestampMs()
+                    );
 
-                        $result = collect($response['data'])->where('value', '>', 0)->count();
+                    $result = collect($response['data'])->where('value', '>', 0)->count();
 
-                        if ($result == 0) continue;
+                    if ($result == 0) continue;
 
-                        $toInsert[] = [
-                            'consumer_id' => $consumer->id,
-                            'energy_amount' => $result * 32000,
-                            'bandwidth_amount' => $result * 350,
-                            'day' => $day,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    } catch (\Throwable $e) {
-                        $this->error('Error consumer # ' . $consumer->id);
-                        Log::error('Error in CalcResourceConsumption', [
-                            'message' => $e->getMessage(),
-                            'line' => $e->getLine(),
-                            'file' => $e->getFile(),
-                        ]);
-                    }
+                    $toInsert[] = [
+                        'consumer_id' => $consumer->id,
+                        'energy_amount' => $result * 32000,
+                        'bandwidth_amount' => $result * 350,
+                        'day' => $day,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
                 }
             }
 
