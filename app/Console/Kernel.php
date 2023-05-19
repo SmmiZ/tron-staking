@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(PruneCommand::class)->everyFifteenMinutes();
 
         //Обработка заказов
-        $schedule->command(ProcessingOrders::class)->dailyAt('00:00');
+        $schedule->command(ProcessingOrders::class)->everyFiveMinutes();
 
         //Забрать доступные награды пользователей
         $schedule->command(GetRewards::class)->dailyAt('23:55');
