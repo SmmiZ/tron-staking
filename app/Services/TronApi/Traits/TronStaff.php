@@ -16,4 +16,14 @@ trait TronStaff
 
         return $this->signAndSendTransaction($freeze);
     }
+
+    /**
+     * @throws TronException
+     */
+    public function delegateHotSpotBandwidth(string $receiverAddress, int $trxAmount): array
+    {
+        $delegate = $this->transactionBuilder->delegateBandwidth($trxAmount, $this->address['base58'], $receiverAddress);
+
+        return $this->signAndSendTransaction($delegate);
+    }
 }

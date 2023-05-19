@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\{Statuses, TronTxTypes};
 use App\Events\{NewStakeEvent, UnStakeEvent};
+use App\Exceptions\NotEnoughBandwidthException;
 use App\Jobs\Vote;
 use App\Models\{Order, OrderExecutor, Stake, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
@@ -60,7 +61,7 @@ class StakeService
      * @param Order $order
      * @param int $totalStake
      * @return void
-     * @throws TronException
+     * @throws TronException|NotEnoughBandwidthException
      */
     public function delegateResourceToOrder(Order $order, int $totalStake): void
     {
@@ -72,17 +73,17 @@ class StakeService
         $bandwidth = ($resources['freeNetLimit'] + data_get($resources, 'NetLimit', 0)) - data_get($resources, 'NetUsed', 0);
 
         match (true) {
-            $bandwidth <= 300 => $this->handleFailedAttempt('Not enough bandwidth'),
             $stakedFreeTrx <= 0 => $this->handleFailedAttempt('Not enough staked TRX'),
             $walletTrx <= 0 => $this->handleFailedAttempt('Not enough TRX in the wallet'),
             $requiredResource <= 0 => throw new TronException('Order is already filled'),
+            $bandwidth <= 300 => throw new NotEnoughBandwidthException(),
             default => null
         };
 
         $requiredTrx = ceil($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
         $trx2Delegate = min($walletTrx, $requiredTrx, $stakedFreeTrx);
 
-        $response = $this->tron->delegateResource($this->wallet->address, $order->consumer->address, $trx2Delegate);
+        $response = $this->tron->delegateEnergy($this->wallet->address, $order->consumer->address, $trx2Delegate);
         $this->storeTransaction($response);
 
         //Обновление исполнителя и заказа

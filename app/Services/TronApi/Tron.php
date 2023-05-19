@@ -343,7 +343,7 @@ class Tron
     }
 
     /**
-     * Делегировать ресурс
+     * Делегировать энергию
      *
      * @param string $ownerAddress
      * @param string $receiverAddress
@@ -351,10 +351,10 @@ class Tron
      * @return array
      * @throws TronException
      */
-    public function delegateResource(string $ownerAddress, string $receiverAddress, int $trxAmount): array
+    public function delegateEnergy(string $ownerAddress, string $receiverAddress, int $trxAmount): array
     {
         $permissionId = $this->getPermissionId($ownerAddress);
-        $delegate = $this->transactionBuilder->delegateResource($trxAmount, $ownerAddress, $receiverAddress, $permissionId);
+        $delegate = $this->transactionBuilder->delegateEnergy($trxAmount, $ownerAddress, $receiverAddress, $permissionId);
 
         return $this->signAndSendTransaction($delegate);
     }

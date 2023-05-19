@@ -309,7 +309,7 @@ class TransactionBuilder
     }
 
     /**
-     * Передать ресурсы с одного адреса на другой
+     * Запрос на передачу энергии с одного адреса на другой
      *
      * @see https://developers.tron.network/reference/delegateresource-1
      * @param int $trxAmount
@@ -319,7 +319,7 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function delegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
+    public function delegateEnergy(int $trxAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
     {
         return $this->tron->getManager()->request('wallet/delegateresource', [
             'owner_address' => $this->tron->toHex($ownerAddress),
@@ -328,6 +328,26 @@ class TransactionBuilder
             'resource' => Resources::ENERGY->name,
             'Permission_id' => $permissionId,
             'lock' => true,
+        ]);
+    }
+
+    /**
+     * Запрос на передачу bandwidth с одного адреса на другой
+     *
+     * @param int $trxAmount
+     * @param string $ownerAddress
+     * @param string $receiverAddress
+     * @return array
+     * @throws TronException
+     */
+    public function delegateBandwidth(int $trxAmount, string $ownerAddress, string $receiverAddress): array
+    {
+        return $this->tron->getManager()->request('wallet/delegateresource', [
+            'owner_address' => $this->tron->toHex($ownerAddress),
+            'receiver_address' => $this->tron->toHex($receiverAddress),
+            'balance' => $trxAmount * $this->tron::ONE_SUN,
+            'resource' => Resources::BANDWIDTH->name,
+            'lock' => false,
         ]);
     }
 
