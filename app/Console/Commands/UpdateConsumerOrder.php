@@ -12,7 +12,7 @@ class UpdateConsumerOrder extends Command
      *
      * @var string
      */
-    protected $signature = 'app:update-consumer-order {consumer_id}';
+    protected $signature = 'app:update-consumer-order {consumer* : один или диапазон id потребителей в формате "1 50"}';
 
     /**
      * The console command description.
@@ -26,23 +26,36 @@ class UpdateConsumerOrder extends Command
      */
     public function handle()
     {
-        if (!$consumer = Consumer::find($this->argument('consumer_id'))) {
-            $this->error('Consumer not found!');
+        $consumerIds = $this->argument('consumer');
+
+        $consumers = Consumer::query()->when(count($consumerIds) < 2,
+            fn($q) => $q->whereIn('id', $consumerIds),
+            fn($q) => $q->whereBetween('id', $consumerIds))
+            ->get();
+
+        if ($consumers->isEmpty()) {
+            $this->error('Consumers not found!');
             exit;
         }
 
-        $avgEnergyAmount = $consumer->resourceConsumptions()->where('created_at', '>=', now()->subDays(7))->avg('energy_amount');
+        $bar = $this->output->createProgressBar($consumers->count());
+        $bar->start();
+        foreach ($consumers as $consumer) {
+            $bar->advance();
+            $avgEnergyAmount = $consumer->resourceConsumptions()->where('created_at', '>=', now()->subDays(7))->avg('energy_amount');
 
-        if ($avgEnergyAmount < 1) {
-            $this->error('Average energy amount is 0!');
-            exit;
+            if ($avgEnergyAmount < 1) {
+                $this->error('Consumer #' . $consumer->id . ' average energy amount is 0!');
+                continue;
+            }
+
+            $consumer->order()->updateOrCreate(
+                ['consumer_id' => $consumer->id],
+                ['resource_amount' => $avgEnergyAmount]
+            );
         }
 
-        $consumer->order()->updateOrCreate(
-            ['consumer_id' => $consumer->id],
-            ['resource_amount' => $avgEnergyAmount]
-        );
-
+        $bar->finish();
         $this->info('The command was successful!');
     }
 }
