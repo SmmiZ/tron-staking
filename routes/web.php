@@ -4,8 +4,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\{ConsumerController,
     ExecutorController,
     HomeController,
+    InternalTxController,
     OrderController,
-    TransactionController,
+    TronTxController,
     UserController,
     WithdrawalController};
 use Illuminate\Support\Facades\Route;
@@ -40,7 +41,12 @@ Route::group([
 
         Route::resource('consumers', ConsumerController::class);
         Route::resource('users', UserController::class)->only(['index', 'show']);
-        Route::resource('transactions', TransactionController::class)->only(['index', 'show']);
+
+        /** Транзакции */
+        Route::prefix('transactions')->name('transactions.')->group(function () {
+            Route::resource('tron', TronTxController::class)->only(['index', 'show']);
+            Route::resource('internal', InternalTxController::class)->only(['index', 'show']);
+        });
 
         /** Заказы */
         Route::resource('orders', OrderController::class)->only(['index', 'show', 'destroy']);

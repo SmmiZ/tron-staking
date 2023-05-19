@@ -7,7 +7,7 @@
         :parents="[
         [
             'name' => 'Транзакции',
-            'link' => route('transactions.index')
+            'link' => route('transactions.tron.index')
         ]
     ]"
     ></x-breadcrumbs>
@@ -18,10 +18,6 @@
                 <div class="more-info">
                     <h3 class="more-info-title"><span>Информация о транзакции</span></h3>
                     <div class="table col2 lines mb-40">
-                        <div class="table-row">
-                            <div>ID</div>
-                            <div>{{$transaction->id}}</div>
-                        </div>
                         <div class="table-row">
                             <div>От кого</div>
                             <div>{{ $transaction->from }}</div>
@@ -55,7 +51,7 @@
             </div>
         </div>
         <div class="form-button">
-            <a href="{{ route('transactions.index') }}" class="btn-small">Назад</a>
+            <a href="{{ route('transactions.tron.index') }}" class="btn-small">Назад</a>
         </div>
     </div>
 

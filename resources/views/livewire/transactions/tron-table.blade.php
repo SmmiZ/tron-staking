@@ -12,7 +12,7 @@
         </div>
         <div class="table-body">
             @forelse($transactions as $transaction)
-                <a href="{{route('transactions.show', $transaction)}}" class="inline-link">
+                <a href="{{route('transactions.tron.show', $transaction)}}" class="inline-link">
                     <div class="table-row">
                         <div>{{$transaction->id}}</div>
                         <div>{{$transaction->from}}</div>
