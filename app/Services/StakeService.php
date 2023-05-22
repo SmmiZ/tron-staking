@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Enums\{Statuses, TronTxTypes};
 use App\Events\{NewStakeEvent, UnStakeEvent};
 use App\Exceptions\NotEnoughBandwidthException;
-use App\Jobs\Vote;
+use App\Jobs\{SendBonusBandwidth, Vote};
 use App\Models\{Order, OrderExecutor, Stake, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -22,7 +22,7 @@ class StakeService
     public function __construct(Wallet $wallet)
     {
         $this->tron = new Tron();
-        $this->wallet = $wallet;
+        $this->wallet = $wallet->load(['user']);
 
         if (!$this->tron->hasAccess($this->wallet->address)) {
             throw new TronException('Permission denied');
@@ -47,8 +47,9 @@ class StakeService
         $this->wallet->user->stake()->updateOrCreate([], ['trx_amount' => DB::raw('trx_amount + ' . $trxAmount)]);
         $response = $this->tron->freezeUserBalance($this->wallet, $trxAmount);
 
-        event(new NewStakeEvent($this->wallet->user));
+        SendBonusBandwidth::dispatch($this->wallet->address);
         Vote::dispatch($this->wallet->address)->delay(now()->addMinute());
+        event(new NewStakeEvent($this->wallet->user));
 
         $this->storeTransaction($response);
 

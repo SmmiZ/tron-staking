@@ -184,13 +184,6 @@ trait TronAware
         return $result;
     }
 
-    /**
-     * Конвертация TRX в энергию
-     *
-     * @param int $trxAmount
-     * @return float
-     * @throws Exception\TronException
-     */
     public function trx2Energy(int $trxAmount): float
     {
         $resources = $this->getAccountResources();
@@ -198,17 +191,24 @@ trait TronAware
         return $trxAmount * ($resources['TotalEnergyLimit'] / $resources['TotalEnergyWeight']);
     }
 
-    /**
-     * Конвертация энергии в TRX
-     *
-     * @param float $energyAmount
-     * @return float
-     * @throws Exception\TronException
-     */
     public function energy2Trx(float $energyAmount): float
     {
         $resources = $this->getAccountResources();
 
         return $energyAmount / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight'];
+    }
+
+    public function trx2Bandwidth(int $trxAmount): float
+    {
+        $resources = $this->getAccountResources();
+
+        return $trxAmount * ($resources['TotalNetLimit'] / $resources['TotalNetWeight']);
+    }
+
+    public function bandwidth2Trx(float $bandwidthAmount): float
+    {
+        $resources = $this->getAccountResources();
+
+        return $bandwidthAmount / $resources['TotalNetLimit'] * $resources['TotalNetWeight'];
     }
 }

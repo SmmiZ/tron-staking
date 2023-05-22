@@ -8,10 +8,10 @@ use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\{ShouldBeUnique, ShouldQueue};
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Support\Facades\Log;
 
-class Vote implements ShouldQueue, ShouldBeUnique
+class SendBonusBandwidth implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -21,7 +21,7 @@ class Vote implements ShouldQueue, ShouldBeUnique
     /**
      * Create a new job instance.
      */
-    public function __construct(private readonly string $walletAddress)
+    public function __construct(public readonly string $receiverAddress)
     {
         //
     }
@@ -31,7 +31,7 @@ class Vote implements ShouldQueue, ShouldBeUnique
      */
     public function uniqueId(): string
     {
-        return $this->walletAddress;
+        return $this->receiverAddress;
     }
 
     /**
@@ -41,20 +41,20 @@ class Vote implements ShouldQueue, ShouldBeUnique
     {
         $tron = new Tron();
 
-        $witnessAddress = $tron->getTopSrAddress();
-        $response = $tron->voteWitness($witnessAddress, $this->walletAddress);
+        $trxEquivalent = ceil($tron->bandwidth2Trx(config('app.bandwidth_bonus')));
+        $response = $tron->delegateHotSpotBandwidth($this->receiverAddress, $trxEquivalent);
 
         if (isset($response['code']) && $response['code'] != 'true') {
-            Log::error('Vote error', $response);
+            Log::error('Send bonus bandwidth error', $response);
 
             return;
         }
 
         TronTx::create([
             'from' => data_get($response, 'raw_data.contract.0.parameter.value.owner_address'),
-            'to' => data_get($response, 'raw_data.contract.0.parameter.value.votes.0.vote_address'),
-            'type' => TronTxTypes::VoteWitnessContract,
-            'trx_amount' => data_get($response, 'raw_data.contract.0.parameter.value.votes.0.vote_count'),
+            'to' => data_get($response, 'raw_data.contract.0.parameter.value.receiver_address'),
+            'type' => TronTxTypes::DelegateResourceContract,
+            'trx_amount' => data_get($response, 'raw_data.contract.0.parameter.value.balance') / Tron::ONE_SUN,
             'tx_id' => $response['txID'],
         ]);
     }
