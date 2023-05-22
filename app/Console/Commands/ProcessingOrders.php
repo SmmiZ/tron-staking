@@ -30,7 +30,7 @@ class ProcessingOrders extends Command
     public function handle()
     {
         $tron = new Tron();
-        $totalAvailableTrx = Stake::where('failed_attempts', '<', 3)->count('trx_amount') - OrderExecutor::count('trx_amount');
+        $totalAvailableTrx = Stake::where('failed_attempts', '<', 3)->sum('trx_amount') - OrderExecutor::sum('trx_amount');
         $totalAvailableEnergy = floor($tron->trx2Energy($totalAvailableTrx));
 
         Order::withSum('executors', 'resource_amount')

@@ -71,13 +71,12 @@ class StakeService
 
         $walletTrx = $resources['tronPowerLimit'] ?? 0;
         $stakedFreeTrx = $totalStake - OrderExecutor::where('user_id', $this->wallet->user_id)->sum('trx_amount');
-        $bandwidth = ($resources['freeNetLimit'] + data_get($resources, 'NetLimit', 0)) - data_get($resources, 'NetUsed', 0);
 
         match (true) {
             $stakedFreeTrx <= 0 => $this->handleFailedAttempt('Not enough staked TRX'),
             $walletTrx <= 0 => $this->handleFailedAttempt('Not enough TRX in the wallet'),
             $requiredResource <= 0 => throw new TronException('Order is already filled'),
-            $bandwidth <= 300 => throw new NotEnoughBandwidthException(),
+            $this->getAvailableBandwidth($resources) <= 300 => throw new NotEnoughBandwidthException(),
             default => null
         };
 
@@ -101,6 +100,14 @@ class StakeService
     {
         Stake::where('user_id', $this->wallet->user_id)->increment('failed_attempts');
         throw new TronException($message);
+    }
+
+    private function getAvailableBandwidth(array $resources): int
+    {
+        return data_get($resources, 'freeNetLimit', 0)
+            + data_get($resources, 'NetLimit', 0)
+            - data_get($resources, 'NetUsed', 0)
+            - data_get($resources, 'freeNetUsed', 0);
     }
 
     /**

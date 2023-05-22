@@ -352,20 +352,6 @@ class TransactionBuilder
     }
 
     /**
-     * Получить максимальный размер возможного делегирования
-     *
-     * @see https://developers.tron.network/reference/getcandelegatedmaxsize
-     * @throws TronException
-     */
-    public function getCanDelegatedMaxSize(string $ownerAddress): array
-    {
-        return $this->tron->getManager()->request('wallet/getcandelegatedmaxsize', [
-            'owner_address' => $this->tron->toHex($ownerAddress),
-            'type' => 1
-        ]);
-    }
-
-    /**
      * Запрос на отзыв ресурса
      *
      * @see https://developers.tron.network/reference/undelegateresource-1

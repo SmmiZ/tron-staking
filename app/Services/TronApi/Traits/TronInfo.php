@@ -2,6 +2,7 @@
 
 namespace App\Services\TronApi\Traits;
 
+use App\Enums\Resources;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Support\{Base58, Crypto, Hash, Keccak};
 
@@ -99,9 +100,12 @@ trait TronInfo
      * @return int TRX sun
      * @throws TronException
      */
-    public function getCanDelegatedMaxSize(string $ownerAddress = null): int
+    public function getCanDelegatedMaxSize(Resources $resource, string $ownerAddress = null): int
     {
-        $response = $this->transactionBuilder->getCanDelegatedMaxSize($ownerAddress ?? $this->address['hex']);
+        $response =  $this->getManager()->request('wallet/getcandelegatedmaxsize', [
+            'owner_address' => $this->toHex($ownerAddress ?? $this->address['base58']),
+            'type' => $resource->value,
+        ]);
 
         return $response['max_size'] ?? 0;
     }

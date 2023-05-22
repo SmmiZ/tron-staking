@@ -4,7 +4,8 @@ namespace App\Services;
 
 use App\Enums\Statuses;
 use App\Exceptions\NotEnoughBandwidthException;
-use App\Jobs\UndelegateExecutorResources;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\{SendBonusBandwidth, UndelegateExecutorResources};
 use App\Models\{Consumer, Order, User};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -26,19 +27,16 @@ class OrderService
      * Заполнение заказа ресурсами пользователей
      *
      * @return void
-     * @throws NotEnoughBandwidthException
      * @throws TronException
      */
     public function execute(): void
     {
-        $trxBandwidthBonus = ceil($this->tron->bandwidth2Trx(config('app.bandwidth_bonus')));
-
         User::with(['wallet', 'stake:id,user_id,trx_amount,failed_attempts'])
             ->whereHas('wallet')
             ->whereRelation('stake', 'trx_amount', '>', 0)
             ->whereRelation('stake', 'failed_attempts', '<', 3)
             ->orderBy('sort')
-            ->chunk(50, function ($users) use ($trxBandwidthBonus) {
+            ->chunk(50, function ($users) {
                 $usersWithoutBandwidth = collect();
                 foreach ($users as $user) {
                     if ($this->orderIsFilled()) {
@@ -53,15 +51,20 @@ class OrderService
                     sleep(1);
                 }
 
-                $usersWithoutBandwidth->each(function (User $user) use ($trxBandwidthBonus) {
+                foreach ($usersWithoutBandwidth as $user) {
                     if ($this->orderIsFilled()) {
                         exit();
                     }
 
-                    $this->tron->delegateHotSpotBandwidth($user->wallet->address, $trxBandwidthBonus);
-                    sleep(1);
-                    (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
-                });
+                    try {
+                        SendBonusBandwidth::dispatchSync($user->wallet->address);
+                        sleep(1);
+                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
+                    } catch (\Throwable $e) {
+                        Log::error('SendBonusBandwidth error. ' . $e->getMessage(), ['user_id' => $user->id]);
+                        continue;
+                    }
+                }
             });
     }
 
