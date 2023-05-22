@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Enums\{Statuses, TronTxTypes};
 use App\Events\{NewStakeEvent, UnStakeEvent};
 use App\Exceptions\NotEnoughBandwidthException;
-use App\Jobs\{SendBonusBandwidth, Vote};
+use App\Jobs\{RevokeBonusBandwidth, SendBonusBandwidth, Vote};
 use App\Models\{Order, OrderExecutor, Stake, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -167,7 +167,9 @@ class StakeService
 
         $response = $this->tron->unfreezeUserBalance($this->wallet->address, $trxAmount);
         $this->storeTransaction($response);
+
         event(new UnStakeEvent($this->wallet->user));
+        RevokeBonusBandwidth::dispatch($this->wallet->address);
 
         return true;
     }
