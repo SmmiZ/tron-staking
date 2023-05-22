@@ -474,10 +474,8 @@ class Tron
             throw new TronException('No available votes');
         }
 
-        $availableVotes = $resources['tronPowerLimit'] - ($resources['tronPowerUsed'] ?? 0);
         $permissionId = $this->getPermissionId($ownerAddress);
-
-        $vote = $this->transactionBuilder->voteWitness($ownerAddress, $witnessAddress, $availableVotes, $permissionId);
+        $vote = $this->transactionBuilder->voteWitness($ownerAddress, $witnessAddress, $resources['tronPowerLimit'], $permissionId);
 
         return $this->signAndSendTransaction($vote);
     }
