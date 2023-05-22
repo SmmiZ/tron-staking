@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\{Order, User};
-use App\Services\StakeService;
+use App\Models\Order;
+use App\Services\OrderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,22 +29,12 @@ class ExecuteOrder implements ShouldQueue
      */
     public function handle(): void
     {
-        User::with(['wallet', 'stake:id,user_id,trx_amount'])
-            ->whereHas('wallet')
-            ->whereRelation('stake', 'trx_amount', '>', 0)
-            ->whereRelation('stake', 'failed_attempts', '<', 3)
-            ->orderBy('sort')
-            ->chunk(50, function ($users) {
-                foreach ($users as $user) {
-                    $this->order->refresh();
+        $this->order->refresh();
 
-                    if ($this->order->resource_amount <= $this->order->executors()->sum('resource_amount')) {
-                        exit();
-                    }
+        if ($this->order->resource_amount <= $this->order->executors()->sum('resource_amount')) {
+            exit();
+        }
 
-                    (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
-                    sleep(1);
-                }
-            });
+        (new OrderService($this->order))->execute();
     }
 }

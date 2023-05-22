@@ -31,12 +31,10 @@ class ProcessingOrders extends Command
     {
         $tron = new Tron();
         $totalAvailableTrx = Stake::where('failed_attempts', '<', 3)->count('trx_amount') - OrderExecutor::count('trx_amount');
-
-        $resources = $tron->getAccountResources();
-        $totalAvailableResource = floor($totalAvailableTrx * ($resources['TotalEnergyLimit'] / $resources['TotalEnergyWeight']));
+        $totalAvailableEnergy = floor($tron->trx2Energy($totalAvailableTrx));
 
         Order::withSum('executors', 'resource_amount')
-            ->where('resource_amount', '<=', $totalAvailableResource)
+            ->where('resource_amount', '<=', $totalAvailableEnergy)
             ->whereIn('status', Statuses::OPEN_STATUSES)
             ->havingRaw('executors_sum_resource_amount < resource_amount')
             ->orHavingNull('executors_sum_resource_amount')
