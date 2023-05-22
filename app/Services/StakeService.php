@@ -45,7 +45,7 @@ class StakeService
         }
 
         $this->wallet->user->stake()->updateOrCreate([], ['trx_amount' => DB::raw('trx_amount + ' . $trxAmount)]);
-        $response = $this->tron->freezeUserBalance($this->wallet, $trxAmount);
+        $response = $this->tron->freezeTrx2Energy($this->wallet, $trxAmount);
 
         SendBonusBandwidth::dispatch($this->wallet->address);
         Vote::dispatch($this->wallet->address)->delay(now()->addMinute());
@@ -138,7 +138,7 @@ class StakeService
      */
     public function undelegateResourceFromOrder(Order $order, int $trxAmount): void
     {
-        $response = $this->tron->undelegateResource($this->wallet->address, $order->consumer->address, $trxAmount);
+        $response = $this->tron->undelegateEnergy($this->wallet->address, $order->consumer->address, $trxAmount);
         $this->storeTransaction($response);
 
         $resourceAmount = (new Tron())->trx2Energy($trxAmount);

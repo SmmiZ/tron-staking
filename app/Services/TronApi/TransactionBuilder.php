@@ -358,19 +358,25 @@ class TransactionBuilder
      * @param int $trxAmount
      * @param string $ownerAddress
      * @param string $receiverAddress
-     * @param int $permissionId
+     * @param Resources $resource
+     * @param int|null $permissionId
      * @return array
      * @throws TronException
      */
-    public function undelegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, int $permissionId): array
+    public function undelegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, Resources $resource, int $permissionId = null): array
     {
-        return $this->tron->getManager()->request('wallet/undelegateresource', [
+        $data = [
             'owner_address' => $this->tron->toHex($ownerAddress),
             'receiver_address' => $this->tron->toHex($receiverAddress),
             'balance' => $trxAmount * $this->tron::ONE_SUN,
-            'resource' => Resources::ENERGY->name,
-            'Permission_id' => $permissionId,
-        ]);
+            'resource' => $resource->name,
+        ];
+
+        if ($permissionId) {
+            $data['Permission_id'] = $permissionId;
+        }
+
+        return $this->tron->getManager()->request('wallet/undelegateresource', $data);
     }
 
     /**

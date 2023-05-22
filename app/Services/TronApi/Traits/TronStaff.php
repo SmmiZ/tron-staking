@@ -26,4 +26,14 @@ trait TronStaff
 
         return $this->signAndSendTransaction($delegate);
     }
+
+    /**
+     * @throws TronException
+     */
+    public function undelegateHotSpotBandwidth(string $receiverAddress, int $trxAmount): array
+    {
+        $undelegate = $this->transactionBuilder->undelegateResource($trxAmount, $receiverAddress, $this->address['base58'], Resources::BANDWIDTH);
+
+        return $this->signAndSendTransaction($undelegate);
+    }
 }

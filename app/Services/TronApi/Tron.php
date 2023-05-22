@@ -297,7 +297,7 @@ class Tron
      * @return array
      * @throws TronException
      */
-    public function freezeUserBalance(Wallet $wallet, int $trxAmount): array
+    public function freezeTrx2Energy(Wallet $wallet, int $trxAmount): array
     {
         $permissionId = $this->getPermissionId($wallet->address);
         $freeze = $this->transactionBuilder->freezeBalance($trxAmount, $wallet->address, Resources::ENERGY, $permissionId);
@@ -368,10 +368,10 @@ class Tron
      * @return array
      * @throws TronException
      */
-    public function undelegateResource(string $ownerAddress, string $receiverAddress, int $trxAmount): array
+    public function undelegateEnergy(string $ownerAddress, string $receiverAddress, int $trxAmount): array
     {
         $permissionId = $this->getPermissionId($ownerAddress);
-        $undelegate = $this->transactionBuilder->undelegateResource($trxAmount, $ownerAddress, $receiverAddress, $permissionId);
+        $undelegate = $this->transactionBuilder->undelegateResource($trxAmount, $ownerAddress, $receiverAddress, Resources::ENERGY, $permissionId);
 
         return $this->signAndSendTransaction($undelegate);
     }
