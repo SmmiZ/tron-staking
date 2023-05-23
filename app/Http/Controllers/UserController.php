@@ -19,6 +19,8 @@ class UserController extends Controller
 
     public function show(User $user): View
     {
+        $user->load(['stake', 'consumers', 'leader', 'level']);
+
         return view('users.show', compact('user'));
     }
 }
