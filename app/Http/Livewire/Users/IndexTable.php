@@ -14,6 +14,8 @@ class IndexTable extends Component
     public function render(): View
     {
         $users = User::query()
+            ->withExists('stake')
+            ->withExists('consumers')
             ->orderBy($this->sortField, $this->sortType)
             ->paginate(10);
 

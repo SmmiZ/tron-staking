@@ -76,6 +76,11 @@ class User extends Authenticatable
         return $this->hasMany(Reactor::class);
     }
 
+    /**
+     * Аккаунты-потребители энергии, которые привязаны к пользователю
+     *
+     * @return HasMany
+     */
     public function consumers(): HasMany
     {
         return $this->hasMany(Consumer::class);
