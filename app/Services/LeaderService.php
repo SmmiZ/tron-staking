@@ -12,9 +12,11 @@ class LeaderService
     /** Понижение уровня */
     private bool $withDowngrade = false;
 
-    public function __construct(private readonly User $leader)
+    private User $leader;
+
+    public function __construct(User $leader)
     {
-        //
+        $this->leader = $leader->load(['leader']);
     }
 
     public function withDowngrade(): self

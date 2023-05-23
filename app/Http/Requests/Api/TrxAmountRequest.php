@@ -12,7 +12,7 @@ class TrxAmountRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'trx_amount' => ['required', 'integer'],
+            'trx_amount' => ['required', 'integer', 'min:1'],
         ];
     }
 
