@@ -27,7 +27,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'sort',
+        'sort', //todo удалить, если не будет использоваться
         'invitation_code',
         'the_code',
         'linear_path',

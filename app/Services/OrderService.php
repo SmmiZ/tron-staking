@@ -35,7 +35,7 @@ class OrderService
             ->whereHas('wallet')
             ->whereRelation('stake', 'trx_amount', '>', 0)
             ->whereRelation('stake', 'failed_attempts', '<', 3)
-            ->orderBy('sort')
+            ->orderBy('updated_at', 'desc')
             ->chunk(50, function ($users) {
                 $usersWithoutBandwidth = collect();
                 foreach ($users as $user) {
