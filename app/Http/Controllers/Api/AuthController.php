@@ -76,6 +76,8 @@ class AuthController extends Controller
             ['user_agent' => request()->header('user-agent')]
         );
 
+        TempCode::where('login', $request->email)->delete();
+
         return response([
             'status' => true,
             'data' => [
