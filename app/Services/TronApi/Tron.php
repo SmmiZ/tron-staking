@@ -172,22 +172,17 @@ class Tron
     }
 
     /**
-     * Send transaction to Blockchain
+     * Send TRX
      *
+     * @param string $from
      * @param string $to
      * @param float $amount
      * @param string|null $message
-     * @param string|null $from
-     *
      * @return array
      * @throws TronException
      */
-    public function sendTrx(string $to, float $amount, string $from = null, string $message = null): array
+    public function sendTrx(string $from, string $to, float $amount, string $message = null): array
     {
-        if (is_null($from)) {
-            $from = $this->address['hex'];
-        }
-
         $transaction = $this->transactionBuilder->sendTrx($to, $amount, $from, $message);
 
         return $this->signAndSendTransaction($transaction);

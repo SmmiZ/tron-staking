@@ -38,13 +38,13 @@ class CheckMerchantWallets extends Command
                 if ($trxAmount < 1) continue;
 
                 $tron = new Tron($merchantWallet->address, $merchantWallet->private_key);
-                $tron->sendTrx(config('app.hot_spot_wallet'), $trxAmount, $merchantWallet->address);
+                $tron->sendTrx($merchantWallet->address, config('app.hot_spot_wallet'), $trxAmount);
 
                 InternalTx::create([
                     'user_id' => $merchantWallet->user_id,
                     'amount' => $trxAmount,
                     'received' => $trxAmount,
-                    'type' => InternalTxTypes::fromName('topUp'),
+                    'type' => InternalTxTypes::topUp,
                 ]);
             }
         });
