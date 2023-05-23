@@ -140,7 +140,7 @@ class AuthController extends Controller
         $leader = User::withCount('reactors')->firstWhere('the_code', $request->invitation_code);
 
         return response([
-            'status' => $leader && $leader?->reactors_count > 0,
+            'status' => $leader->reactors_count > 0,
             'data' => [],
         ]);
     }
@@ -157,7 +157,7 @@ class AuthController extends Controller
         $leader = User::withCount('reactors')->firstWhere('the_code', $request->invitation_code);
 
         switch (true) {
-            case $leader->reactors_count < 0:
+            case $leader->reactors_count < 1:
                 return response([
                     'status' => false,
                     'data' => [

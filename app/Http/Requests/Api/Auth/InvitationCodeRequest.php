@@ -24,7 +24,7 @@ class InvitationCodeRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'invitation_code' => ['required', 'string', 'size:8'],
+            'invitation_code' => ['required', 'string', 'size:8', 'exists:users,the_code'],
         ];
     }
 
