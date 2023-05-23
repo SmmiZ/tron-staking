@@ -16,12 +16,8 @@
         <div class="grid grid-2">
             <div>
                 <div class="more-info">
-                    <h3 class="more-info-title"><span>Информация о потребителе</span></h3>
+                    <h3 class="more-info-title"><span>Информация о потребителе # {{$consumer->id}}</span></h3>
                     <div class="table col2 lines mb-40">
-                        <div class="table-row">
-                            <div>ID</div>
-                            <div>{{$consumer->id}}</div>
-                        </div>
                         <div class="table-row">
                             <div>Пользователь</div>
                             <div>

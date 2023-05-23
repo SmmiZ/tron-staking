@@ -11,9 +11,18 @@ class IndexTable extends Component
 {
     use Sorter;
 
+    public $userId;
+
+    /**
+     * Забираем из get-параметров данные для поиска
+     * @var string
+     */
+    protected $queryString = ['userId' => ['except' => '']];
+
     public function render(): View
     {
         $consumers = Consumer::query()
+            ->when($this->userId, fn($q) => $q->where('user_id', $this->userId))
             ->orderBy($this->sortField, $this->sortType)
             ->paginate(10);
 

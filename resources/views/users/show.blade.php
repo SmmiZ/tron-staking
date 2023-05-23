@@ -47,7 +47,7 @@
                             <div>{{ $user->stake?->trx_amount ?? 0 }}</div>
                         </div>
                         <div class="table-row">
-                            <div>Потребители</div>
+                            <a href="{{ route('consumers.index', ['userId' => $user->id]) }}" class="inline-link"><u>Потребители</u></a>
                             <div>{{ $user->consumers->count() }}</div>
                         </div>
 

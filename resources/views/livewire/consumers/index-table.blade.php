@@ -1,4 +1,10 @@
 <div>
+    <div class="filters mb-20">
+        <div class="filters-item input-date-range">
+            <label for="">Поиск по ID пользователя</label>
+            <input type="search" wire:model="userId"/>
+        </div>
+    </div>
     <div class="table col7">
         <div class="table-head">
             <div class="table-row">
@@ -6,7 +12,7 @@
                 <div><button class="sort-button" wire:click="sort('user_id')">Пользователь</button></div>
                 <div><button class="sort-button" wire:click="sort('name')">Название</button></div>
                 <div><button class="sort-button" wire:click="sort('address')">Кошелек</button></div>
-                <div><button class="sort-button" wire:click="sort('resource_amount')">Кол-во ресурса</button></div>
+                <div><button class="sort-button" wire:click="sort('resource_amount')">Нужно энергии</button></div>
                 <div><button class="sort-button" wire:click="sort('created_at')">Создан</button></div>
                 <div><button class="sort-button" wire:click="sort('updated_at')">Обновлен</button></div>
             </div>
