@@ -7,7 +7,7 @@
     ></x-breadcrumbs>
 
     <div class="box">
-        <div class="box-title">Заказы</div>
+        <div class="box-title">Заказы энергии</div>
         <livewire:orders.index-table>
     </div>
     <livewire:scripts>

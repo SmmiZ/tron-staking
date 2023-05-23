@@ -14,6 +14,7 @@ class IndexTable extends Component
     public function render(): View
     {
         $orders = Order::with(['consumer:id,name'])
+            ->withSum('executors', 'resource_amount')
             ->orderBy($this->sortField, $this->sortType)
             ->paginate(10);
 

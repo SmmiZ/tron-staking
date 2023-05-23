@@ -16,19 +16,19 @@
         <div class="grid grid-2">
             <div>
                 <div class="more-info">
-                    <h3 class="more-info-title"><span>Информация о заказе</span></h3>
+                    <h3 class="more-info-title"><span>Информация о заказе # {{$order->id}}</span></h3>
                     <div class="table col2 lines mb-40">
-                        <div class="table-row">
-                            <div>ID</div>
-                            <div>{{$order->id}}</div>
-                        </div>
                         <div class="table-row">
                             <div>Потребитель</div>
                             <div>{{ $order->consumer->name }}</div>
                         </div>
                         <div class="table-row">
-                            <div>Кол-во ресурса</div>
-                            <div>{{ $order->resource_amount }}</div>
+                            <div>Нужно энергии</div>
+                            <div><b>{{ $order->resource_amount }}</b></div>
+                        </div>
+                        <div class="table-row">
+                            <div>Передано энергии</div>
+                            <div><b>{{ $order->executors_sum_resource_amount }}</b></div>
                         </div>
                         <div class="table-row">
                             <div>Статус</div>

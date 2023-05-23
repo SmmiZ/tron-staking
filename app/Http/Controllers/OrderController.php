@@ -26,6 +26,8 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
+        $order->loadSum('executors', 'resource_amount');
+
         return view('orders.show', compact('order'));
     }
 
