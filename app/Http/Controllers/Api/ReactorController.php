@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ReactorTypes;
 use App\Events\ReactorStartEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReactorRequest;
 use App\Http\Resources\Reactor\{ReactorCollection, ReactorResource};
 use App\Models\Reactor;
 use Illuminate\Http\{Request, Response};
+use Illuminate\Support\Facades\DB;
 
 class ReactorController extends Controller
 {
@@ -23,18 +25,25 @@ class ReactorController extends Controller
 
     public function store(StoreReactorRequest $request): Response
     {
-        $reactors = Reactor::factory($request->count)->create([
+        $data = [];
+        $reactor = [
             'user_id' => $request->user()->id,
-        ]);
+            'type' => ReactorTypes::standard,
+            'active_until' => now()->addYear(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        for ($i = 0; $i < $request->get('count'); $i++) {
+            $data[] = $reactor;
+        }
+        DB::table('reactors')->insert($data);
 
         //todo покупка
         event(new ReactorStartEvent($request->user()));
 
         return response([
             'status' => true,
-            'data' => [
-                'ids' => $reactors->pluck('id')
-            ],
         ]);
     }
 
