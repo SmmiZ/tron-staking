@@ -7,7 +7,7 @@
     ></x-breadcrumbs>
 
     <div class="box">
-        <div class="box-title">Загрузка потребителей для пользователя # {{$user->id}}</div>
+        <div class="box-title">Актуализация потребителей пользователя # {{$user->id}}</div>
         <livewire:consumers.upload-table :userId="$user->id">
     </div>
     <livewire:scripts>

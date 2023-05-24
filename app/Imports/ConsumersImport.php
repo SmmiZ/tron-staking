@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Consumer;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\{Importable, ToModel, WithUpserts};
 
 class ConsumersImport implements ToModel, WithUpserts
@@ -32,5 +33,10 @@ class ConsumersImport implements ToModel, WithUpserts
             'name' => 'upload_' . $row[0],
             'address' => $row[0],
         ]);
+    }
+
+    public function getCurrentConsumers(): Collection
+    {
+        return Consumer::where('user_id', $this->userId)->pluck('address');
     }
 }

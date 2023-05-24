@@ -6,9 +6,9 @@ use App\Http\Livewire\Traits\Sorter;
 use App\Imports\ConsumersImport;
 use App\Models\Consumer;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Livewire\{Component, WithFileUploads};
-use Maatwebsite\Excel\Facades\Excel;
 
 class UploadTable extends Component
 {
@@ -18,12 +18,12 @@ class UploadTable extends Component
     public $userId;
     public $file;
     public $fileName;
-    public $url;
+    public $fileUrl;
 
     public function mount()
     {
         $this->fileName = 'user' . $this->userId . '_consumers.xlsx';
-        $this->url = storage_path('app/excel-consumers/' . $this->fileName);
+        $this->fileUrl = storage_path('app/excel-consumers/' . $this->fileName);
     }
 
     public function save()
@@ -38,28 +38,49 @@ class UploadTable extends Component
 
     public function render(): View
     {
-        if (Storage::fileExists('excel-consumers/' . $this->fileName)) {
-            $fileData = (new ConsumersImport($this->userId))->toCollection($this->url)->flatten();
-
-            $existingAddresses = Consumer::whereIn('address', $fileData->toArray())->pluck('address');
-            $consumers = $fileData->map(fn($address) => (object)[
-                'address' => $address,
-                'exists' => $existingAddresses->contains($address),
-            ]);
-        }
+        $consumers = Storage::fileExists('excel-consumers/' . $this->fileName)
+            ? $this->getConsumerList()
+            : collect();
 
         //todo pagination
-        return view('livewire.consumers.upload-table', [
-            'consumers' => collect($consumers ?? [])
-        ]);
+        return view('livewire.consumers.upload-table', compact('consumers'));
     }
 
     public function updateConsumers()
     {
-        Excel::import(new ConsumersImport($this->userId), $this->url);
+        $consumers = $this->getConsumerList();
+        $toRemove = $consumers->where('remove', true)->pluck('address')->toArray();
+        $toKeep = $consumers->where('remove', false);
+
+        //Удаляем
+        Consumer::where('user_id', $this->userId)->whereIn('address', $toRemove)->delete();
+        //Восстанавливаем
+        Consumer::onlyTrashed()->where('user_id', $this->userId)->whereIn('address', $toKeep->pluck('address')->toArray())->restore();
+        //Создаем/обновляем
+        Consumer::where('user_id', $this->userId)->upsert($toKeep->map(fn($consumer) => [
+            'user_id' => $this->userId,
+            'name' => 'upload_' . $consumer->address,
+            'address' => $consumer->address,
+        ])->toArray(), ['address'], ['name']);
+
         session()->flash('message', 'User consumers successfully updated.');
 
         Storage::delete('excel-consumers/' . $this->fileName);
+    }
+
+    public function getConsumerList(): Collection
+    {
+        $importer = new ConsumersImport($this->userId);
+
+        $dbConsumers = $importer->getCurrentConsumers();
+        $fileConsumers = $importer->toCollection($this->fileUrl)->flatten();
+        $allConsumers = $fileConsumers->merge($dbConsumers)->unique()->values();
+
+        return $allConsumers->map(fn($address) => (object)[
+            'address' => $address,
+            'add' => $fileConsumers->contains($address) && $dbConsumers->doesntContain($address),
+            'remove' => $fileConsumers->doesntContain($address),
+        ]);
     }
 
     public function cancel()

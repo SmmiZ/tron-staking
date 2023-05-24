@@ -10,7 +10,7 @@
         </div>
         @if($consumers->isNotEmpty())
             <div class="more-info-btns mb-10">
-                <button type="submit" wire:click="updateConsumers">Обновить в БД</button>
+                <button type="submit" wire:click="updateConsumers">Обновить БД</button>
                 <button type="submit" wire:click="cancel">Отмена</button>
             </div>
         @endif
@@ -23,18 +23,22 @@
             </div>
         @endif
     </div>
-    <div class="table col2">
+    <div class="table col4">
         <div class="table-head">
             <div class="table-row">
                 <div>Адрес</div>
-                <div>Наличие в БД</div>
+                <div>Добавить</div>
+                <div>Удалить</div>
+                <div>Оставить</div>
             </div>
         </div>
         <div class="table-body">
             @forelse($consumers as $consumer)
                 <div class="table-row">
                     <div>{{$consumer->address}}</div>
-                    <div>{{$consumer->exists ? '✅' : '❌'}}</div>
+                    <div>{{$consumer->add ? '✅' : '❌'}}</div>
+                    <div>{{$consumer->remove ? '✅' : '❌'}}</div>
+                    <div>{{!$consumer->remove && !$consumer->add ? '✅' : '❌'}}</div>
                 </div>
             @empty
                 <div class="empty">Нет данных</div>
