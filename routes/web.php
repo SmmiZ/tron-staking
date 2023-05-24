@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\{ConsumerController,
     ExecutorController,
     HomeController,
@@ -9,6 +8,7 @@ use App\Http\Controllers\{ConsumerController,
     TronTxController,
     UserController,
     WithdrawalController};
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,8 +39,12 @@ Route::group([
     Route::group(['middleware' => ['auth:staff']], function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
-        Route::resource('consumers', ConsumerController::class);
+        /** Пользователи */
+        Route::get('{user}/consumers', [UserController::class, 'uploadConsumersMenu'])->name('users.upload-menu');
         Route::resource('users', UserController::class)->only(['index', 'show']);
+
+        /** Потребители */
+        Route::resource('consumers', ConsumerController::class);
 
         /** Транзакции */
         Route::prefix('transactions')->name('transactions.')->group(function () {

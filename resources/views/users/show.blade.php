@@ -50,17 +50,16 @@
                             <a href="{{ route('consumers.index', ['userId' => $user->id]) }}" class="inline-link"><u>Потребители</u></a>
                             <div>{{ $user->consumers->count() }}</div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
+        <div class="more-info-btns mb-10">
+            <a href="{{ route('users.upload-menu', $user) }}">Загрузка потребителей</a>
+        </div>
         <div class="form-button">
             <a href="{{ route('users.index') }}" class="btn-small">Назад</a>
         </div>
-        {{--    <div class="more-info-btns mb-10">--}}
-        {{--        <a href="{{ route('users.wallets', $user) }}">Кошельки</a>--}}
-        {{--    </div>--}}
     </div>
 
 @endsection

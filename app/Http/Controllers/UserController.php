@@ -23,4 +23,9 @@ class UserController extends Controller
 
         return view('users.show', compact('user'));
     }
+
+    public function uploadConsumersMenu(User $user): View
+    {
+        return view('consumers.upload', compact('user'));
+    }
 }
