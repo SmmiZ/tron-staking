@@ -384,7 +384,7 @@ class Tron
 
         foreach ($accountPermissions as $permission) {
             foreach ($permission['keys'] as $account) {
-                if ($account['address'] == $this->address['hex']) {
+                if (isset($account['address']) && in_array($account['address'], $this->address)) {
                     return $permission;
                 }
             }

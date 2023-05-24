@@ -30,6 +30,7 @@ class GetRewards extends Command
         Wallet::query()->orderBy('id')->chunk(50, function ($wallets) {
             foreach ($wallets as $wallet) {
                 (new StakeService($wallet))->getReward();
+                sleep(1);
             }
         });
     }
