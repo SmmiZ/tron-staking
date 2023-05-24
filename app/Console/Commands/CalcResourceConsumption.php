@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\{Consumer, ResourceConsumption};
 use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
+use Illuminate\Support\Sleep;
 
 class CalcResourceConsumption extends Command
 {
@@ -58,6 +59,7 @@ class CalcResourceConsumption extends Command
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
+                    Sleep::for(150)->milliseconds();
                 }
             }
 
