@@ -97,17 +97,20 @@ trait TronInfo
     /**
      * Получить максимальный эквивалент TRX для делегирования ресурсов
      *
-     * @return int TRX sun
      * @throws TronException
      */
-    public function getCanDelegatedMaxSize(Resources $resource, string $ownerAddress = null): int
+    public function getCanDelegatedMaxTrx(Resources $resource, string $ownerAddress = null): int
     {
         $response =  $this->getManager()->request('wallet/getcandelegatedmaxsize', [
             'owner_address' => $this->toHex($ownerAddress ?? $this->address['base58']),
             'type' => $resource->value,
         ]);
 
-        return $response['max_size'] ?? 0;
+        if (!isset($response['max_size'])) {
+            return 0;
+        }
+
+        return $this->fromSun2Trx($response['max_size']);
     }
 
     /**
