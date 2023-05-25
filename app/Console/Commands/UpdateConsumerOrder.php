@@ -51,7 +51,7 @@ class UpdateConsumerOrder extends Command
 
             $consumer->order()->updateOrCreate(
                 ['consumer_id' => $consumer->id],
-                ['resource_amount' => $avgEnergyAmount]
+                ['resource_amount' => $avgEnergyAmount * 0.9]
             );
         }
 
