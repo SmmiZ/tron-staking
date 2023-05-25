@@ -22,7 +22,7 @@ trait TronStaff
      */
     public function delegateHotSpotBandwidth(string $receiverAddress, int $trxAmount): array
     {
-        $delegate = $this->transactionBuilder->delegateBandwidth($trxAmount, $this->address['base58'], $receiverAddress);
+        $delegate = $this->transactionBuilder->delegateResource($trxAmount, $this->address['base58'], $receiverAddress, Resources::BANDWIDTH);
 
         return $this->signAndSendTransaction($delegate);
     }

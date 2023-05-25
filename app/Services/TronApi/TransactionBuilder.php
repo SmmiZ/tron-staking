@@ -5,6 +5,7 @@ use App\Enums\Resources;
 use App\Services\TronApi\Exception\TronException;
 
 // Web3 plugin
+use Illuminate\Support\Facades\Log;
 use Web3\Contracts\Ethabi;
 use Web3\Contracts\Types\{Address, Boolean, Bytes, DynamicBytes, Integer, Str, Uinteger};
 
@@ -138,9 +139,6 @@ class TransactionBuilder
     /**
      * createToken
      *
-     * @param array $options
-     * @param null $issuerAddress
-     * @return array
      * @throws TronException
      */
     public function createToken(array $options = [], $issuerAddress = null): array
@@ -249,11 +247,6 @@ class TransactionBuilder
      * Заморозить TRX
      *
      * @see https://developers.tron.network/reference/freezebalancev2-1
-     * @param float $trxAmount
-     * @param string $address
-     * @param Resources $resource
-     * @param int|null $permissionId
-     * @return array
      * @throws TronException
      */
     public function freezeBalance(float $trxAmount, string $address, Resources $resource, int $permissionId = null): array
@@ -275,10 +268,6 @@ class TransactionBuilder
      * Запрос на разморозку TRX
      *
      * @see https://developers.tron.network/reference/unfreezebalancev2-1
-     * @param int $trxAmount
-     * @param string $address
-     * @param int|null $permissionId
-     * @return array
      * @throws TronException
      */
     public function unfreezeEnergyBalance(int $trxAmount, string $address, int $permissionId = null): array
@@ -295,9 +284,6 @@ class TransactionBuilder
      * Запрос на вывод размороженных TRX
      *
      * @see https://developers.tron.network/reference/withdrawexpireunfreeze
-     * @param string $address
-     * @param int $permissionId
-     * @return array
      * @throws TronException
      */
     public function withdrawExpireUnfreeze(string $address, int $permissionId): array
@@ -309,58 +295,48 @@ class TransactionBuilder
     }
 
     /**
-     * Запрос на передачу энергии с одного адреса на другой
+     * Запрос на передачу ресурса с одного адреса на другой
      *
      * @see https://developers.tron.network/reference/delegateresource-1
-     * @param int $trxAmount
-     * @param string $ownerAddress
-     * @param string $receiverAddress
-     * @param int|null $permissionId
-     * @return array
      * @throws TronException
      */
-    public function delegateEnergy(int $trxAmount, string $ownerAddress, string $receiverAddress, int $permissionId = null): array
+    public function delegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, Resources $resource, int $permissionId = null): array
     {
-        return $this->tron->getManager()->request('wallet/delegateresource', [
+        $data = [
             'owner_address' => $this->tron->toHex($ownerAddress),
             'receiver_address' => $this->tron->toHex($receiverAddress),
             'balance' => $trxAmount * $this->tron::ONE_SUN,
-            'resource' => Resources::ENERGY->name,
-            'Permission_id' => $permissionId,
+            'resource' => $resource->name,
             'lock' => false,
-        ]);
-    }
+        ];
 
-    /**
-     * Запрос на передачу bandwidth с одного адреса на другой
-     *
-     * @param int $trxAmount
-     * @param string $ownerAddress
-     * @param string $receiverAddress
-     * @return array
-     * @throws TronException
-     */
-    public function delegateBandwidth(int $trxAmount, string $ownerAddress, string $receiverAddress): array
-    {
-        return $this->tron->getManager()->request('wallet/delegateresource', [
-            'owner_address' => $this->tron->toHex($ownerAddress),
-            'receiver_address' => $this->tron->toHex($receiverAddress),
-            'balance' => $trxAmount * $this->tron::ONE_SUN,
-            'resource' => Resources::BANDWIDTH->name,
-            'lock' => false,
-        ]);
+        if ($permissionId) {
+            $data['Permission_id'] = $permissionId;
+        }
+
+        $response = $this->tron->getManager()->request('wallet/delegateresource', $data);
+
+        if (isset($response['Error'])) {
+            //todo перенести в handler?
+            sleep(1);
+            $currentResources = $this->tron->getAccountResources($ownerAddress);
+            Log::error('DelegateResource error', [
+                'trx_amount' => $trxAmount,
+                'owner_address' => $ownerAddress,
+                'receiver_address' => $receiverAddress,
+                'resource' => $resource->name,
+                'owner_resources' => $currentResources,
+            ]);
+            sleep(1);
+        }
+
+        return $response;
     }
 
     /**
      * Запрос на отзыв ресурса
      *
      * @see https://developers.tron.network/reference/undelegateresource-1
-     * @param int $trxAmount
-     * @param string $ownerAddress
-     * @param string $receiverAddress
-     * @param Resources $resource
-     * @param int|null $permissionId
-     * @return array
      * @throws TronException
      */
     public function undelegateResource(int $trxAmount, string $ownerAddress, string $receiverAddress, Resources $resource, int $permissionId = null): array
@@ -383,9 +359,6 @@ class TransactionBuilder
      * Запрос на получение вознаграждения
      *
      * @see https://developers.tron.network/reference/withdrawbalance
-     * @param string $address
-     * @param int $permissionId
-     * @return array
      * @throws TronException
      */
     public function rewardWithdraw(string $address, int $permissionId): array
@@ -400,11 +373,6 @@ class TransactionBuilder
      * Проголосовать за SR
      *
      * @see https://developers.tron.network/reference/votewitnessaccount
-     * @param string $ownerAddress
-     * @param string $witnessAddress
-     * @param int $voteAmount
-     * @param int|null $permissionId
-     * @return array
      * @throws TronException
      */
     public function voteWitness(string $ownerAddress, string $witnessAddress, int $voteAmount, int $permissionId = null): array
@@ -422,12 +390,6 @@ class TransactionBuilder
     /**
      * Update a Token's information
      *
-     * @param string $description
-     * @param string $url
-     * @param int $freeBandwidth
-     * @param int $freeBandwidthLimit
-     * @param $address
-     * @return array
      * @throws TronException
      */
     public function updateToken(string $description, string $url, int $freeBandwidth = 0, int $freeBandwidthLimit = 0, $address = null): array
@@ -456,10 +418,6 @@ class TransactionBuilder
     /**
      * updateEnergyLimit
      *
-     * @param string $contractAddress
-     * @param int $originEnergyLimit
-     * @param string $ownerAddress
-     * @return array
      * @throws TronException
      */
     public function updateEnergyLimit(string $contractAddress, int $originEnergyLimit, string $ownerAddress): array

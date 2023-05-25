@@ -262,9 +262,8 @@ class Tron
             'account_name' => $this->stringUtf8toHex($accountName),
             'owner_address' => $this->toHex($address),
         ]);
-        $signedTransaction = $this->signTransaction($transaction);
 
-        return $this->sendRawTransaction($signedTransaction);
+        return $this->signAndSendTransaction($transaction);
     }
 
     /**
@@ -349,7 +348,7 @@ class Tron
     public function delegateEnergy(string $ownerAddress, string $receiverAddress, int $trxAmount): array
     {
         $permissionId = $this->getPermissionId($ownerAddress);
-        $delegate = $this->transactionBuilder->delegateEnergy($trxAmount, $ownerAddress, $receiverAddress, $permissionId);
+        $delegate = $this->transactionBuilder->delegateResource($trxAmount, $ownerAddress, $receiverAddress, Resources::ENERGY, $permissionId);
 
         return $this->signAndSendTransaction($delegate);
     }
