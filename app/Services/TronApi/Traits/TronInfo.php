@@ -78,7 +78,7 @@ trait TronInfo
             return 0;
         }
 
-        return $this->fromSun2Trx($account['balance']);
+        return floor($this->fromSun2Trx($account['balance']));
     }
 
     /**
