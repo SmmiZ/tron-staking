@@ -35,7 +35,7 @@ class CheckMerchantWallets extends Command
         MerchantWallet::where('created_at', '>=', now()->subHour())->orderBy('id')->chunk(50, function ($merchantWallets) {
             foreach ($merchantWallets as $merchantWallet) {
                 $trxAmount = $this->tron->getTrxBalance($merchantWallet->address);
-                Sleep::for(150)->milliseconds();
+                Sleep::for(config('app.sleep_ms'))->milliseconds();
 
                 if ($trxAmount < 1) continue;
 

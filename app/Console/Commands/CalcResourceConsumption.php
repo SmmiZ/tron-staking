@@ -59,7 +59,7 @@ class CalcResourceConsumption extends Command
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-                    Sleep::for(150)->milliseconds();
+                    Sleep::for(config('app.sleep_ms'))->milliseconds();
                 }
             }
 

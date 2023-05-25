@@ -128,6 +128,7 @@ return [
     'hot_spot_private_key' => env('HOT_SPOT_PRIVATE_KEY'),
     'energy_price' => env('ENERGY_PRICE_SUN', 120),
     'bandwidth_bonus' => env('BANDWIDTH_BONUS', 300),
+    'sleep_ms' => env('SLEEP_MS', 500),
 
     'cipher' => 'AES-256-CBC',
 

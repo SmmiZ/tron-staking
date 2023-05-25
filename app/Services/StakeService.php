@@ -28,7 +28,7 @@ class StakeService
         if (!$this->tron->hasAccess($this->wallet->address)) {
             throw new TronException('Permission denied');
         }
-        Sleep::for(150)->milliseconds();
+        Sleep::for(config('app.sleep_ms'))->milliseconds();
     }
 
     /**

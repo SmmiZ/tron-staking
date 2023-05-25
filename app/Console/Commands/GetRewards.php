@@ -32,7 +32,7 @@ class GetRewards extends Command
             foreach ($wallets as $wallet) {
                 (new StakeService($wallet))->getReward();
 
-                Sleep::for(150)->milliseconds();
+                Sleep::for(config('app.sleep_ms'))->milliseconds();
             }
         });
     }
