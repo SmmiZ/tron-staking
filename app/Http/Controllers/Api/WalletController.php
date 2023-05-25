@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Wallet\StoreWalletRequest;
-use App\Services\TronApi\Exception\TronException;
-use App\Services\TronApi\Tron;
 use App\Http\Resources\Wallet\{WalletCollection, WalletResource};
 use App\Models\Wallet;
+use App\Services\TronApi\Exception\TronException;
+use App\Services\TronApi\Tron;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\{Request, Response};
 
 class WalletController extends Controller
@@ -55,14 +56,14 @@ class WalletController extends Controller
     }
 
     /**
-     * @throws TronException
+     * @throws TronException|AuthorizationException
      */
     public function checkAccess(Request $request, Wallet $wallet): Response
     {
         $this->authorize('checkAccess', $wallet);
-        $tron = new Tron();
+
         return response([
-            'status' => $tron->hasAccess($wallet->address),
+            'status' => (new Tron())->hasAccess($wallet->address),
         ]);
     }
 }

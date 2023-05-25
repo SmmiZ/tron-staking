@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Wallet;
 use App\Services\StakeService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Sleep;
 
 class GetRewards extends Command
 {
@@ -30,7 +31,8 @@ class GetRewards extends Command
         Wallet::query()->orderBy('id')->chunk(50, function ($wallets) {
             foreach ($wallets as $wallet) {
                 (new StakeService($wallet))->getReward();
-                sleep(1);
+
+                Sleep::for(150)->milliseconds();
             }
         });
     }

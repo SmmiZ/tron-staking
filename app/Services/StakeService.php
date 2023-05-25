@@ -10,6 +10,7 @@ use App\Models\{Order, OrderExecutor, Stake, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Sleep;
 
 class StakeService
 {
@@ -27,6 +28,7 @@ class StakeService
         if (!$this->tron->hasAccess($this->wallet->address)) {
             throw new TronException('Permission denied');
         }
+        Sleep::for(150)->milliseconds();
     }
 
     /**
@@ -141,7 +143,7 @@ class StakeService
         $response = $this->tron->undelegateEnergy($this->wallet->address, $order->consumer->address, $trxAmount);
         $this->storeTransaction($response);
 
-        $resourceAmount = (new Tron())->trx2Energy($trxAmount);
+        $resourceAmount = $this->tron->trx2Energy($trxAmount);
         $executor = $order->executors()->firstWhere('user_id', $this->wallet->user_id);
 
         $executor->trx_amount - $trxAmount <= 0

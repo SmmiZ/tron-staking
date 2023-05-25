@@ -327,7 +327,7 @@ class TransactionBuilder
             'balance' => $trxAmount * $this->tron::ONE_SUN,
             'resource' => Resources::ENERGY->name,
             'Permission_id' => $permissionId,
-            'lock' => true,
+            'lock' => false,
         ]);
     }
 
