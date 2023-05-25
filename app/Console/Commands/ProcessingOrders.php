@@ -33,7 +33,8 @@ class ProcessingOrders extends Command
         $totalAvailableTrx = Stake::where('failed_attempts', '<', 3)->sum('trx_amount') - OrderExecutor::sum('trx_amount');
         $totalAvailableEnergy = floor($tron->trx2Energy($totalAvailableTrx));
 
-        Order::withSum('executors', 'resource_amount')
+        Order::with(['consumer'])
+            ->withSum('executors', 'resource_amount')
             ->where('resource_amount', '<=', $totalAvailableEnergy)
             ->whereIn('status', Statuses::OPEN_STATUSES)
             ->havingRaw('executors_sum_resource_amount < resource_amount')
