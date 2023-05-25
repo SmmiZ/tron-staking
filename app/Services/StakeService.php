@@ -75,14 +75,14 @@ class StakeService
         $stakedFreeTrx = $totalStake - OrderExecutor::where('user_id', $this->wallet->user_id)->sum('trx_amount');
 
         match (true) {
-            $stakedFreeTrx <= 0 => $this->handleFailedAttempt('Not enough staked TRX'),
-            $walletTrx <= 0 => $this->handleFailedAttempt('Not enough TRX in the wallet'),
+            $stakedFreeTrx <= 1 => $this->handleFailedAttempt('Not enough staked TRX'),
+            $walletTrx <= 1 => $this->handleFailedAttempt('Not enough TRX in the wallet'),
             $requiredResource <= 0 => throw new TronException('Order is already filled'),
             $this->getAvailableBandwidth($resources) <= 300 => throw new NotEnoughBandwidthException(),
             default => null
         };
 
-        $requiredTrx = ceil($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
+        $requiredTrx = floor($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
         $trx2Delegate = min($walletTrx, $requiredTrx, $stakedFreeTrx);
 
         $response = $this->tron->delegateEnergy($this->wallet->address, $order->consumer->address, $trx2Delegate);
