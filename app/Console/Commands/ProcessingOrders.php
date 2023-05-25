@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\Statuses;
-use App\Jobs\ExecuteOrder;
+use App\Services\OrderService;
 use App\Models\{Order, OrderExecutor, Stake};
 use App\Services\TronApi\Tron;
 use Illuminate\Console\Command;
@@ -41,7 +41,9 @@ class ProcessingOrders extends Command
             ->orderBy('id')
             ->chunk(50, function ($orders) {
                 foreach ($orders as $order) {
-                    ExecuteOrder::dispatch($order);
+                    (new OrderService($order))->execute();
+
+                    sleep(1);
                 }
             });
     }
