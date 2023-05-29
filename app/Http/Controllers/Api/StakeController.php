@@ -19,6 +19,10 @@ class StakeController extends Controller
      */
     public function stake(TrxAmountRequest $request): Response
     {
+        if (!$request->user()->wallet) {
+            throw new TronException('User has no wallet');
+        }
+
         $status = (new StakeService($request->user()->wallet))->stake($request->validated('trx_amount'));
 
         return response([
@@ -29,7 +33,7 @@ class StakeController extends Controller
 
     public function show(Request $request): StakeResource
     {
-        return  new StakeResource($request->user()->stake()->firstOrFail());
+        return new StakeResource($request->user()->stake()->firstOrFail());
     }
 
     public function getAvailableUnfreezeTrxAmount(Request $request): Response
