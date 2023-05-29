@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\TronApi;
 
+use Illuminate\Support\Facades\Log;
 use App\Enums\{Resources, TronTxTypes};
 use App\Models\Wallet;
 use App\Services\TronApi\Exception\TronException;
@@ -379,7 +380,8 @@ class Tron
      */
     private function getPermissions(string $address): mixed
     {
-        $accountPermissions = $this->getAccount($address)['active_permission'];
+        $account = $this->getAccount($address);
+        $accountPermissions = $account['active_permission'] ?? [];
 
         foreach ($accountPermissions as $permission) {
             foreach ($permission['keys'] as $account) {
@@ -389,6 +391,7 @@ class Tron
             }
         }
 
+        Log::error('Cant find permission for ' . $address, $accountPermissions ?? $account);
         throw new TronException('Cant find permission');
     }
 

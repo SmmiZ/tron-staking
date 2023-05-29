@@ -46,6 +46,7 @@ class CalcResourceConsumption extends Command
                         $day->startOfDay()->getTimestampMs(),
                         $day->endOfDay()->getTimestampMs()
                     );
+                    Sleep::for(config('app.sleep_ms'))->milliseconds();
 
                     $result = collect($response['data'])->where('value', '>', 0)->count();
 
@@ -59,8 +60,8 @@ class CalcResourceConsumption extends Command
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-                    Sleep::for(config('app.sleep_ms'))->milliseconds();
                 }
+                sleep(1);
             }
 
             ResourceConsumption::query()->insert($toInsert);
