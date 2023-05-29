@@ -17,6 +17,7 @@ class OrderExecutor extends Model
         'trx_amount',
         'resource_amount',
         'unlocked_at',
+        'deleted_at'
     ];
 
     protected $casts = [
@@ -35,6 +36,6 @@ class OrderExecutor extends Model
 
     public function wallet(): HasOneThrough
     {
-        return $this->hasOneThrough(Wallet::class, User::class, 'id', 'user_id');
+        return $this->hasOneThrough(Wallet::class, User::class, 'id', 'user_id', 'user_id');
     }
 }

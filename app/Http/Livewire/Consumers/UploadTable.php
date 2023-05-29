@@ -2,12 +2,13 @@
 
 namespace App\Http\Livewire\Consumers;
 
+use App\Console\Commands\DeleteRemovedConsumersOrders;
 use App\Http\Livewire\Traits\Sorter;
 use App\Imports\ConsumersImport;
 use App\Models\Consumer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{Artisan, Storage};
 use Livewire\{Component, WithFileUploads};
 
 class UploadTable extends Component
@@ -62,6 +63,8 @@ class UploadTable extends Component
             'name' => 'upload_' . $consumer->address,
             'address' => $consumer->address,
         ])->toArray(), ['address'], ['name']);
+        //Запускаем команду очистки заказов
+        Artisan::call(DeleteRemovedConsumersOrders::class);
 
         session()->flash('message', 'User consumers successfully updated.');
 

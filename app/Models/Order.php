@@ -17,7 +17,8 @@ class Order extends Model
         'resource_amount',
         'resource',
         'status',
-        'period',
+        'period',//todo заменить на дату истечения оплаченного заказа
+        'deleted_at',
     ];
 
     protected $casts = [
