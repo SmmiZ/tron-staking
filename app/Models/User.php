@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\TronApi\Tron;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -113,7 +114,8 @@ class User extends Authenticatable
      */
     public function scopeTronTxs(): Builder
     {
-        $wallets = $this->wallets()->pluck('address');
+        $tron = new Tron();
+        $wallets = $this->wallets()->pluck('address')->map(fn($address) => $tron->address2HexString($address))->toArray();
 
         return TronTx::query()->whereIn('from', $wallets)->orWhereIn('to', $wallets);
     }
