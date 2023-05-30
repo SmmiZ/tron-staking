@@ -35,20 +35,14 @@ class StakeServiceBandwidth extends Command
             return;
         }
 
-        $tron = new Tron();
-        $resources = $tron->getAccountResources();
-        $currentBandwidth = data_get($resources, 'freeNetLimit', 0) + data_get($resources, 'NetLimit', 0);
+        try {
+            (new Tron())->freezeHotSpotBalance($trxAmount);
+        } catch (TronException $e) {
+            $this->error($e->getMessage());
 
-        if ($this->confirm("Текущий bandwidth = $currentBandwidth. Застейкать еще $trxAmount TRX?", true)) {
-            try {
-                $tron->freezeHotSpotBalance($trxAmount);
-            } catch (TronException $e) {
-                $this->error($e->getMessage());
-
-                return;
-            }
-
-            $this->info('The command was successful!');
+            return;
         }
+
+        $this->info('The command was successful!');
     }
 }
