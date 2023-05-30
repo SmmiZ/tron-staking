@@ -24,6 +24,10 @@ class InternalTx extends Model
         });
     }
 
+    /**
+     * amount - Начислено
+     * received - Фактически получено
+     */
     protected $fillable = [
         'user_id',
         'amount',
@@ -49,7 +53,7 @@ class InternalTx extends Model
     public function scopeBalance(Builder $query): Builder
     {
         return $query
-            ->select(DB::raw('SUM(CASE WHEN type < 200 THEN amount ELSE amount*-1 END) as amount'))
+            ->select(DB::raw('SUM(CASE WHEN type < 200 THEN received ELSE received*-1 END) as received'))
             ->groupBy('user_id');
     }
 }

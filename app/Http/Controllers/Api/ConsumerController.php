@@ -54,7 +54,7 @@ class ConsumerController extends Controller
     public function payConsumer(PayConsumerRequest $request): Response
     {
         $consumers = Consumer::whereIn('id', $request->consumers)->get();
-        $balance = $request->user()->internalTxs()->balance()->value('amount');
+        $balance = $request->user()->internalTxs()->balance()->value('received');
         $toPay = ($consumers->sum('resource_amount') * config('app.energy_price') / Tron::ONE_SUN) * $request->days;
 
         if ($balance < $toPay) {
