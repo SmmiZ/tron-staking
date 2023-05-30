@@ -22,7 +22,7 @@ class StructureController extends Controller
         foreach ($lines as $line) {
             $linePartners = User::with([
                 'level:level,name_ru,name_en',
-                'stake:user_id,trx_amount'
+                'stakes:user_id,trx_amount'
             ])
                 ->whereIn('id', $line->ids)
                 ->get(['id', 'name', 'leader_level']);

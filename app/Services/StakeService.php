@@ -32,13 +32,13 @@ class StakeService
     }
 
     /**
-     * Заморозить TRX (инициализация стейка)
+     * Заморозить TRX (инициализация нового стейка)
      *
      * @param int $amount
      * @return bool
      * @throws TronException
      */
-    public function stake(int $amount): bool
+    public function freeze(int $amount): bool
     {
         $trxAmount = min($amount, $this->tron->getTrxBalance($this->wallet->address));
 
@@ -46,8 +46,8 @@ class StakeService
             throw new TronException('Not enough TRX to freeze');
         }
 
-        $this->wallet->user->stake()->updateOrCreate([], ['trx_amount' => DB::raw('trx_amount + ' . $trxAmount)]);
         $response = $this->tron->freezeTrx2Energy($this->wallet, $trxAmount);
+        $this->wallet->user->stakes()->create(['trx_amount' => $trxAmount]);
 
         SendBonusBandwidth::dispatch($this->wallet->address);
         Vote::dispatch($this->wallet->address)->delay(now()->addMinute());
@@ -161,7 +161,7 @@ class StakeService
      * @return bool
      * @throws TronException
      */
-    public function unstake(int $trxAmount): bool
+    public function unfreeze(int $trxAmount): bool
     {
         if (!$this->withdrawUnlockedResources($trxAmount)) {
             return false;

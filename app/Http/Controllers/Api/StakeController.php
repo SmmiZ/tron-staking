@@ -4,26 +4,35 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TrxAmountRequest;
-use App\Http\Resources\Stake\StakeResource;
+use App\Http\Resources\Stake\{StakeCollection, StakeResource};
 use App\Jobs\WithdrawDefrostedTrx;
-use App\Models\OrderExecutor;
+use App\Models\Stake;
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
 use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\DB;
 
 class StakeController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Stake::class);
+    }
+
+    public function index(Request $request): StakeCollection
+    {
+        return new StakeCollection($request->user()->stakes()->paginate(20));
+    }
+
     /**
      * @throws TronException
      */
-    public function stake(TrxAmountRequest $request): Response
+    public function store(TrxAmountRequest $request): Response
     {
         if (!$request->user()->wallet) {
             throw new TronException('User has no wallet');
         }
 
-        $status = (new StakeService($request->user()->wallet))->stake($request->validated('trx_amount'));
+        $status = (new StakeService($request->user()->wallet))->freeze($request->validated('trx_amount'));
 
         return response([
             'status' => $status,
@@ -31,34 +40,20 @@ class StakeController extends Controller
         ]);
     }
 
-    public function show(Request $request): StakeResource
+    public function show(Request $request, Stake $stake): StakeResource
     {
-        return new StakeResource($request->user()->stake()->firstOrFail());
-    }
-
-    public function getAvailableUnfreezeTrxAmount(Request $request): Response
-    {
-        $total = $request->user()->stake->trx_amount;
-        $locked = OrderExecutor::where('user_id', $request->user()->id)->where('unlocked_at', '>', now())->sum('trx_amount');
-
-        return response([
-            'status' => true,
-            'data' => [
-                'trx_amount' => (int)($total - $locked),
-            ],
-        ]);
+        return new StakeResource($stake);
     }
 
     /**
      * @throws TronException
      */
-    public function unstake(TrxAmountRequest $request): Response
+    public function destroy(Request $request, Stake $stake): Response
     {
-        $trxAmount = $request->validated('trx_amount');
-        $status = (new StakeService($request->user()->wallet))->unstake($trxAmount);
+        $status = (new StakeService($request->user()->wallet))->unfreeze($stake->trx_amount);
 
         if ($status) {
-            $request->user()->stake()->update(['trx_amount' => DB::raw('trx_amount - ' . $trxAmount)]);
+            $stake->delete();
             WithdrawDefrostedTrx::dispatch($request->user())->delay(now()->addDays(14));
         }
 

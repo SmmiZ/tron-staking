@@ -69,11 +69,11 @@ class LeaderService
 
         $threeLinesUsers = User::query()
             ->withCount(['reactors'])
-            ->withSum('stake', 'trx_amount')
+            ->withSum('stakes', 'trx_amount')
             ->whereIn('id', $threeLinesIds->pluck('ids')->collapse()->toArray())->get();
 
         $reactorsCount = $threeLinesUsers->sum('reactors_count');
-        $trxSum = $threeLinesUsers->sum('stake_sum_trx_amount');
+        $trxSum = $threeLinesUsers->sum('stakes_sum_trx_amount');
 
         $firstLineLeaders = User::whereIn('id', $threeLinesIds->where('line', 1)->pluck('ids')->collapse()->toArray())
             ->select(['leader_level', DB::raw('count(*) as total')])

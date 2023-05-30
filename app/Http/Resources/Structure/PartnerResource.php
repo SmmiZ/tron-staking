@@ -20,7 +20,7 @@ class PartnerResource extends BaseResource
             'name' => $this->name,
             'photo' => $this->photo,
             'level_name' => $this->level->name,
-            'stake' => $this->stake->trx_amount ?? 0,
+            'stake' => $this->stakes->sum('trx_amount'),
         ];
     }
 }
