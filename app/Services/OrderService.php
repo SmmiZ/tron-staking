@@ -4,11 +4,12 @@ namespace App\Services;
 
 use App\Enums\Statuses;
 use App\Exceptions\NotEnoughBandwidthException;
-use Illuminate\Support\Facades\Log;
-use App\Jobs\{SendBonusBandwidth, UndelegateExecutorResources};
+use App\Jobs\SendBonusBandwidth;
 use App\Models\{Consumer, Order, User};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
+use Illuminate\Support\{Collection, Sleep};
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -31,20 +32,25 @@ class OrderService
      */
     public function execute(): void
     {
-        User::with(['wallet', 'stake:id,user_id,trx_amount,failed_attempts'])
-            ->whereHas('wallet')
-            ->whereRelation('stake', 'trx_amount', '>', 0)
-            ->whereRelation('stake', 'failed_attempts', '<', 3)
-            ->orderBy('updated_at', 'desc')
-            ->chunk(50, function ($users) {
+        User::with([
+            'wallet' => fn($q) => $q->select(['id', 'user_id', 'address', 'failed_attempts'])->where('failed_attempts', '<', 3),
+            'stakes' => fn($q) => $q
+                ->where('trx_amount', '>', 0)
+                ->whereDate('created_at', '<=', now()->subHours(config('app.start_delay')))
+        ])
+            ->select(['id'])
+            ->whereRelation('wallet', 'failed_attempts', '<', 3)
+            ->chunkById(50, function (Collection $users) {
                 $usersWithoutBandwidth = collect();
-                foreach ($users as $user) {
+                $usersWithStake = $users->filter(fn($user) => $user->stakes->isNotEmpty());
+
+                foreach ($usersWithStake as $user) {
                     if ($this->orderIsFilled()) {
                         exit();
                     }
 
                     try {
-                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
+                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stakes->sum('trx_amount'));
                     } catch (NotEnoughBandwidthException $e) {
                         $usersWithoutBandwidth->push($user);
                     }
@@ -59,7 +65,7 @@ class OrderService
                     try {
                         SendBonusBandwidth::dispatchSync($user->wallet->address);
                         sleep(1);
-                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stake->trx_amount);
+                        (new StakeService($user->wallet))->delegateResourceToOrder($this->order, $user->stakes->sum('trx_amount'));
                     } catch (\Throwable $e) {
                         Log::error('SendBonusBandwidth error. ' . $e->getMessage(), ['user_id' => $user->id]);
                         continue;
@@ -79,6 +85,7 @@ class OrderService
      * Обновление потребительского заказа
      *
      * @return void
+     * @throws TronException
      */
     public function update(): void
     {
@@ -96,10 +103,11 @@ class OrderService
      * Актуализация делегированных ресурсов пользователей
      *
      * @return void
+     * @throws TronException
      */
     private function refreshExecutorsResources(): void
     {
-        $executors = $this->order->executors()->orderBy('unlocked_at')->get(['id', 'trx_amount', 'unlocked_at']);
+        $executors = $this->order->executors()->with(['wallet', 'order'])->get(['id', 'trx_amount']);
         $resourceDiff = $this->order->resource_amount - $this->consumer->resource_amount;
         $trx2Undelegate = floor($this->tron->energy2Trx($resourceDiff));
 
@@ -109,11 +117,10 @@ class OrderService
             }
 
             $trxAmount = min($executor->trx_amount, $trx2Undelegate);
-            UndelegateExecutorResources::dispatch($executor->id, $trxAmount)->delay(
-                $executor->unlocked_at <= now() ? now() : $executor->unlocked_at
-            );
+            (new StakeService($executor->wallet))->undelegateResourceFromOrder($executor->order, $trxAmount);
 
             $trx2Undelegate -= $trxAmount;
+            Sleep::for(config('app.sleep_ms'))->milliseconds();
         }
     }
 }

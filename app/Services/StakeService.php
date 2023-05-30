@@ -187,7 +187,6 @@ class StakeService
     {
         $executors = OrderExecutor::with(['order'])
             ->where('user_id', $this->wallet->user_id)
-            ->where('unlocked_at', '<=', now())
             ->orderBy('trx_amount')
             ->get();
 

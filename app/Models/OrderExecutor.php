@@ -16,7 +16,7 @@ class OrderExecutor extends Model
         'user_id',
         'trx_amount',
         'resource_amount',
-        'unlocked_at',
+        'unlocked_at', //todo удалить, если более не требуется
         'deleted_at'
     ];
 
