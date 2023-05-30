@@ -62,17 +62,17 @@ class StakeService
      * Делегировать ресурс пользователя для заказа
      *
      * @param Order $order
-     * @param int $totalStake
+     * @param int $availableStakedTrx
      * @return void
      * @throws TronException|NotEnoughBandwidthException
      */
-    public function delegateResourceToOrder(Order $order, int $totalStake): void
+    public function delegateResourceToOrder(Order $order, int $availableStakedTrx): void
     {
         $requiredResource = $order->resource_amount - $order->executors()->sum('resource_amount');
         $resources = $this->tron->getAccountResources($this->wallet->address);
 
         $walletTrx = $resources['tronPowerLimit'] ?? 0;
-        $stakedFreeTrx = $totalStake - OrderExecutor::where('user_id', $this->wallet->user_id)->sum('trx_amount');
+        $stakedFreeTrx = $availableStakedTrx - OrderExecutor::where('user_id', $this->wallet->user_id)->sum('trx_amount');
 
         match (true) {
             $stakedFreeTrx <= 1 => $this->handleFailedAttempt('Not enough staked TRX'),
@@ -100,7 +100,7 @@ class StakeService
 
     private function handleFailedAttempt(string $message)
     {
-        Stake::where('user_id', $this->wallet->user_id)->increment('failed_attempts');
+        Wallet::firstWhere('id', $this->wallet->id)->increment('failed_attempts');
         throw new TronException($message);
     }
 
