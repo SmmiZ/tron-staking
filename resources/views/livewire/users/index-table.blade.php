@@ -5,7 +5,7 @@
                 <div><button class="sort-button" wire:click="sort('id')">ID</button></div>
                 <div><button class="sort-button" wire:click="sort('name')">Имя</button></div>
                 <div><button class="sort-button" wire:click="sort('email')">Почта</button></div>
-                <div><button class="sort-button" wire:click="sort('stake_exists')">Стейк</button></div>
+                <div><button class="sort-button" wire:click="sort('stakes_exists')">Стейк</button></div>
                 <div><button class="sort-button" wire:click="sort('consumers_exists')">Потребление</button></div>
                 <div><button class="sort-button" wire:click="sort('created_at')">Дата регистрации</button></div>
             </div>
@@ -17,7 +17,7 @@
                         <div>{{$user->id}}</div>
                         <div>{{$user->name}}</div>
                         <div>{{$user->email}}</div>
-                        <div>{{$user->stake_exists ? '✅' : '❌'}}</div>
+                        <div>{{$user->stakes_exists ? '✅' : '❌'}}</div>
                         <div>{{$user->consumers_exists ? '✅' : '❌'}}</div>
                         <div>{{$user->created_at->format('d-m-Y H:i:s')}}</div>
                     </div>

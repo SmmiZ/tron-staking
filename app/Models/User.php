@@ -62,9 +62,9 @@ class User extends Authenticatable
         return $this->hasMany(InternalTx::class);
     }
 
-    public function stake(): HasOne
+    public function stakes(): HasMany
     {
-        return $this->hasOne(Stake::class);
+        return $this->hasMany(Stake::class);
     }
 
     public function leader(): HasOne

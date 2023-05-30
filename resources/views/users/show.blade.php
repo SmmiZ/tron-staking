@@ -43,8 +43,8 @@
                             <div>{{ $user->created_at->format('d.m.Y H:i:s') }}</div>
                         </div>
                         <div class="table-row">
-                            <div>Сумма стейка</div>
-                            <div>{{ $user->stake?->trx_amount ?? 0 }}</div>
+                            <div>Суммарный стейк</div>
+                            <div>{{ $user->stakes->sum('trx_amount') }}</div>
                         </div>
                         <div class="table-row">
                             <a href="{{ route('consumers.index', ['userId' => $user->id]) }}" class="inline-link"><u>Потребители</u></a>
