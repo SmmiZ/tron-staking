@@ -201,7 +201,7 @@ class StakeService
             }
         }
 
-        return false;
+        return $executors->isEmpty();
     }
 
     /**
