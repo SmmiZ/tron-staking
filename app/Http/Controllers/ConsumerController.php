@@ -53,7 +53,7 @@ class ConsumerController extends Controller
         $consumer->update($request->validated());
 
         if ($consumer->wasChanged('resource_amount')) {
-            UpdateOrderAmount::dispatch($consumer->order);
+            UpdateOrderAmount::dispatchIf(isset($consumer->order), $consumer->order);
         }
 
         return to_route('consumers.show', $consumer)->with('success', __('message.mission_complete'));
