@@ -14,11 +14,13 @@ class Stake extends Model
     protected $fillable = [
         'trx_amount',
         'available_at',
+        'is_closes',
     ];
 
     protected $casts = [
         'amount' => 'int',
         'available_at' => 'datetime',
+        'is_closes' => 'boolean',
     ];
 
     public function user(): BelongsTo

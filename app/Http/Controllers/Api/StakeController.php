@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TrxAmountRequest;
 use App\Http\Resources\Stake\{StakeCollection, StakeResource};
-use App\Jobs\WithdrawDefrostedTrx;
 use App\Models\Stake;
 use App\Services\StakeService;
 use App\Services\TronApi\Exception\TronException;
@@ -45,21 +44,21 @@ class StakeController extends Controller
         return new StakeResource($stake);
     }
 
-    /**
-     * @throws TronException
-     */
     public function destroy(Request $request, Stake $stake): Response
     {
-        $status = (new StakeService($request->user()->wallet))->unfreeze($stake->trx_amount);
-
-        if ($status) {
-            $stake->delete();
-            WithdrawDefrostedTrx::dispatch($request->user())->delay(now()->addDays(14));
+        $unstakeDate = now();
+        foreach (now()->toPeriod(now()->addDays(3)) as $date) {
+            if ($date->diffInDays($stake->available_at) % 3 == 0) {
+                $unstakeDate = $date;
+                break;
+            }
         }
 
         return response([
-            'status' => $status,
-            'data' => [],
+            'status' => $stake->is_closes || $stake->update(['is_closes' => true]),
+            'data' => [
+                'unstake_date' => $unstakeDate->format('Y-m-d'),
+            ],
         ]);
     }
 }
