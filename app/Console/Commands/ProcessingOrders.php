@@ -31,6 +31,7 @@ class ProcessingOrders extends Command
     {
         $tron = new Tron();
         $totalAvailableTrx = Stake::with(['wallet:user_id,failed_attempts'])
+                ->whereDate('available_at', '<=', now())
                 ->whereRelation('wallet', 'failed_attempts', '<', 3)
                 ->sum('trx_amount') - OrderExecutor::sum('trx_amount');
         $totalAvailableEnergy = floor($tron->trx2Energy($totalAvailableTrx));

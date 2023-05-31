@@ -85,7 +85,7 @@ class StakeService
             default => null
         };
 
-        $requiredTrx = floor($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
+        $requiredTrx = ceil($requiredResource / $resources['TotalEnergyLimit'] * $resources['TotalEnergyWeight']);
         $trx2Delegate = min($walletTrx, $requiredTrx, $stakedFreeTrx);
 
         $response = $this->tron->delegateEnergy($this->wallet->address, $order->consumer->address, $trx2Delegate);
