@@ -6,7 +6,7 @@ use App\Enums\{Statuses, TronTxTypes};
 use App\Events\{NewStakeEvent, UnStakeEvent};
 use App\Exceptions\NotEnoughBandwidthException;
 use App\Jobs\{RevokeBonusBandwidth, SendBonusBandwidth, Vote};
-use App\Models\{Order, OrderExecutor, Stake, TronTx, Wallet};
+use App\Models\{Order, OrderExecutor, TronTx, Wallet};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +47,10 @@ class StakeService
         }
 
         $response = $this->tron->freezeTrx2Energy($this->wallet, $trxAmount);
-        $this->wallet->user->stakes()->create(['trx_amount' => $trxAmount]);
+        $this->wallet->user->stakes()->create([
+            'trx_amount' => $trxAmount,
+            'available_at' => now()->addHours(config('app.stake_delay'))
+        ]);
 
         SendBonusBandwidth::dispatch($this->wallet->address);
         Vote::dispatch($this->wallet->address)->delay(now()->addMinute());

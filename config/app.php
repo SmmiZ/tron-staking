@@ -137,7 +137,7 @@ return [
     'energy_price' => env('ENERGY_PRICE_SUN', 120),
     'bandwidth_bonus' => env('BANDWIDTH_BONUS', 300),
     'sleep_ms' => env('SLEEP_MS', 500),
-    'start_delay' => env('START_DELAY_HOURS', 24),
+    'stake_delay' => env('STAKE_DELAY_HOURS', 24),
     'profit' => env('PROFIT_DECIMAL_PERCENTAGE', 0.2),
     'support_email' => env('SUPPORT_EMAIL', 'cto@apd.dev'),
 

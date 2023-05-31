@@ -18,8 +18,8 @@ class StakeResource extends BaseResource
         return [
             'id' => $this->id,
             'trx_amount' => $this->trx_amount,
-            'status' => $this->status,
             'created_at' => $this->created_at->format('d-m-Y H:i:s'),
+            'available_at' => $this->available_at?->format('d-m-Y H:i:s'),
         ];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Statuses;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOneThrough};
@@ -14,11 +13,12 @@ class Stake extends Model
 
     protected $fillable = [
         'trx_amount',
+        'available_at',
     ];
 
     protected $casts = [
         'amount' => 'int',
-        'status' => Statuses::class, //todo удалить если не более не актуально
+        'available_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

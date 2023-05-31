@@ -34,9 +34,7 @@ class OrderService
     {
         User::with([
             'wallet' => fn($q) => $q->select(['id', 'user_id', 'address', 'failed_attempts'])->where('failed_attempts', '<', 3),
-            'stakes' => fn($q) => $q
-                ->where('trx_amount', '>', 0)
-                ->whereDate('created_at', '<=', now()->subHours(config('app.start_delay')))
+            'stakes' => fn($q) => $q->where('trx_amount', '>', 0)->whereDate('available_at', '<=', now())
         ])
             ->select(['id'])
             ->whereRelation('wallet', 'failed_attempts', '<', 3)
