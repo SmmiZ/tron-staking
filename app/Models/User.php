@@ -107,6 +107,11 @@ class User extends Authenticatable
         return $this->hasMany(Withdrawal::class);
     }
 
+    public function executions(): HasMany
+    {
+        return $this->hasMany(OrderExecutor::class);
+    }
+
     /**
      * Запрос на получение из БД транзакций сети TRON, в которых участвовали кошельки юзера
      *

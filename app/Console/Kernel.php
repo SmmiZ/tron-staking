@@ -6,7 +6,8 @@ use App\Console\Commands\{CalcResourceConsumption,
     CheckMerchantWallets,
     GetRewards,
     LeaderLevelDowngrade,
-    ProcessingOrders};
+    ProcessingOrders,
+    SendProfitToUsers};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -23,8 +24,8 @@ class Kernel extends ConsoleKernel
         //Обработка заказов
         $schedule->command(ProcessingOrders::class)->everyFiveMinutes();
 
-        //Забрать доступные награды пользователей
-        $schedule->command(GetRewards::class)->cron('55 23 */2 * *')->description('Запрос награды по четным дням в 23:55');
+        //Забрать доступные награды пользователей (по четным дням в 23:55)
+        $schedule->command(GetRewards::class)->cron('55 23 */2 * *');
 
         //Понижение лидерского уровня пользователей
         $schedule->command(LeaderLevelDowngrade::class)->everyFiveMinutes();
@@ -34,6 +35,9 @@ class Kernel extends ConsoleKernel
 
         //Формирует статистику потребления ресурсов
         $schedule->command(CalcResourceConsumption::class)->dailyAt('23:59');
+
+        //Начисление прибыли пользователям
+        $schedule->command(SendProfitToUsers::class)->dailyAt('22:50');
     }
 
     /**
