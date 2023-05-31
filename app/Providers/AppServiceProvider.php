@@ -22,7 +22,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::shouldBeStrict(!$this->app->isProduction());
-        URL::forceScheme('https');
+
+        if (config('app.force_https')) {
+            URL::forceScheme('https');
+        }
 
         if (config('app.debug')) {
             DB::enableQueryLog();

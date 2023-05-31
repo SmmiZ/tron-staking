@@ -125,6 +125,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'force_https' => env('FORCE_HTTPS', true),
+
     /*
     |--------------------------------------------------------------------------
     | App config
