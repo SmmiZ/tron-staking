@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\InternalTxTypes;
+use App\Jobs\BanUser;
 use App\Models\{InternalTx, User};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -86,6 +87,9 @@ class SendProfitToUsers extends Command
             Sleep::for(config('app.sleep_ms'))->milliseconds();
         }
 
-        return $user->executions->sum('trx_amount') == ($tronTotal / $this->tron::ONE_SUN);
+        $result = $user->executions->sum('trx_amount') == ($tronTotal / $this->tron::ONE_SUN);
+        BanUser::dispatchIf(!$result, $user->id);
+
+        return $result;
     }
 }

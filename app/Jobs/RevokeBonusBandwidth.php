@@ -4,13 +4,13 @@ namespace App\Jobs;
 
 use App\Enums\TronTxTypes;
 use App\Models\TronTx;
+use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Sleep;
 
 class RevokeBonusBandwidth implements ShouldQueue
 {
@@ -24,13 +24,14 @@ class RevokeBonusBandwidth implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public readonly string $userAddress)
+    public function __construct(public readonly string $userAddress, private readonly bool $revokeAll = false)
     {
         //
     }
 
     /**
      * Execute the job.
+     * @throws TronException
      */
     public function handle(): void
     {
@@ -41,11 +42,11 @@ class RevokeBonusBandwidth implements ShouldQueue
             return;
         }
 
-        Sleep::for(config('app.sleep_ms'))->milliseconds();
-        $oneStakeTrxBonus = ceil($this->tron->bandwidth2Trx(config('app.bandwidth_bonus')));
+        $trxToRevoke = $this->revokeAll
+            ? $totalTrx
+            : ceil($this->tron->bandwidth2Trx(config('app.bandwidth_bonus')));
 
-        Sleep::for(config('app.sleep_ms'))->milliseconds();
-        $response = $this->tron->undelegateHotSpotBandwidth($this->userAddress, $oneStakeTrxBonus);
+        $response = $this->tron->undelegateHotSpotBandwidth($this->userAddress, $trxToRevoke);
 
         if (isset($response['code']) && $response['code'] != 'true') {
             Log::error('RevokeBonusBandwidth error: ' . $this->userAddress, $response);
@@ -62,6 +63,9 @@ class RevokeBonusBandwidth implements ShouldQueue
         ]);
     }
 
+    /**
+     * @throws TronException
+     */
     private function getTotalDelegatedTrx(): int
     {
         $response = $this->tron->getDelegatedResources($this->tron->address['base58'], $this->userAddress);
