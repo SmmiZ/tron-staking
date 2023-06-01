@@ -40,14 +40,6 @@ class WalletController extends Controller
         return new WalletResource($wallet);
     }
 
-    public function update(StoreWalletRequest $request, Wallet $wallet): Response
-    {
-        return response([
-            'status' => $wallet->update($request->validated()),
-            'data' => (object)[],
-        ]);
-    }
-
     public function destroy(Wallet $wallet): Response
     {
         return response([

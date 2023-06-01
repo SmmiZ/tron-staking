@@ -48,7 +48,7 @@ Route::name('api.')->group(function () {
         Route::apiResource('stakes', StakeController::class)->except(['update']);
 
         /** WALLETS */
-        Route::apiResource('wallets', WalletController::class);
+        Route::apiResource('wallets', WalletController::class)->except(['update']);
         Route::get('wallets/{wallet:id}/check-access', [WalletController::class, 'checkAccess'])->name('wallets.check-access');
         /** MERCHANT WALLETS */
         Route::get('merchant-wallet', [MerchantWalletController::class, 'getTempAddress'])->name('merchant-wallet');
