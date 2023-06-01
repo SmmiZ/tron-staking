@@ -6,12 +6,13 @@ use App\Enums\TronTxTypes;
 use App\Models\TronTx;
 use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\{ShouldBeUnique, ShouldQueue};
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Sleep;
 
-class RevokeBonusBandwidth implements ShouldQueue, ShouldBeUnique
+class RevokeBonusBandwidth implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -29,26 +30,22 @@ class RevokeBonusBandwidth implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * The unique ID of the job.
-     */
-    public function uniqueId(): string
-    {
-        return $this->userAddress;
-    }
-
-    /**
      * Execute the job.
      */
     public function handle(): void
     {
         $this->tron = new Tron();
-        $trxAmount = $this->getDelegatedTrxAmount();
+        $totalTrx = $this->getTotalDelegatedTrx();
 
-        if ($trxAmount < 1) {
+        if ($totalTrx < 1) {
             return;
         }
 
-        $response = $this->tron->undelegateHotSpotBandwidth($this->userAddress, $trxAmount);
+        Sleep::for(config('app.sleep_ms'))->milliseconds();
+        $oneStakeTrxBonus = ceil($this->tron->bandwidth2Trx(config('app.bandwidth_bonus')));
+
+        Sleep::for(config('app.sleep_ms'))->milliseconds();
+        $response = $this->tron->undelegateHotSpotBandwidth($this->userAddress, $oneStakeTrxBonus);
 
         if (isset($response['code']) && $response['code'] != 'true') {
             Log::error('RevokeBonusBandwidth error: ' . $this->userAddress, $response);
@@ -65,7 +62,7 @@ class RevokeBonusBandwidth implements ShouldQueue, ShouldBeUnique
         ]);
     }
 
-    private function getDelegatedTrxAmount(): int
+    private function getTotalDelegatedTrx(): int
     {
         $response = $this->tron->getDelegatedResources($this->tron->address['base58'], $this->userAddress);
 
@@ -75,12 +72,6 @@ class RevokeBonusBandwidth implements ShouldQueue, ShouldBeUnique
             return 0;
         }
 
-        foreach ($response['delegatedResource'] as $resource) {
-            if (isset($resource['frozen_balance_for_bandwidth'])) {
-                return $resource['frozen_balance_for_bandwidth'] / Tron::ONE_SUN;
-            }
-        }
-
-        return 0;
+        return data_get($response, 'delegatedResource.0.frozen_balance_for_bandwidth', 0) / Tron::ONE_SUN;
     }
 }

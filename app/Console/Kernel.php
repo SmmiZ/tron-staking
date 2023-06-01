@@ -7,7 +7,8 @@ use App\Console\Commands\{CalcResourceConsumption,
     GetRewards,
     LeaderLevelDowngrade,
     ProcessingOrders,
-    SendProfitToUsers};
+    SendProfitToUsers,
+    UnfreezeClosingStakes};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -37,7 +38,9 @@ class Kernel extends ConsoleKernel
         $schedule->command(CalcResourceConsumption::class)->dailyAt('23:59');
 
         //Начисление прибыли пользователям
-        $schedule->command(SendProfitToUsers::class)->dailyAt('22:50');
+        $schedule->command(SendProfitToUsers::class)->dailyAt('22:50')->after(function () {
+            $this->call(UnfreezeClosingStakes::class);
+        });
     }
 
     /**

@@ -161,13 +161,13 @@ class StakeService
      * Разморозить TRX
      *
      * @param int $trxAmount
-     * @return bool
+     * @return void
      * @throws TronException
      */
-    public function unfreeze(int $trxAmount): bool
+    public function unfreeze(int $trxAmount): void
     {
-        if (!$this->withdrawUnlockedResources($trxAmount)) {
-            return false;
+        if (!$this->undelegateResources($trxAmount)) {
+            throw new TronException('Can`t undelegate resources');
         }
 
         $response = $this->tron->unfreezeUserBalance($this->wallet->address, $trxAmount);
@@ -175,36 +175,36 @@ class StakeService
 
         event(new UnStakeEvent($this->wallet->user));
         RevokeBonusBandwidth::dispatch($this->wallet->address);
-
-        return true;
     }
 
     /**
-     * Отозвать не заблокированные ресурсы
+     * Отозвать ресурсы
      *
-     * @param int $withdrawAmount
+     * @param int $trxAmount
      * @return bool
      * @throws TronException
      */
-    private function withdrawUnlockedResources(int $withdrawAmount): bool
+    private function undelegateResources(int $trxAmount): bool
     {
-        $executors = OrderExecutor::with(['order'])
+        $executions = OrderExecutor::with(['order'])
             ->where('user_id', $this->wallet->user_id)
             ->orderBy('trx_amount')
             ->get();
 
-        foreach ($executors as $executor) {
-            $trxToUndelegate = min($withdrawAmount, $executor->trx_amount);
-            $withdrawAmount -= $trxToUndelegate;
+        foreach ($executions as $execution) {
+            $trxToUndelegate = min($trxAmount, $execution->trx_amount);
+            $trxAmount -= $trxToUndelegate;
 
-            $this->undelegateResourceFromOrder($executor->order, $trxToUndelegate);
+            $this->undelegateResourceFromOrder($execution->order, $trxToUndelegate);
 
-            if ($withdrawAmount <= 0) {
+            if ($trxAmount <= 0) {
                 return true;
             }
+
+            Sleep::for(config('app.sleep_ms'))->milliseconds();
         }
 
-        return $executors->isEmpty();
+        return $executions->isEmpty();
     }
 
     /**

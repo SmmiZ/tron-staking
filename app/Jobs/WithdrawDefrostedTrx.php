@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TronTxTypes;
-use App\Models\{TronTx, User};
+use App\Models\TronTx;
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
 use Illuminate\Bus\Queueable;
@@ -21,7 +21,7 @@ class WithdrawDefrostedTrx implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private readonly User $user)
+    public function __construct(private readonly string $walletAddress)
     {
         //
     }
@@ -33,13 +33,13 @@ class WithdrawDefrostedTrx implements ShouldQueue
     public function handle(): void
     {
         $tron = new Tron();
-        $availableTrxAmount = $tron->getCanWithdrawUnfreezeAmount($this->user->wallet->address);
+        $availableTrxAmount = $tron->getCanWithdrawUnfreezeAmount($this->walletAddress);
 
         if ($availableTrxAmount < 1) {
             return;
         }
 
-        $response = $tron->withdrawDefrostedTrx($this->user->wallet->address);
+        $response = $tron->withdrawDefrostedTrx($this->walletAddress);
 
         TronTx::create([
             'from' => null,
