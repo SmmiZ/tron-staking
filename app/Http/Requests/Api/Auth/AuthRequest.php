@@ -46,6 +46,7 @@ class AuthRequest extends BaseRequest
         return [
             'email' => __('validation.attributes.email'),
             'code' => __('validation.attributes.code'),
+            'invitation_code' => __('validation.attributes.invitation_code'),
         ];
     }
 }

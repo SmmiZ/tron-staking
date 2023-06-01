@@ -34,6 +34,7 @@ class User extends Authenticatable
         'linear_path',
         'leader_level',
         'photo',
+        'is_banned',
     ];
 
     public function photo(): Attribute

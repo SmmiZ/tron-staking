@@ -67,6 +67,14 @@ class AuthController extends Controller
             'invitation_code' => $leaderCode,
         ]);
 
+        if ($user->is_banned) {
+            return response([
+                'status' => false,
+                'error' => 'User is banned',
+                'errors' => (object)[]
+            ], 403);
+        }
+
         if ($user->wasRecentlyCreated && $leaderCode) {
             $this->updateLinearPath($user);
         }
