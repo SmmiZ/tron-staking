@@ -31,7 +31,7 @@ class OrderExecutor extends Model
 
     public function consumer(): HasOneThrough
     {
-        return $this->hasOneThrough(Consumer::class, Order::class, 'consumer_id', 'id', 'order_id');
+        return $this->hasOneThrough(Consumer::class, Order::class, 'id', 'id', 'order_id', 'consumer_id');
     }
 
     public function user(): BelongsTo
