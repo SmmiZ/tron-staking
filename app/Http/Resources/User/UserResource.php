@@ -18,6 +18,7 @@ class UserResource extends BaseResource
         return [
             'name' => $this->name,
             'email' => $this->email,
+            'lang' => $this->lang,
             'the_code' => $this->the_code,
             'invitation_code' => $this->invitation_code,
             'leader_level' => $this->leader_level,
