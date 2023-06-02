@@ -136,6 +136,6 @@ class User extends Authenticatable
         return $this->internalTxs()
             ->select(DB::raw('SUM(CASE WHEN type < 200 THEN received ELSE received*-1 END) as received'))
             ->groupBy('user_id')
-            ->value('received');
+            ->value('received') ?? 0;
     }
 }
