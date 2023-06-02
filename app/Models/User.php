@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasOne};
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{DB, Storage};
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -124,5 +124,18 @@ class User extends Authenticatable
         $wallets = $this->wallets()->pluck('address')->map(fn($address) => $tron->address2HexString($address))->toArray();
 
         return TronTx::query()->whereIn('from', $wallets)->orWhereIn('to', $wallets);
+    }
+
+    /**
+     * Посчитать внутренний баланс пользователя
+     *
+     * @return float
+     */
+    public function getBalance(): float
+    {
+        return $this->internalTxs()
+            ->select(DB::raw('SUM(CASE WHEN type < 200 THEN received ELSE received*-1 END) as received'))
+            ->groupBy('user_id')
+            ->value('received');
     }
 }
