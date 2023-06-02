@@ -2,9 +2,10 @@
 
 namespace App\Http\Livewire;
 
+use App\Mail\AuthCode;
 use App\Models\{Staff, TempCode};
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\{Hash};
+use Illuminate\Support\Facades\{Hash, Mail};
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -13,19 +14,22 @@ class Auth extends Component
     public $email;
     public $password;
     public $code;
-    public $showCode = false;
+    public $showCodeField = false;
 
     public function sendCode(): void
     {
         $this->validateCodeRequest();
 
-        $staff = Staff::firstWhere('email', $this->email);
         $code = rand(100000, 999999);
+        TempCode::create(['login' => $this->email, 'code' => $code]);
 
-//        TempCode::create(['login' => $this->email, 'code' => $code]);
+        try {
+            Mail::to($this->email)->send(new AuthCode($code));
+        } catch (\Exception $e) {
+            session()->flash('passcode', 'Не удалось отправить код');
+        }
 
-        //todo код на почту
-        $this->showCode = true;
+        $this->showCodeField = true;
     }
 
     /**
@@ -33,17 +37,17 @@ class Auth extends Component
      */
     public function login()
     {
-//        $this->validateLoginRequest();
+        $this->validateLoginRequest();
 
         $staff = Staff::where('email', $this->email)->first();
-//        $validateCode = TempCode::checkCode($this->code, $staff->email);
+        $validateCode = TempCode::checkCode($this->code, $staff->email);
         $validatePassword = Hash::check($this->password, $staff->password);
 
-//        if (!$validateCode || !$validatePassword) {
-//            session()->flash('passcode', 'Некорректный пароль или код');
-//
-//            return null;
-//        }
+        if (!$validateCode || !$validatePassword) {
+            session()->flash('passcode', 'Некорректный пароль или код');
+
+            return null;
+        }
 
         auth('staff')->loginUsingId($staff->id);
 

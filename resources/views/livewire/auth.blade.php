@@ -10,7 +10,7 @@
             <label for="email"><span class="mdi mdi-email-check"></span></label>
             <input id="email" type="email" autocomplete="email" autofocus placeholder="E-mail" wire:model="email">
         </div>
-        @if($showCode)
+        @if($showCodeField)
             <div class="auth-input">
                 <label for="code"></label>
                 <input id="code" type="text" autofocus placeholder="Код из почты" wire:model="code">
