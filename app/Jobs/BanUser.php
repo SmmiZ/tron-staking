@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Enums\TronTxTypes;
 use App\Events\UnStakeEvent;
+use App\Mail\UserBan;
+use Illuminate\Support\Facades\Mail;
 use App\Models\{TronTx, User};
 use App\Services\TronApi\Exception\TronException;
 use App\Services\TronApi\Tron;
@@ -80,5 +82,6 @@ class BanUser implements ShouldQueue, ShouldBeUnique
 
         event(new UnStakeEvent($user));
         RevokeBonusBandwidth::dispatch($user->wallet->address, true);
+        Mail::to($user->email)->send(new UserBan());
     }
 }
