@@ -68,6 +68,7 @@ Route::name('api.')->group(function () {
 
         /** STRUCTURE */
         Route::prefix('structure')->name('structure.')->group(function () {
+            Route::post('invite', [StructureController::class, 'invite'])->name('invite');
             Route::get('levels', [StructureController::class, 'levels'])->name('levels');
             Route::get('partners', [StructureController::class, 'partners'])->name('partners');
         });
